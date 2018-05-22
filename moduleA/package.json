@@ -1,0 +1,20 @@
+{
+  "name": "moduleA",
+  "version": "1.0.0",
+  "description": "Sample moduleA",
+  "main": "moduleA.js",
+  "scripts": {
+    "start": "node moduleA.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "author": "Luis F.M. <luis@almende.org>",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "request": "^2.86.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.15.0"
+  }
+}
