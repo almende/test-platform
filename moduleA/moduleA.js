@@ -11,15 +11,18 @@ app.get('/', (req, res) => {
     // How to get the hostname that was given by the Traefik?? Or how to set it?
 
     const options = {
-        url: 'http://127.0.0.1:9000' + '/person/all',
+        url: 'http://reverse-proxy' + '/moduleB/person/all',
         method: 'GET',
         headers: {
-            'Host' : 'nodejs-rest.docker.localhost',
             'Accept': 'application/json',
             'Accept-Charset': 'utf-8'
         }
     };
     request(options, function (error, response, body) {
+        console.log("completed", error);
+        if (response) {
+            console.log("status:", response.statusCode, response.statusMessage);
+        }
         if (!error && response.statusCode == 200) {
             //console.log('body = ' + body);
             res.send(body);
@@ -56,7 +59,7 @@ app.get('/', (req, res) => {
     */
 });
 
-app.listen(5000, () => {
+app.listen(9001, () => {
     /* eslint-disable */
     console.log('Server is up!');
 });
