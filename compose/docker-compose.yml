@@ -9,12 +9,24 @@ services:
       - "80:80" # http entry point
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+    networks:
+      - module-a-net
+      - module-b-net
   module-b:
     image: module-b
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/moduleB"
+    networks:
+      - module-b-net
   module-a:
     image: module-a
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/moduleA"
+    networks:
+      - module-a-net
 
+networks:
+  module-a-net:
+     driver: bridge
+  module-b-net:
+     driver: bridge

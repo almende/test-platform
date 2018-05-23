@@ -11,6 +11,9 @@ app.get('/', (req, res) => {
     // How to get the hostname that was given by the Traefik?? Or how to set it?
 
     const options = {
+        // This shouldn't work:
+        // url: 'http://module-b:9000' + '/person/all',
+        // This does work:
         url: 'http://reverse-proxy' + '/moduleB/person/all',
         method: 'GET',
         headers: {
