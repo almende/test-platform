@@ -1,4 +1,4 @@
-FROM node:8.6-alpine
+FROM node:alpine
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
@@ -8,5 +8,5 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 9000
+EXPOSE 9001
 CMD ["npm", "start"]

@@ -1,10 +1,10 @@
 {
-  "name": "moduleA",
+  "name": "assetA",
   "version": "1.0.0",
-  "description": "Sample moduleA",
-  "main": "moduleA.js",
+  "description": "Sample vAsset, forwarding REST calls to asset B",
+  "main": "assetA.js",
   "scripts": {
-    "start": "node moduleA.js",
+    "start": "node assetA.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ."
   },

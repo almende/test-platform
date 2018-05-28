@@ -1,7 +1,7 @@
 {
-  "name": "sample-nodejs-rest-stub",
+  "name": "executionManager",
   "version": "1.0.0",
-  "description": "Sample Node.js REST API",
+  "description": "vf-OS execution manager, responsible for managing assets.",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -12,18 +12,8 @@
     "type": "git",
     "url": "git+https://github.com/llatinov/sample-nodejs-rest-stub.git"
   },
-  "keywords": [
-    "Node.js",
-    "REST",
-    "API",
-    "stub"
-  ],
-  "author": "Lyudmil Latinov <llatinov@gmail.com>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/llatinov/sample-nodejs-rest-stub/issues"
-  },
-  "homepage": "https://github.com/llatinov/sample-nodejs-rest-stub#readme",
+  "author": "Ludo Stellingwerff <ludo@almende.org>",
+  "license": "ApacheV2",
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.2"

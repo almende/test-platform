@@ -1,8 +1,12 @@
-cd moduleA
-docker build . -t module-a
+cd assetA
+docker build . -t asset-a
 
-cd ../moduleB
-docker build . -t module-b
+cd ../assetB
+docker build . -t asset-b
+
+cd ../assetC
+docker build . -t asset-c
+
 
 cd ../
 

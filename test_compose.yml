@@ -10,23 +10,32 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
     networks:
-      - module-a-net
-      - module-b-net
-  module-b:
-    image: module-b
+      - asset-a-net
+      - asset-b-net
+      - asset-c-net
+  asset-b:
+    image: asset-b
     labels:
-      - "traefik.frontend.rule=PathPrefixStrip:/moduleB"
+      - "traefik.frontend.rule=PathPrefixStrip:/assetB"
     networks:
-      - module-b-net
-  module-a:
-    image: module-a
+      - asset-b-net
+  asset-a:
+    image: asset-a
     labels:
-      - "traefik.frontend.rule=PathPrefixStrip:/moduleA"
+      - "traefik.frontend.rule=PathPrefixStrip:/assetA"
     networks:
-      - module-a-net
+      - asset-a-net
+  asset-c:
+    image: asset-c
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/assetC"
+    networks:
+      - asset-c-net
 
 networks:
-  module-a-net:
+  asset-a-net:
      driver: bridge
-  module-b-net:
+  asset-b-net:
+     driver: bridge
+  asset-c-net:
      driver: bridge

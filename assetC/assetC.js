@@ -12,9 +12,9 @@ app.get('/', (req, res) => {
 
     const options = {
         // This shouldn't work:
-        // url: 'http://module-b:9000' + '/person/all',
+        url: 'http://asset-b:9000' + '/person/all',
         // This does work:
-        url: 'http://reverse-proxy' + '/moduleB/person/all',
+        //url: 'http://reverse-proxy' + '/assetB/person/all',
         method: 'GET',
         headers: {
             'Accept': 'application/json',
