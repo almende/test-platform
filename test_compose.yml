@@ -1,41 +1,21 @@
 version: '3'
 
 services:
-  reverse-proxy:
-    image: traefik # The official Traefik docker image
-    command: --api --docker # Enables the web UI and tells Træfik to listen to docker
-    ports:
-      - "8080:8080" # The Web UI (enabled by --api)
-      - "80:80" # http entry point
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
-    networks:
-      - asset-a-net
-      - asset-b-net
-      - asset-c-net
   asset-b:
     image: asset-b
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/assetB"
     networks:
-      - asset-b-net
+      - asset-net-01
   asset-a:
     image: asset-a
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/assetA"
     networks:
-      - asset-a-net
+      - asset-net-02
   asset-c:
     image: asset-c
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/assetC"
     networks:
-      - asset-c-net
-
-networks:
-  asset-a-net:
-     driver: bridge
-  asset-b-net:
-     driver: bridge
-  asset-c-net:
-     driver: bridge
+      - asset-net-03

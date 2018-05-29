@@ -7,6 +7,8 @@ docker build . -t asset-b
 cd ../assetC
 docker build . -t asset-c
 
+cd ../executionManager
+docker build . -t exec-manager
 
 cd ../
 

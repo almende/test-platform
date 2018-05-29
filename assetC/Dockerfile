@@ -9,4 +9,5 @@ RUN npm install
 COPY . .
 
 EXPOSE 9001
+LABEL vf-OS true
 CMD ["npm", "start"]
