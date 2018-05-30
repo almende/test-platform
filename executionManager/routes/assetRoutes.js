@@ -81,21 +81,57 @@ const getAssetRoutes = (app) => {
             )
         })
         .post('/:id', (req, res) => {
-            try {
-                let data=req.body;
-                assets.push(new Asset(req.params.id, data.imageId));
-                res.send({result: 'OK'});
+            if (req.query.action){
+                let idx = assets.length;
+                while (idx--) {
+                    if (assets[idx] && assets[idx].id === req.params.id) {
+                        let asset = assets[idx];
+                        if (req.query.action === 'start'){
+                            asset.start().then(
+                                (stdout) => {res.send({result: 'OK', stdout: stdout}); }
+                            ).catch(
+                                (reason)=>{ res.status(500).send(reason)}
+                            );
 
-            } catch (e){
-                res.send({error: e});
+                        } else if (req.query.action === 'stop'){
+                            asset.stop().then(
+                                (stdout) => {res.send({result: 'OK', stdout: stdout}); }
+                            ).catch(
+                                (reason)=>{ res.status(500).send(reason)}
+                            );
+                        } else {
+                            res.send({error:'No such action: '+req.params.id+ ' : '+ req.query.action});
+                        }
+                        return;
+                    }
+                }
+                //Send HTTP status
+                res.send({error:'No such Asset: '+req.params.id});
+            } else {
+                let idx = assets.length;
+                while (idx--) {
+                    if (assets[idx] && assets[idx].id === req.params.id){
+                        res.send({error: 'Asset already exists! '+req.params.id})
+                        return;
+                    }
+                }
+
+                try {
+                    let data = req.body;
+                    assets.push(new Asset(req.params.id, data.imageId));
+                    res.send({result: 'OK'});
+
+                } catch (e) {
+                    res.send({error: e});
+                }
             }
-
         })
         .delete('/:id',(req, res) => {
             let idx = assets.length;
             while (idx--) {
                 if (assets[idx] && assets[idx].id === req.params.id){
                     assets.splice(idx,1);
+                    break;
                 }
             }
             res.send({result: 'OK'});

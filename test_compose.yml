@@ -1,2 +1,2 @@
 version: '3'
-services: {"assetC":{"image":"asset-c","labels":["traefik.frontend.rule=PathPrefixStrip:/assetC"],"networks":["asset-net-02"]},"assetA":{"image":"asset-a","labels":["traefik.frontend.rule=PathPrefixStrip:/assetA"],"networks":["asset-net-00"]},"assetB":{"image":"asset-b","labels":["traefik.frontend.rule=PathPrefixStrip:/assetB"],"networks":["asset-net-01"]}}
+services: {"assetA":{"image":"asset-a","labels":["traefik.frontend.rule=PathPrefixStrip:/assetA"],"networks":["asset-net-00"]},"assetB":{"image":"asset-b","labels":["traefik.frontend.rule=PathPrefixStrip:/assetB"],"networks":["asset-net-01"]}}
