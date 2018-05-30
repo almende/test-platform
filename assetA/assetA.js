@@ -1,6 +1,6 @@
 'use strict';
 
-var http = require('http');
+
 var request = require('request');
 const express = require('express');
 const app = new express();
@@ -19,12 +19,12 @@ app.get('/', (req, res) => {
         headers: {
             'Accept': 'application/json',
             'Accept-Charset': 'utf-8'
-        }
+        },
+        timeout: 1500
     };
     request(options, function (error, response, body) {
-        console.log("completed", error);
-        if (response) {
-            console.log("status:", response.statusCode, response.statusMessage);
+        if (error) {
+            res.send('error:' + error);
         }
         if (!error && response.statusCode == 200) {
             //console.log('body = ' + body);

@@ -10,10 +10,12 @@ const getPersonRoutes = (app) => {
         .get('/get/:id', (req, res) => {
             const id = parseInt(req.params.id);
             const result = personRepo.getById(id);
+            res.setHeader('Content-Type', 'application/json');
             res.send(result);
         })
         .get('/all', (req, res) => {
             const result = personRepo.getAll();
+            res.setHeader('Content-Type', 'application/json');
             res.send(result);
         })
         .get('/remove', (req, res) => {

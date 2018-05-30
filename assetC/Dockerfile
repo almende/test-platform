@@ -10,4 +10,5 @@ COPY . .
 
 EXPOSE 9001
 LABEL vf-OS true
+LABEL vf-OS.depends asset-b
 CMD ["npm", "start"]

@@ -1,6 +1,6 @@
 'use strict';
 
-var exec = require('child_process').exec;
+const exec = require('child_process').exec;
 
 class Asset {
     constructor(id, imageId) {
