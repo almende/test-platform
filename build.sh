@@ -10,6 +10,9 @@ docker build . -t asset-c
 cd ../executionManager
 docker build . -t exec-manager
 
+cd ../portal
+docker build . -t portal
+
 cd ../
 
 

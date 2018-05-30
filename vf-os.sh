@@ -49,7 +49,7 @@ services:
       - asset-net-10
       - asset-net-11
   execution-manager:
-    image: exec-manager # The official Traefik docker image
+    image: exec-manager
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/executionservices"
     volumes:
@@ -59,6 +59,14 @@ services:
       - DOCKER_COMPOSE_PATH=$(pwd)
     networks:
       - execution-manager-net
+  portal:
+    image: portal
+    labels:
+      - "traefik.frontend.rule=PathPrefix:/"
+      - "traefik.frontend.priority=-1"
+    networks:
+      - execution-manager-net
+
 networks:
     execution-manager-net:
        driver: bridge
