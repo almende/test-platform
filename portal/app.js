@@ -4,10 +4,7 @@
 const express = require('express');
 const app = new express();
 
-
-app.get('/', (req, res) => {
-    res.send('Here\'s gonna be the portal!');
-});
+app.use(express.static('static'));
 
 app.listen(9000, () => {
     /* eslint-disable */
