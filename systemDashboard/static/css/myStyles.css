@@ -1,0 +1,44 @@
+/*
+It makes the Header, Body, Footer in place!
+Body fills the remaining space.
+Based on:
+https://stackoverflow.com/questions/90178/make-a-div-fill-the-height-of-the-remaining-screen-space
+*/
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body{
+  background: red;
+}
+.boxBody {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.boxBody .rowBody {
+  /*border: 1px dotted grey; /* dotted to be removed*/
+}
+
+.boxBody .rowBody.headerBody {
+  flex: 0 1 auto;
+  /* The above is shorthand for:
+  flex-grow: 0,
+  flex-shrink: 1,
+  flex-basis: auto
+  */
+}
+
+.boxBody .rowBody.contentBody {
+  flex: 1 1 auto;
+  background: ghostwhite;
+}
+
+.boxBody .rowBody.footerBody {
+  flex: 0 1 auto;
+}
+/*------------------------------------*/
+
+

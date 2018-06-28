@@ -3,41 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta name="Company" content="Almende BV">
+    <meta name="Author" content="Luis F. M. Cunha">
     <title>System Dashboard</title>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
     <!-- Popper JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
-
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 
+    <script src="vendor/visjs/vis.js"></script>
+    <link href="vendor/visjs/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="css/myStyles.css">
+
 </head>
 <body>
+    <div class="boxBody">
 
-<div class="container-fluid">
-    <h2>System Dashboard</h2>
+        <div class="rowBody headerBody">
+            <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+                <!-- Navbar text-->
+                <span class="navbar-text">System Dashboard</span>
+                <!-- Brand/logo -->
+                <a class="navbar-brand " href="#"><img src="img/vf-OS_logo_01.png" alt="logo" style="width:80px;"></a>
+            </nav>
+        </div>
 
-    <h4>Docker statistics</h4>
-    <button type="button" class="btn btn-primary">Stats</button>
+        <div class="rowBody contentBody">
+            <div class="container-fluid">
+                <div class="row" >
+                    <div id="tableDiv" class="col-sm-12">
 
-    <h4>vAssets data</h4>
+                        <p>Running containers</p>
+                        <div class="table-responsive-xl">
+                            <table id="runningTableContainers" class="table table-striped table-borderless table-light table-sm">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th>CONTAINER ID</th>
+                                    <th>Name</th>
+                                    <th>CPU %</th>
+                                    <th>MEM USAGE / LIMIT</th>
+                                    <th>MEM %</th>
+                                    <th>NET I/O</th>
+                                    <th>BLOCK I/O</th>
+                                    <th>PIDS</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!--
+                                <tr>
+                                    <td>dc745c7a6318</td>
+                                    <td>test-platform_reverse-proxy_2</td>
+                                    <td>0.03%</td>
+                                    <td>10.5MiB / 15.54GiB</td>
+                                    <td>0.07%</td>
+                                    <td>162kB / 0B</td>
+                                    <td>209kB / 0B</td>
+                                    <td>17</td>
+                                </tr>
+                                -->
+                                </tbody>
+                            </table>
+                        </div>
 
-</div>
+                        <p>Sleeping containers</p>
+                        <div class="table-responsive-xl">
+                            <table class="table table-striped table-hover table-borderless table-light table-sm">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th>CONTAINER ID</th>
+                                    <th>Name</th>
+                                    <th>CPU %</th>
+                                    <th>MEM USAGE / LIMIT</th>
+                                    <th>MEM %</th>
+                                    <th>NET I/O</th>
+                                    <th>BLOCK I/O</th>
+                                    <th>PIDS</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>dc745c7a6318</td>
+                                    <td>test-platform_reverse-proxy_1</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>dc745c7a6318</td>
+                                    <td>test-platform_reverse-proxy_1</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>dc745c7a6318</td>
+                                    <td>test-platform_reverse-proxy_1</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <div id="detailsDiv" style="display: none">
+                        <!-- We will load a template here -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="rowBody footerBody">
+            <div class="container-fluid text-center bg-light">
+                <small>Copyright © Your Website 2018</small>
+            </div>
+        </div>
+    </div>
 
 
 
+    <script>
+        var UPDATE_TABLES_TIME = 1000;      // Update tables every x milliseconds
+        var UPDATE_TABLES_FLAG = true;           // True - updates tables | false - stop update tables
+        var DETAILS_CONTAINER_FLAG = false; // True - details view visible | false - details view not visible
 
+        var updateTable_timer; // timer to restart or stop updating tables
 
+        $(document).ready(function(){
 
+            // Load container details
+            $("#detailsDiv").load("./templates/containerDetails.html");
 
+            // update tables
+            updateTable();
+            updateTable_timer = setInterval(updateTable, UPDATE_TABLES_TIME);
+        });
 
+        function updateTable(){
+
+            // Request container Stats
+            var containersStats = getTableStats();
+
+            // Empty tables
+            $("table tbody").empty();
+
+            // Add rows to table (FOR NOW JUST FOR THE RUNNING CONTAINERS)
+            for(let i = 0; i < containersStats.length; i++){
+                addRow(containersStats[i]);
+            }
+
+        }
+
+        function getTableStats(){
+            // LETS CREATE FAKE DATA FOR NOW
+            var rowContainer1 = {
+                containerID: "dc745c7a6318",
+                name: "test-platform_reverse-proxy_1",
+                cpu: "0.03",
+                //mem:{usage: "", limit:""}, // how do we want to do it? split?
+                mem: "10.5MiB / 15.54GiB",
+                memPerc: "0.07",
+                netIO: "162kB / 0B",
+                blockIO: "209kB / 0B",
+                pids: "17"
+            };
+            var rowContainer2 = {
+                containerID: "dc745c7a6318",
+                name: "test-platform_reverse-proxy_2",
+                cpu: "0.03",
+                //mem:{usage: "", limit:""}, // how do we want to do it? split?
+                mem: "10.5MiB / 15.54GiB",
+                memPerc: "0.07",
+                netIO: "162kB / 0B",
+                blockIO: "209kB / 0B",
+                pids: "17"
+            };
+
+            var result = [rowContainer1, rowContainer2];
+            return result;
+        }
+
+        function addRow(containerInfo){
+
+            var rowTemplate =
+                '<tr> ' +
+                    '<td>' + containerInfo.containerID + '</td> ' +
+                    '<td onclick="viewDetails(this)">' + containerInfo.name + '</td> ' +
+                    '<td>' + containerInfo.cpu + '</td> ' +
+                    '<td>' + containerInfo.mem + '</td>' +
+                    '<td>' + containerInfo.memPerc + '</td> ' +
+                    '<td>' + containerInfo.netIO + '</td>' +
+                    '<td>' + containerInfo.blockIO + '</td> ' +
+                    '<td>' + containerInfo.pids + '</td> ' +
+                '</tr>';
+
+            // Append row in the last table position
+            $('#runningTableContainers > tbody:last-child').append(rowTemplate);
+        }
+
+        function viewDetails(thisElem) {
+
+            // Deselect any previous highlighted row (if exists)
+            deselectRow();
+
+            // Highlight the selected row
+            $(thisElem).parentsUntil("tbody").addClass("table-info");
+
+            // Stop updating table (To keep the same rows and keep the highlight row)
+            clearTimeout(updateTable_timer);
+
+            // If details view is closed than open it
+            if(!DETAILS_CONTAINER_FLAG){
+                toggleTableContent();
+            }
+
+            // Get container name (Or any other useful thing to request info)
+            var containerName = $(thisElem).text();
+
+            // request info to server about the details view
+            //
+
+        }
+
+        function toggleTableContent() {
+
+            // Hide content in tables
+            var tableContentCollumns = [3, 4, 5, 6, 7, 8]; // collum number to toggle visibility
+            for(let i=0; i<tableContentCollumns.length; i++){
+                $('td:nth-child(' + tableContentCollumns[i] + '), th:nth-child(' + tableContentCollumns[i] + ')').toggle();
+            }
+
+            // Define sizes
+            var tableSmallSize = "col-sm-3",
+                tableBigSize = "col-sm-12",
+                detailsSmallSize   = "col-sm-0",
+                detailsbigSize   = "col-sm-9";
+
+            // Toggle details and table
+            if(DETAILS_CONTAINER_FLAG){     // we are gonna close details view
+                $("#tableDiv").removeClass(tableSmallSize);
+                $("#tableDiv").addClass(tableBigSize);   // expande table
+
+                $("#detailsDiv").removeClass(detailsbigSize);
+                $("#detailsDiv").addClass(detailsSmallSize);    // Shrink details view
+
+                // Start updating tables again
+                updateTable_timer = setInterval(updateTable, UPDATE_TABLES_TIME);
+
+                // Deselect any previous highlighted row (if exists)
+                deselectRow();
+
+                $("#detailsDiv").hide();
+                DETAILS_CONTAINER_FLAG = false;
+            }else{                          // we are gonna open details
+                $("#tableDiv").removeClass(tableBigSize);
+                $("#tableDiv").addClass(tableSmallSize);    // Shrink table
+
+                $("#detailsDiv").removeClass(detailsSmallSize);
+                $("#detailsDiv").addClass(detailsbigSize);  // expande details view
+
+                $("#detailsDiv").show("slow");
+                DETAILS_CONTAINER_FLAG = true;
+            }
+        }
+
+        function deselectRow(){
+            // Remove class of selected row if exists
+            $('table [class=table-info]').removeClass("table-info");
+        }
+
+    </script>
 
 
 </body>
