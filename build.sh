@@ -13,6 +13,9 @@ docker build . -t exec-manager
 cd ../portal
 docker build . -t portal
 
+cd ../systemDashboard
+docker build . -t system-dashboard
+
 cd ../
 
 

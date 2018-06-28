@@ -36,6 +36,7 @@ services:
     networks:
       - default
       - execution-manager-net
+      - system-dashboard-net
       - asset-net-00
       - asset-net-01
       - asset-net-02
@@ -66,9 +67,18 @@ services:
       - "traefik.frontend.priority=-1"
     networks:
       - execution-manager-net
+  dashboard:
+    image: system-dashboard
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/systemdashboard"
+      - "traefik.frontend.priority=-1"
+    networks:
+      - system-dashboard-net
 
 networks:
     execution-manager-net:
+       driver: bridge
+    system-dashboard-net:
        driver: bridge
     asset-net-00:
        driver: bridge
