@@ -54,10 +54,14 @@ services:
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/executionservices"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
       - $(pwd):$(pwd)
     environment:
       - DOCKER_COMPOSE_PATH=$(pwd)
+    networks:
+      - execution-manager-net
+  registry:
+    image: registry:2
     networks:
       - execution-manager-net
   portal:

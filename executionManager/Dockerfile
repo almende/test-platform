@@ -1,6 +1,7 @@
 FROM node:alpine
 
 RUN apk update
+RUN apk upgrade
 RUN apk add docker
 RUN rm -rf /var/cache/apk/*
 
