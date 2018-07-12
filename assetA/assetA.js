@@ -8,8 +8,6 @@ const app = new express();
 
 app.get('/', (req, res) => {
 
-    // How to get the hostname that was given by the Traefik?? Or how to set it?
-
     const options = {
         // This shouldn't work:
         // url: 'http://asset-b:9000' + '/person/all',

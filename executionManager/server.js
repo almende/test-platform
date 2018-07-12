@@ -9,6 +9,12 @@ server.use(bodyParser.json());
 
 require('./routes/assetRoutes')(server);
 
+
+global.statsHistory = {
+    "keepInterval": 60000
+};
+
+
 server.listen(9000, () => {
 
     /* eslint-disable */

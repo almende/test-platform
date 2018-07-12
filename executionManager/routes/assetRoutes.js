@@ -5,6 +5,7 @@ const fs = require('fs');
 const Asset = require('../model/Asset');
 const exec = require('child_process').exec;
 
+
 const getAssetRoutes = (app) => {
     const router = new Router();
     const assets = [new Asset('assetA', 'asset-a'), new Asset('assetB', 'asset-b')];
@@ -45,6 +46,51 @@ const getAssetRoutes = (app) => {
                     res.send(errors);
                 }
             )
+        })
+        .get('/stats', (req, res) => {
+
+            // We want to execute this command line:
+            //      docker stats --no-stream --format "{\"containerID\":\"{{ .Container }}\", \"name\":\"{{ .Name }}\", \"cpu\":\"{{ .CPUPerc }}\", \"mem\":\"{{ .MemUsage }}\", \"memPerc\":\"{{ .MemPerc }}\", \"netIO\":\"{{ .NetIO }}\", \"blockIO\":\"{{ .BlockIO }}\", \"pids\":\"{{ .PIDs }}\"}"
+            //
+
+            let strFormat = {
+                "containerID":"{{ .Container }}",
+                "name":"{{ .Name }}",
+                "cpu":"{{ .CPUPerc }}",
+                "mem":"{{ .MemUsage }}",
+                "memPerc":"{{ .MemPerc }}",
+                "netIO":"{{ .NetIO }}",
+                "blockIO":"{{ .BlockIO }}",
+                "pids":"{{ .PIDs }}"
+            };
+            let statsCommand = "docker stats --no-stream --format '" + JSON.stringify(strFormat) + "'";
+            let startTime = Date.now();
+
+            exec(statsCommand, (error, stdout, stderr) => {
+
+                if (!error) {
+                    console.log("I'm IN...CORRECT");
+
+                    //global.statsHistory+=1;
+                    //console.log(global.statsHistory);
+
+                    var answer = {
+                        "stdout" : stdout,
+                        "timestamp_output": Date.now(),
+                        "timestamp_input": startTime
+                    };
+
+                    // send answer
+                    res.setHeader('Content-Type', 'application/json');
+                    res.send(answer);
+                } else {
+                    console.log("I'm IN....ERRORS");
+                    res.setHeader('Content-Type', 'application/json');
+                    //res.status(500).send({'error': error, 'stderr': stderr});
+                    res.send({'error': error, 'stderr': stderr});
+                }
+            });
+
         })
         .post('/reload', (req, res) => {
             let configs = {};
