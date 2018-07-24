@@ -19,6 +19,11 @@
     <script src="./vendor/visjs/vis.js"></script>
     <link href="./vendor/visjs/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
 
+    <!-- For numbers formatation -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+
+
+    <!-- my Styles -->
     <link rel="stylesheet" href="./css/myStyles.css">
 
 </head>
@@ -123,7 +128,85 @@
 
                     </div>
                     <div id="detailsDiv" style="display: none">
-                        <!-- We will load a template here -->
+                        <!-- Button to close details view src="js/containerDetails.js"-->
+                        <button type="button" onclick="toggleTableContent()" style="float: right;">&times;</button>
+
+                        <!-- Nav pills -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-toggle="tab" href="#containerDetails_app">App</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#containerDetails_stats">Stats</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#containerDetails_logs">Logs</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#containerDetails_config">Config</a>
+                            </li>
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <!-- Tab containerDetails_app -->
+                            <div id="containerDetails_app" class="tab-pane active"></div>
+
+                            <!-- Tab containerDetails_stats -->
+                            <div id="containerDetails_stats" class="tab-pane fade">
+
+
+                                <div class="container-fluid d-flex justify-content-between">
+                                    <div class="mr-auto"><h6>CPU</h6></div>
+
+                                    <form class="form-inline">
+                                        <label for="strategyCpu">Strategy:</label>
+                                        <select id="strategyCpu" class="form-control custom-select custom-select-sm">
+                                            <option value="continuous" >Continuous (CPU intensive)</option>
+                                            <option value="discrete">Discrete</option>
+                                            <option value="static" selected>Static</option>
+                                        </select>
+                                    </form>
+                                </div>
+                                <div id="visualizationCpu" ></div>
+
+                                <br>
+                                <div class="container-fluid d-flex justify-content-between">
+                                    <div class="mr-auto"><h6>Memory %</h6></div>
+                                    <form class="form-inline">
+                                        <label for="strategyMemPerc">Strategy:</label>
+                                        <select id="strategyMemPerc" class="form-control custom-select custom-select-sm">
+                                            <option value="continuous" >Continuous (CPU intensive)</option>
+                                            <option value="discrete">Discrete</option>
+                                            <option value="static" selected>Static</option>
+                                        </select>
+                                    </form>
+                                </div>
+                                <div id="visualizationMemPerc" ></div>
+
+                                <br>
+                                <div class="container-fluid d-flex justify-content-between">
+                                    <div class="mr-auto"><h6>Memory usage</h6></div>
+                                    <form class="form-inline">
+                                        <label for="strategyMemUsage">Strategy:</label>
+                                        <select id="strategyMemUsage" class="form-control custom-select custom-select-sm">
+                                            <option value="continuous" >Continuous (CPU intensive)</option>
+                                            <option value="discrete">Discrete</option>
+                                            <option value="static" selected>Static</option>
+                                        </select>
+                                    </form>
+                                </div>
+                                <div id="visualizationMemUsage" ></div>
+
+
+                            </div>
+
+                            <!-- Tab containerDetails_logs -->
+                            <div id="containerDetails_logs" class="tab-pane fade"></div>
+
+                            <!-- Tab containerDetails_config -->
+                            <div id="containerDetails_config" class="tab-pane fade"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -137,7 +220,15 @@
         </div>
     </div>
 
-    <script src="js/start.js"></script>
+    <script id="template-containerDetails.js" type="text/template" >
+
+    </script>
+    <!--
+    <script src="js/containerDetails_stats.js"></script>
+    -->
+    <script src="js/updateStatsHistory.js"></script>
+
+    <script src="js/containerDetails_stats.js"></script>
 
 </body>
 </html>

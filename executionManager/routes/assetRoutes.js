@@ -64,20 +64,16 @@ const getAssetRoutes = (app) => {
                 "pids":"{{ .PIDs }}"
             };
             let statsCommand = "docker stats --no-stream --format '" + JSON.stringify(strFormat) + "'";
-            let startTime = Date.now();
+            //let startTime = Date.now();
 
             exec(statsCommand, (error, stdout, stderr) => {
 
                 if (!error) {
                     console.log("I'm IN...CORRECT");
 
-                    //global.statsHistory+=1;
-                    //console.log(global.statsHistory);
-
                     var answer = {
                         "stdout" : stdout,
-                        "timestamp_output": Date.now(),
-                        "timestamp_input": startTime
+                        "timestamp": Date.now()
                     };
 
                     // send answer
