@@ -7,7 +7,35 @@ var detailsContainerName;   // name of the container that is currently open for 
 // Define all graph2ds
 var graph2dCpu,
     graph2dMemPerc,
-    graph2dMemUsage;
+    graph2dMemUsage,
+    graph2dNetIO;
+
+// Define groups
+var groupsNetIO = new vis.DataSet();
+groupsNetIO.add({
+    id: "netSent",
+    content: "netSent",
+    options: {
+        drawPoints: {
+            style: 'circle' // square, circle
+        },
+        shaded: {
+            orientation: 'zero' // top, bottom
+        }
+    }});
+
+groupsNetIO.add({
+    id: "netReceived",
+    content: "netReceived",
+    options: {
+        drawPoints: {
+            style: 'square' // square, circle
+        },
+        shaded: {
+            orientation: 'zero' // top, bottom
+        }
+    }
+});
 
 $(document).ready(function(){
 
@@ -15,17 +43,20 @@ $(document).ready(function(){
 
     var strategyCpu = document.getElementById('strategyCpu'),
         strategyMemPerc = document.getElementById('strategyMemPerc'),
-        strategyMemUsage = document.getElementById('strategyMemUsage');
+        strategyMemUsage = document.getElementById('strategyMemUsage',
+        strategyNetIO = document.getElementById('strategyNetIO'));
 
     // Create a graph2d with an (currently empty) dataset
     var containerCpu = document.getElementById('visualizationCpu'),
         containerMemPerc = document.getElementById('visualizationMemPerc'),
-        containerMemUsage = document.getElementById('visualizationMemUsage');
+        containerMemUsage = document.getElementById('visualizationMemUsage'),
+        containerNetIO = document.getElementById('visualizationNetIO');
 
     // Define datasets of the graph2d
     var datasetCpu = new vis.DataSet(),
         datasetMemPerc = new vis.DataSet(),
-        datasetMemUsage = new vis.DataSet();
+        datasetMemUsage = new vis.DataSet(),
+        datasetNetIO = new vis.DataSet();
 
 
     var optionsCpu = {
@@ -90,14 +121,35 @@ $(document).ready(function(){
         }
     };
 
+    var optionsNetIO = {
+        height: '200px',
+        start: vis.moment().add(-60, 'seconds'), // changed so its faster
+        end: vis.moment(),
+        legend: true,
+        drawPoints: {
+            style: 'circle' // square, circle
+        },
+        dataAxis: {
+            left: {
+                title: {text: "B"}
+            }
+        },
+        shaded: {
+            orientation: 'zero' // top, bottom
+        }
+    };
+
     // create graphs (one for each container dataset)
     graph2dCpu      = new vis.Graph2d(containerCpu, datasetCpu, optionsCpu);
     graph2dMemPerc  = new vis.Graph2d(containerMemPerc, datasetMemPerc, optionsMemPerc);
     graph2dMemUsage = new vis.Graph2d(containerMemUsage, datasetMemUsage, optionsMemUsage);
+    
+    graph2dNetIO    = new vis.Graph2d(containerNetIO, datasetNetIO, groupsNetIO, optionsNetIO);
 
     renderStep(graph2dCpu, strategyCpu, DELAY);
     renderStep(graph2dMemPerc, strategyMemPerc, DELAY);
     renderStep(graph2dMemUsage, strategyMemUsage, DELAY);
+    renderStep(graph2dNetIO, strategyNetIO, DELAY);
 
 });
 
@@ -109,6 +161,8 @@ function changeDetailsView(containerName) {
     graph2dMemPerc.setItems(statsHistory[containerName].mem.memPerc);
 
     graph2dMemUsage.setItems(statsHistory[containerName].mem.memUsage);
+
+    graph2dNetIO.setItems(statsHistory[containerName].netIO);
 
 }
 
