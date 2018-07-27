@@ -212,7 +212,22 @@
                                     </form>
                                 </div>
                                 <div id="visualizationNetIO" ></div>
-                                
+
+
+                                <br>
+                                <div class="container-fluid d-flex justify-content-between">
+                                    <div class="mr-auto"><h6>Block I/O</h6></div>
+                                    <form class="form-inline">
+                                        <label for="strategyBlockIO">Strategy:</label>
+                                        <select id="strategyBlockIO" class="form-control custom-select custom-select-sm">
+                                            <option value="continuous" >Continuous (CPU intensive)</option>
+                                            <option value="discrete">Discrete</option>
+                                            <option value="static" selected>Static</option>
+                                        </select>
+                                    </form>
+                                </div>
+                                <div id="visualizationBlockIO" ></div>
+
 
                             </div>
 

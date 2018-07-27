@@ -12,30 +12,6 @@ var DETAILS_CONTAINER_OPENED_FLAG = false; // True - details view opened | false
 var MAX_DATA_TIME_TO_SHOW = 120; // (Seconds). Data is stored in this interval. After it gets removed!
 
 var updateStatsHistory_timer;
-/*
-statsHistory has this format:
-statsHistory = {
-    "containerName1":{
-        "containerID": String,
-        "cpu": [#,#,#,...,#],
-        "pids": [#,#,#,...,#],
-        "mem": {
-            "memPerc": [#,#,#,...,#],
-            "memUsage": [#,#,#,...,#],
-            "memUsageUnits": number, // multiples of 3
-            "memLimit": Number,
-        },
-        "netIO":{
-            "netSent": [#,#,#,...,#],
-            "netReceived": [#,#,#,...,#],
-        },
-        "blockIO":{
-            "dataRead": [#,#,#,...,#],
-            "dataWritten": [#,#,#,...,#],
-        }
-    }
-}
-*/
 var statsHistory = {};
 
 $(document).ready(function(){
@@ -53,14 +29,14 @@ function updateStatsHistory(){
         //    console.log('error:' + error);
         //}
         //if (!error && response.statusCode == 200) {
-        formatData(data);
+        formatNewData(data);
 
         addStatsToHistory(data);
 
         removeOldData();
 
         // check if it is necessary to change units scale
-        changeDataScale();
+        changeDataScales();
 
         updateTable();
 
@@ -74,7 +50,7 @@ function updateStatsHistory(){
 //    "stdout" : stdout,
 //    "timestamp_output": Date
 // }
-function formatData(data){
+function formatNewData(data){
 
     // Split stdout data by lines
     var dataSplited = data.stdout.split("\n");
@@ -202,17 +178,16 @@ function removeOldData(){
             statsHistory[containerName].cpu,
             statsHistory[containerName].pids,
             statsHistory[containerName].mem.memPerc,
-            statsHistory[containerName].mem.memUsage,
-            //statsHistory[containerName].netIO.netSent,
-            //statsHistory[containerName].netIO.netReceived,
-            statsHistory[containerName].blockIO.dataRead,
-            statsHistory[containerName].blockIO.dataWritten
+            statsHistory[containerName].mem.memUsage.dataset,
+            statsHistory[containerName].netIO.dataset,
+            statsHistory[containerName].blockIO.dataset
         ];
 
         for(let i = 0; i < datasetsArray.length; i++){
 
             var dataset = datasetsArray[i];                 // get dataset
             var currentTime = graph2dCpu.getCurrentTime();  // get current time of any graph
+
             // filter old data
             var oldIds = dataset.getIds({
                 filter: function (item) {
@@ -221,9 +196,16 @@ function removeOldData(){
             });
             // remove old data of this dataset
             dataset.remove(oldIds);
+
+            // if dataset is empty then remove all container from statsHistory
+            if(dataset.length === 0){
+                delete statsHistory[containerName];
+                break; // jump to next container in statsHistory
+            }
         }
 
     }
+
 }
 
 //
@@ -248,26 +230,25 @@ function addStatsToHistory(newStats){
             statsHistory[name].mem = {};
             statsHistory[name].mem.memPerc = new vis.DataSet();
 
-            statsHistory[name].mem.memUsage = new vis.DataSet();
-            statsHistory[name].mem.memUsageUnits = 0; // 0 -> Bytes. Then multiples of 3
+            statsHistory[name].mem.memUsage = {};
+            statsHistory[name].mem.memUsage.dataset = new vis.DataSet();
+            statsHistory[name].mem.memUsage.units = 0; // 0 -> Bytes. Then multiples of 3
 
-            statsHistory[name].mem.memLimit = undefined;
-            statsHistory[name].mem.memLimitUnits = 0;
+            statsHistory[name].mem.memLimit = {};
+            statsHistory[name].mem.memLimit.value = undefined;
+            statsHistory[name].mem.memLimit.units = 0;
 
-            statsHistory[name].netIO = new vis.DataSet();
-
-            //statsHistory[name].netIO.netSent = new vis.DataSet();
-            //statsHistory[name].netIO.netSentUnits = 0;
-
-            //statsHistory[name].netIO.netReceived = new vis.DataSet();
-            //statsHistory[name].netIO.netReceivedUnits = 0;
+            statsHistory[name].netIO = {};
+            statsHistory[name].netIO.dataset = new vis.DataSet();
+            statsHistory[name].netIO.units = 0;
 
             statsHistory[name].blockIO = {};
-            statsHistory[name].blockIO.dataRead = new vis.DataSet();
-            statsHistory[name].blockIO.dataUnits = 0;
+            statsHistory[name].blockIO.dataset = new vis.DataSet();
+            statsHistory[name].blockIO.units = 0;
 
-            statsHistory[name].blockIO.dataWritten = new vis.DataSet();
-            statsHistory[name].blockIO.dataWrittenUnits = 0;
+            //statsHistory[name].blockIO.dataWritten = {};
+            //statsHistory[name].blockIO.dataWritten.dataset = new vis.DataSet();
+            //statsHistory[name].blockIO.dataWritten.units = 0;
         }
 
         // format to the right units
@@ -283,18 +264,22 @@ function addStatsToHistory(newStats){
 
         statsHistory[name].mem.memPerc.add({x: t, y: stdoutArray[i].mem.memPerc});
 
-        statsHistory[name].mem.memUsage.add({x: t, y: stdoutArray[i].mem.memUsage});
-        statsHistory[name].mem.memLimit = stdoutArray[i].mem.memLimit;
+        statsHistory[name].mem.memUsage.dataset.add({x: t, y: stdoutArray[i].mem.memUsage});
+        statsHistory[name].mem.memLimit.value = stdoutArray[i].mem.memLimit;
 
-        statsHistory[name].netIO.add([
+        statsHistory[name].netIO.dataset.add([
             {x: t, y: stdoutArray[i].netIO.netSent,     group: "netSent"},
             {x: t, y: stdoutArray[i].netIO.netReceived, group: "netReceived"}
         ]);
-        //statsHistory[name].netIO.netSent.add({x: t, y: stdoutArray[i].netIO.netSent});
-        //statsHistory[name].netIO.netReceived.add({x: t, y: stdoutArray[i].netIO.netReceived});
 
-        statsHistory[name].blockIO.dataRead.add({x: t, y: stdoutArray[i].blockIO.dataRead});
-        statsHistory[name].blockIO.dataWritten.add({x: t, y: stdoutArray[i].blockIO.dataWritten});
+
+        statsHistory[name].blockIO.dataset.add([
+            {x: t, y: stdoutArray[i].blockIO.dataRead,      group: "dataRead"},
+            {x: t, y: stdoutArray[i].blockIO.dataWritten,   group: "dataWritten"}
+        ]);
+
+        //statsHistory[name].blockIO.dataRead.dataset.add({x: t, y: stdoutArray[i].blockIO.dataRead});
+        //statsHistory[name].blockIO.dataWritten.dataset.add({x: t, y: stdoutArray[i].blockIO.dataWritten});
 
     }
 
@@ -306,7 +291,9 @@ function addStatsToHistory(newStats){
 //      - 3000000   returns 6
 function getNumberScale(num){
 
-    // We should perform some num checks
+    if(num == 0){
+        return 0;
+    }
 
     for(let div = 24; div >= -24; div-=3){
         var val = Math.floor(num / Math.pow(10, div));
@@ -324,100 +311,187 @@ function formatNewDataToSameUnits(name, stdoutElem){
     // we need to format memUsage, memLimit
 
     // get current units
-    var currentMemUsageUnits = statsHistory[name].mem.memUsageUnits,
-        currentMemLimitUnits = statsHistory[name].mem.memLimitUnits;
-        //currentNetSentUnits = statsHistory[name].net.netSentUnits,
-        //currentNetReceivedUnits = statsHistory[name].net.netReceivedUnits;
+    var currentMemUsageUnits = statsHistory[name].mem.memUsage.units,
+        currentMemLimitUnits = statsHistory[name].mem.memLimit.units,
+        currentNetIOUnits = statsHistory[name].netIO.units,
+        currentBlockIOUnits = statsHistory[name].blockIO.units;
 
     // transform number to the current units
     stdoutElem.mem.memUsage = stdoutElem.mem.memUsage / Math.pow(10, currentMemUsageUnits);
     stdoutElem.mem.memLimit = stdoutElem.mem.memLimit / Math.pow(10, currentMemLimitUnits);
 
+    stdoutElem.netIO.netSent = stdoutElem.netIO.netSent / Math.pow(10, currentNetIOUnits);
+    stdoutElem.netIO.netReceived = stdoutElem.netIO.netReceived / Math.pow(10, currentNetIOUnits);
+
+    stdoutElem.blockIO.dataRead = stdoutElem.blockIO.dataRead / Math.pow(10, currentBlockIOUnits);
+    stdoutElem.blockIO.dataWritten = stdoutElem.blockIO.dataWritten / Math.pow(10, currentBlockIOUnits);
+
 }
 
 
-function changeDataScale(){
+function changeDataScales(){
 
+    // for all containers
     for(var containerName in statsHistory){
 
-        // get max value
-        var maxValue = statsHistory[containerName].mem.memUsage.max('y').y;
-        var powScale = getNumberScale(maxValue);
+        // --- memUsage ---
+        formatDatasetScale(statsHistory[containerName].mem.memUsage, graph2dMemUsage);
+        updateGraphScaleAxis(statsHistory[containerName].mem.memUsage, graph2dMemUsage, "binary");
+        // --- memLimit ---
+        formatValueScale(statsHistory[containerName].mem.memLimit);
 
-        // if error or nothing to change
-        if(powScale == (-1) || powScale == 0){
-            continue;
-        }
-        /*
-        var array = [
-            {
-                "dataset": statsHistory[containerName].mem.memUsage,
-                "graph": graph2dMemUsage
-            },
-            {
-                "dataset": statsHistory[containerName].mem.memLimit,
-                "graph": 0
-            }
-            ];
-        */
-        // change dataset according to pow scale of the biggest number
-        var allData = statsHistory[containerName].mem.memUsage.get();
-        allData.forEach((item)=>{
-            item.y = item.y / Math.pow(10, powScale);
-        });
-        statsHistory[containerName].mem.memUsage.update(allData);
+        // --- netIO ---
+        formatDatasetScale(statsHistory[containerName].netIO, graph2dNetIO);
+        updateGraphScaleAxis(statsHistory[containerName].netIO, graph2dNetIO);
 
-        // Update scale on stats
-        statsHistory[containerName].mem.memUsageUnits+=powScale;
-
-        // update settings
-        var optionMemUsage = {
-            dataAxis: {
-                left: {
-                    title: {
-                        text: getPowerScaleToUnitsString(statsHistory[containerName].mem.memUsageUnits)
-                    }
-                }
-            }
-        };
-        graph2dMemUsage.setOptions(optionMemUsage);
+        // --- blockIO ---
+        formatDatasetScale(statsHistory[containerName].blockIO, graph2dBlockIO);
+        updateGraphScaleAxis(statsHistory[containerName].blockIO, graph2dBlockIO);
 
     }
+
+
+
+    if(detailsContainerName in statsHistory){
+        // update scales on graphs
+        updateGraphScaleAxis(statsHistory[detailsContainerName].mem.memUsage, graph2dMemUsage, "binary");
+        updateGraphScaleAxis(statsHistory[detailsContainerName].netIO, graph2dNetIO);
+        updateGraphScaleAxis(statsHistory[detailsContainerName].blockIO, graph2dBlockIO);
+    }
+
 }
 
-function getPowerScaleToUnitsString(power){
+function updateGraphScaleAxis(datasetObj, graph, type){
+    // update options on graph
+    var optionMemUsage = {
+        dataAxis: {
+            left: {
+                title: {
+                    text: getPowerScaleToUnitsString(datasetObj.units, type)
+                }
+            }
+        }
+    };
+    graph.setOptions(optionMemUsage);
+}
+
+
+function formatValueScale(valueObj){
+
+    var powScale = getNumberScale(valueObj.value);
+
+    // Error
+    if(powScale == (-1)){
+        console.log("Error: formatData_memUsage() -> powScale not a multiple of 3!");
+        return;
+    }
+
+    // Nothing to change
+    if(powScale == 0){
+        return;
+    }
+
+    // transform
+    valueObj.value = valueObj.value / Math.pow(10, powScale);
+
+    // Update scale on stats
+    valueObj.units+=powScale;
+}
+
+// statsHistory[containerName].mem.memUsage
+// statsHistory[containerName].mem.memUsageUnits
+// graph2dMemUsage
+function formatDatasetScale(datasetObj, graph) {
+
+    // get max value
+    var maxValue = datasetObj.dataset.max('y').y;
+    var powScale = getNumberScale(maxValue);
+
+    // Error
+    if(powScale == (-1)){
+        console.log("Error: formatData_memUsage() -> powScale not a multiple of 3!");
+        return;
+    }
+
+    // Nothing to change
+    if(powScale == 0){
+        return;
+    }
+
+    // change dataset according to pow scale of the biggest number
+    var allData = datasetObj.dataset.get();
+    allData.forEach((item)=>{
+        item.y = item.y / Math.pow(10, powScale);
+    });
+    datasetObj.dataset.update(allData);
+
+    // Update scale on stats
+    datasetObj.units+=powScale;
+    /*
+    // update options on graph
+    var optionMemUsage = {
+        dataAxis: {
+            left: {
+                title: {
+                    text: getPowerScaleToUnitsString(datasetObj.units)
+                }
+            }
+        }
+    };
+    graph.setOptions(optionMemUsage);
+    */
+}
+
+
+// power    -> (number) Power number to convert into string (multiple of 3)
+// type     -> (String) if "binary" it will return in binary units (KiB, MiB,...) otherwise in decimal (KB, MB,...)
+
+function getPowerScaleToUnitsString(power, type){
     var unitsStr;
     switch (power){
         case 0:
             unitsStr = "B";
             break;
         case 3:
-            unitsStr = "KiB";
+            unitsStr = "K";
             break;
         case 6:
-            unitsStr = "MiB";
+            unitsStr = "M";
             break;
         case 9:
-            unitsStr = "GiB";
+            unitsStr = "G";
             break;
         case 12:
-            unitsStr = "TiB";
+            unitsStr = "T";
             break;
         case 15:
-            unitsStr = "PiB";
+            unitsStr = "P";
             break;
         case 18:
-            unitsStr = "EiB";
+            unitsStr = "E";
             break;
         case 21:
-            unitsStr = "ZiB";
+            unitsStr = "Z";
             break;
         case 24:
-            unitsStr = "YiB";
+            unitsStr = "Y";
             break;
         default:
             unitsStr = "--"
     }
+
+    // if in scale of non multiples return Bytes
+    if(unitsStr === "B"){
+        return unitsStr;
+    }
+
+    // Select the type
+    if(type === "binary"){
+        unitsStr+="iB";
+    }else{
+        unitsStr+="B";
+    }
+
     return unitsStr;
 }
 
@@ -447,31 +521,52 @@ function addRows(){
         var containerID = statsHistory[key].containerID,
             cpuVal = statsHistory[key].cpu.max('x').y,
 
-            memUsageVal = statsHistory[key].mem.memUsage.max('x').y,
-            memUsageUnits_string = getPowerScaleToUnitsString(statsHistory[key].mem.memUsageUnits),
+            memUsageVal = statsHistory[key].mem.memUsage.dataset.max('x').y,
+            memUsageUnits_string = getPowerScaleToUnitsString(statsHistory[key].mem.memUsage.units, "binary"),
 
-            memLimitVal = statsHistory[key].mem.memLimit,
-            memLimitUnits_string = getPowerScaleToUnitsString(statsHistory[key].mem.memLimitUnits),
+            memLimitVal = statsHistory[key].mem.memLimit.value,
+            memLimitUnits_string = getPowerScaleToUnitsString(statsHistory[key].mem.memLimit.units, "binary"),
 
             memPerc = statsHistory[key].mem.memPerc.max('x').y;
 
 
+        //--- Net IO ---
         // retrieve a filtered subset of the data
-        var itemsNetIOReceived = new vis.DataSet(statsHistory[key].netIO.get({
+        var itemsNetIOReceived = new vis.DataSet(statsHistory[key].netIO.dataset.get({
             filter: function (item) {
                 return item.group == "netReceived";
             }
         }));
-        var netReceivedVal = itemsNetIOReceived.max('x').y;
-
-        var itemsNetIOSent = new vis.DataSet(statsHistory[key].netIO.get({
+        var itemsNetIOSent = new vis.DataSet(statsHistory[key].netIO.dataset.get({
             filter: function (item) {
                 return item.group == "netSent";
             }
         }));
+
+        var netReceivedVal = itemsNetIOReceived.max('x').y;
         var netSentVal = itemsNetIOSent.max('x').y;
 
-        //TODO: BLOCK IO 
+        var netIOUnits_string = getPowerScaleToUnitsString(statsHistory[key].netIO.units);
+
+        //--- BLOCK IO ---
+        var itemsBlockIORead = new vis.DataSet(statsHistory[key].blockIO.dataset.get({
+            filter: function (item) {
+                return item.group == "dataRead";
+            }
+        }));
+        var itemsBlockIOWritten = new vis.DataSet(statsHistory[key].blockIO.dataset.get({
+            filter: function (item) {
+                return item.group == "dataWritten";
+            }
+        }));
+
+        var blockIOReadVal = itemsBlockIORead.max('x').y;
+        var blockIOWrittenVal = itemsBlockIOWritten.max('x').y;
+
+        var blockIOUnits_string = getPowerScaleToUnitsString(statsHistory[key].blockIO.units);
+
+        // --- pids ---
+        var pidsVal = statsHistory[key].pids.max('x').y;
 
         rowTemplate +=
             '<tr> ' +
@@ -480,12 +575,12 @@ function addRows(){
             '<td>' + cpuVal + "%" + '</td> ' +
             '<td>' + memUsageVal + memUsageUnits_string + " / " + memLimitVal + memLimitUnits_string + '</td>' +
             '<td>' + memPerc + "%" + '</td> ' +
-            '<td>' + netReceivedVal + " / " + netSentVal + '</td>' +
-            
-            '<td>' + statsHistory[key].blockIO.dataRead.max('x').y + " / " + statsHistory[key].blockIO.dataWritten.max('x').y + '</td> ' +
-            '<td>' + statsHistory[key].pids.max('x').y + '</td> ' +
+            '<td>' + netReceivedVal + netIOUnits_string + " / " + netSentVal + netIOUnits_string +'</td>' +
+            '<td>' + blockIOReadVal + blockIOUnits_string + " / " + blockIOWrittenVal + blockIOUnits_string + '</td> ' +
+            '<td>' + pidsVal + '</td> ' +
             '</tr>';
     }
+
     // Append row in the last table position
     $('#runningTableContainers > tbody:last-child').append(rowTemplate);
 }
