@@ -69,8 +69,6 @@ const getAssetRoutes = (app) => {
             exec(statsCommand, (error, stdout, stderr) => {
 
                 if (!error) {
-                    console.log("I'm IN...CORRECT");
-
                     var answer = {
                         "stdout" : stdout,
                         "timestamp": Date.now()
@@ -80,7 +78,7 @@ const getAssetRoutes = (app) => {
                     res.setHeader('Content-Type', 'application/json');
                     res.send(answer);
                 } else {
-                    console.log("I'm IN....ERRORS");
+                    console.log("ERRORS");
                     res.setHeader('Content-Type', 'application/json');
                     //res.status(500).send({'error': error, 'stderr': stderr});
                     res.send({'error': error, 'stderr': stderr});

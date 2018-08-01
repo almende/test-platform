@@ -374,8 +374,12 @@ function updateGraphScaleAxis(datasetObj, graph, type){
     };
     graph.setOptions(optionMemUsage);
 }
-
-
+/*
+valueObj = {
+        value: #, // number
+        units: #  // pow number multiple of 3
+    }
+*/
 function formatValueScale(valueObj){
 
     var powScale = getNumberScale(valueObj.value);
@@ -545,8 +549,20 @@ function addRows(){
 
         var netReceivedVal = itemsNetIOReceived.max('x').y;
         var netSentVal = itemsNetIOSent.max('x').y;
+        var netIOUnits = statsHistory[key].netIO.units;
 
-        var netIOUnits_string = getPowerScaleToUnitsString(statsHistory[key].netIO.units);
+        var valueObjReceived = {"value":netReceivedVal, "units": netIOUnits};
+        formatValueScale(valueObjReceived);
+        
+        var netReceive = valueObjReceived.value,
+            netReceiveUnits = getPowerScaleToUnitsString(valueObjReceived.units);
+
+        var valueObjSent     = {"value":netSentVal, "units": netIOUnits};
+        formatValueScale(valueObjSent);
+
+        var netSent = valueObjSent.value,
+            netSentUnits = getPowerScaleToUnitsString(valueObjSent.units);
+
 
         //--- BLOCK IO ---
         var itemsBlockIORead = new vis.DataSet(statsHistory[key].blockIO.dataset.get({
@@ -562,8 +578,18 @@ function addRows(){
 
         var blockIOReadVal = itemsBlockIORead.max('x').y;
         var blockIOWrittenVal = itemsBlockIOWritten.max('x').y;
+        var blockIOUnits = statsHistory[key].blockIO.units;
 
-        var blockIOUnits_string = getPowerScaleToUnitsString(statsHistory[key].blockIO.units);
+        var valueObjRead = {"value":blockIOReadVal, "units": blockIOUnits};
+        formatValueScale(valueObjRead);
+        var blockIORead = valueObjRead.value,
+            blockIOReadUnits = getPowerScaleToUnitsString(valueObjRead.units);
+
+        var valueObjWritten = {"value":blockIOWrittenVal, "units": blockIOUnits};
+        formatValueScale(valueObjWritten);
+        var blockIOWritten = valueObjWritten.value,
+            blockIOWrittenUnits = getPowerScaleToUnitsString(valueObjWritten.units);
+
 
         // --- pids ---
         var pidsVal = statsHistory[key].pids.max('x').y;
@@ -572,11 +598,11 @@ function addRows(){
             '<tr> ' +
             '<td>' + containerID + '</td> ' +
             '<td onclick="viewDetails(this)">' + key + '</td> ' +
-            '<td>' + cpuVal + "%" + '</td> ' +
-            '<td>' + memUsageVal + memUsageUnits_string + " / " + memLimitVal + memLimitUnits_string + '</td>' +
-            '<td>' + memPerc + "%" + '</td> ' +
-            '<td>' + netReceivedVal + netIOUnits_string + " / " + netSentVal + netIOUnits_string +'</td>' +
-            '<td>' + blockIOReadVal + blockIOUnits_string + " / " + blockIOWrittenVal + blockIOUnits_string + '</td> ' +
+            '<td>' + cpuVal.toFixed(2) + "%" + '</td> ' +
+            '<td>' + memUsageVal.toFixed(2) + memUsageUnits_string + " / " + memLimitVal.toFixed(2) + memLimitUnits_string + '</td>' +
+            '<td>' + memPerc.toFixed(2) + "%" + '</td> ' +
+            '<td>' + netReceive.toFixed(2) + netReceiveUnits + " / " + netSent.toFixed(2) + netSentUnits +'</td>' +
+            '<td>' + blockIORead.toFixed(2) + blockIOReadUnits + " / " + blockIOWritten.toFixed(2) + blockIOWrittenUnits + '</td> ' +
             '<td>' + pidsVal + '</td> ' +
             '</tr>';
     }
