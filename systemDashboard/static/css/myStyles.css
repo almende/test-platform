@@ -52,3 +52,8 @@ body{
 #closeDetailsButton{
   float: right;
 }
+
+#runningContainers{
+  max-height: 100vh;
+  overflow: auto;
+}

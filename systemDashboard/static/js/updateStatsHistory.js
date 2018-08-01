@@ -662,6 +662,8 @@ function toggleTableContent() {
         // Deselect any previous highlighted row (if exists)
         deselectRow();
 
+        $("#runningContainers").removeClass("sticky-top");
+
         $("#detailsDiv").hide();
         DETAILS_CONTAINER_OPENED_FLAG = false;
     }else{                          // we are gonna open details
@@ -670,6 +672,8 @@ function toggleTableContent() {
 
         $("#detailsDiv").removeClass(detailsSmallSize);
         $("#detailsDiv").addClass(detailsbigSize);  // expande details view
+
+        $("#runningContainers").addClass("sticky-top"); // makes the table stick to the top when scrolling down
 
         $("#detailsDiv").show("slow");
         DETAILS_CONTAINER_OPENED_FLAG = true;
