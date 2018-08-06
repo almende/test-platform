@@ -57,3 +57,13 @@ body{
   max-height: 100vh;
   overflow: auto;
 }
+
+/*Style iframe of app navigation in details view*/
+#app_iframe{
+  border:none;
+  width: 100%;
+  overflow: hidden;
+}
+
+
+

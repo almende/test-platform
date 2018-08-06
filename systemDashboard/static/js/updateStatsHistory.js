@@ -613,8 +613,6 @@ function addRows(){
 
 
 
-
-
 // This function is called when user clicks on one of the container names
 function viewDetails(thisElem) {
 
@@ -634,6 +632,10 @@ function viewDetails(thisElem) {
 
     // Change data of details view;
     changeDetailsView(containerName);
+
+    // Resize App iframe
+    resizeIFrameToFitContent($("#app_iframe"));
+
 }
 
 // show / hide details view

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+
+
+    <link rel="stylesheet" href="../../vendor/bootstrap4/bootstrap.min.css">
+
+    <script src="../../vendor/jquery/jquery-3.3.1.min.js"></script>
+
+    <script src="../../vendor/pooper/popper.min.js"></script>
+
+    <script src="../../vendor/bootstrap4/bootstrap.min.js"></script>
+
+
+</head>
+<body>
+
+<h5>Loaded!</h5>
+<p id="number"> -- </p>
+
+<script>
+
+    var number = 0;
+
+    $(document).ready(function(){
+        setInterval(updateNumber, 1000);
+    });
+
+    function updateNumber(){
+        number++;
+        document.getElementById("number").innerHTML = number.toString();
+    }
+
+</script>
+
+</body>
+</html>

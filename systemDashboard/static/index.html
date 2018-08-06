@@ -103,29 +103,36 @@
                         -->
                     </div>
                     <div id="detailsDiv" class="border shadow p-2 mb-2 bg-white" style="display: none">
-                        <!-- Button to close details view src="js/containerDetails.js"-->
-                        <button id="closeDetailsButton" type="button" onclick="toggleTableContent()">&times;</button>
 
-                        <!-- Nav pills -->
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-toggle="tab" href="#containerDetails_app">App</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#containerDetails_stats">Stats</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#containerDetails_logs">Logs</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#containerDetails_config">Config</a>
-                            </li>
-                        </ul>
+                        <div>
+                            <!-- Button to close details view src="js/containerDetails.js"-->
+                            <button id="closeDetailsButton" type="button" onclick="toggleTableContent()">&times;</button>
+
+                            <!-- Nav pills -->
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" data-toggle="tab" href="#containerDetails_app">App</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#containerDetails_stats">Stats</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#containerDetails_logs">Logs</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#containerDetails_config">Config</a>
+                                </li>
+                            </ul>
+                        </div>
 
                         <!-- Tab panes -->
                         <div class="tab-content">
                             <!-- Tab containerDetails_app -->
-                            <div id="containerDetails_app" class="tab-pane active"></div>
+                            <div id="containerDetails_app" class="tab-pane active">
+                                <iframe id="app_iframe" src="apps/appRadar/index.html">
+                                    <p>Your browser does not support iframes.</p>
+                                </iframe>
+                            </div>
 
                             <!-- Tab containerDetails_stats -->
                             <div id="containerDetails_stats" class="tab-pane fade">
@@ -221,15 +228,32 @@
         </div>
     </div>
 
-    <script id="template-containerDetails.js" type="text/template" >
 
-    </script>
-    <!--
-    <script src="js/containerDetails_stats.js"></script>
-    -->
     <script src="js/updateStatsHistory.js"></script>
 
     <script src="js/containerDetails_stats.js"></script>
+
+    <script src="js/loadModules.js"></script>
+
+    <script type="application/javascript">
+/*
+        $(document).ready(function(){
+
+            $('.nav-tabs a[href="#containerDetails_app"]').on('shown.bs.tab', function(event){
+
+                var iFrame = $("#app_iframe");
+                resizeIFrameToFitContent(iFrame);
+            });
+
+        });
+*/
+        function resizeIFrameToFitContent( elemt ) {
+            var iFrame = $(elemt);
+            iFrame.height(iFrame.contents().height());  // Maybe I should define a minimum value
+        }
+
+    </script>
+
 
 </body>
 </html>

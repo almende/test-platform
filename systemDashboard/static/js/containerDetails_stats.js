@@ -208,6 +208,12 @@ $(document).ready(function(){
 
 function changeDetailsView(containerName) {
 
+    // ---- App nav ----
+    var iFrame = $("#app_iframe");
+    resizeIFrameToFitContent(iFrame);
+
+
+    // ---- Stats nav ----
     // Change datasets
     detailsContainerName = containerName; // write the name of the container
     graph2dCpu.setItems(statsHistory[containerName].cpu);
@@ -217,6 +223,10 @@ function changeDetailsView(containerName) {
 
     graph2dNetIO.setItems(statsHistory[containerName].netIO.dataset);
     graph2dBlockIO.setItems(statsHistory[containerName].blockIO.dataset);
+
+    // ---- Logs nav ----
+
+    // ---- Config nav ----
 
 }
 
