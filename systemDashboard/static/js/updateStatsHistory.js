@@ -596,14 +596,14 @@ function addRows(){
 
         rowTemplate +=
             '<tr> ' +
-            '<td>' + containerID + '</td> ' +
-            '<td onclick="viewDetails(this)">' + key + '</td> ' +
-            '<td>' + cpuVal.toFixed(2) + "%" + '</td> ' +
-            '<td>' + memUsageVal.toFixed(2) + memUsageUnits_string + " / " + memLimitVal.toFixed(2) + memLimitUnits_string + '</td>' +
-            '<td>' + memPerc.toFixed(2) + "%" + '</td> ' +
-            '<td>' + netReceive.toFixed(2) + netReceiveUnits + " / " + netSent.toFixed(2) + netSentUnits +'</td>' +
-            '<td>' + blockIORead.toFixed(2) + blockIOReadUnits + " / " + blockIOWritten.toFixed(2) + blockIOWrittenUnits + '</td> ' +
-            '<td>' + pidsVal + '</td> ' +
+            '<td class="align-middle">' + containerID + '</td> ' +
+            '<td class="align-middle" onclick="viewDetails(this)">' + '<button type="button" class="btn btn-light">' + key + '</button></td> ' +
+            '<td class="align-middle">' + cpuVal.toFixed(2) + "%" + '</td> ' +
+            '<td class="align-middle">' + memUsageVal.toFixed(2) + memUsageUnits_string + " / " + memLimitVal.toFixed(2) + memLimitUnits_string + '</td>' +
+            '<td class="align-middle">' + memPerc.toFixed(2) + "%" + '</td> ' +
+            '<td class="align-middle">' + netReceive.toFixed(2) + netReceiveUnits + " / " + netSent.toFixed(2) + netSentUnits +'</td>' +
+            '<td class="align-middle">' + blockIORead.toFixed(2) + blockIOReadUnits + " / " + blockIOWritten.toFixed(2) + blockIOWrittenUnits + '</td> ' +
+            '<td class="align-middle">' + pidsVal + '</td> ' +
             '</tr>';
     }
 

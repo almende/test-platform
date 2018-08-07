@@ -58,6 +58,10 @@ body{
   overflow: auto;
 }
 
+#runningTableContainers tbody tr td button{
+  width: 100%;
+}
+
 /*Style iframe of app navigation in details view*/
 #app_iframe{
   border:none;

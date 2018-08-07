@@ -230,6 +230,12 @@ function changeDetailsView(containerName) {
 
 }
 
+
+function resizeIFrameToFitContent( elemt ) {
+    var iFrame = $(elemt);
+    iFrame.height(iFrame.contents().height());  // Maybe I should define a minimum value
+}
+
 function renderStep(graph, strategy, DELAY) {
 
     // move the window (you can think of different strategies).
