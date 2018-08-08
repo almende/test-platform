@@ -19,7 +19,6 @@
     <script src="./vendor/visjs/vis.js"></script>
     <link href="./vendor/visjs/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
 
-
     <!-- my Styles -->
     <link rel="stylesheet" href="./css/myStyles.css">
 
@@ -49,7 +48,7 @@
                                     <thead class="thead-light">
                                     <tr>
                                         <th class="align-middle">CONTAINER ID</th>
-                                        <th class="align-middle">Name</th>
+                                        <th class="align-middle">NAME</th>
                                         <th class="align-middle">CPU %</th>
                                         <th class="align-middle">MEM USAGE / LIMIT</th>
                                         <th class="align-middle">MEM %</th>
@@ -75,29 +74,6 @@
                                 </table>
                             </div>
                         </div>
-                        <!--
-                        <div class="shadow p-2 mb-2 bg-white">
-                            <h5>Sleeping containers</h5>
-                            <div class="table-responsive-xl">
-                                <table class="table table-striped table-hover table-borderless table-light table-sm">
-                                    <thead class="thead-dark">
-                                    <tr>
-                                        <th>CONTAINER ID</th>
-                                        <th>Name</th>
-                                        <th>CPU %</th>
-                                        <th>MEM USAGE / LIMIT</th>
-                                        <th>MEM %</th>
-                                        <th>NET I/O</th>
-                                        <th>BLOCK I/O</th>
-                                        <th>PIDS</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div >
-                        -->
                     </div>
                     <div id="detailsDiv" class="border shadow p-2 mb-2 bg-white" style="display: none">
 
@@ -140,7 +116,6 @@
                                     <form class="form-inline">
                                         <label for="strategyCpu">Strategy:</label>
                                         <select id="strategyCpu" class="form-control custom-select custom-select-sm">
-                                            <option value="continuous" >Continuous (CPU intensive)</option>
                                             <option value="discrete">Discrete</option>
                                             <option value="static" selected>Static</option>
                                         </select>
@@ -154,7 +129,6 @@
                                     <form class="form-inline">
                                         <label for="strategyMemPerc">Strategy:</label>
                                         <select id="strategyMemPerc" class="form-control custom-select custom-select-sm">
-                                            <option value="continuous" >Continuous (CPU intensive)</option>
                                             <option value="discrete">Discrete</option>
                                             <option value="static" selected>Static</option>
                                         </select>
@@ -168,7 +142,6 @@
                                     <form class="form-inline">
                                         <label for="strategyMemUsage">Strategy:</label>
                                         <select id="strategyMemUsage" class="form-control custom-select custom-select-sm">
-                                            <option value="continuous" >Continuous (CPU intensive)</option>
                                             <option value="discrete">Discrete</option>
                                             <option value="static" selected>Static</option>
                                         </select>
@@ -182,7 +155,6 @@
                                     <form class="form-inline">
                                         <label for="strategyNetIO">Strategy:</label>
                                         <select id="strategyNetIO" class="form-control custom-select custom-select-sm">
-                                            <option value="continuous" >Continuous (CPU intensive)</option>
                                             <option value="discrete">Discrete</option>
                                             <option value="static" selected>Static</option>
                                         </select>
@@ -196,7 +168,6 @@
                                     <form class="form-inline">
                                         <label for="strategyBlockIO">Strategy:</label>
                                         <select id="strategyBlockIO" class="form-control custom-select custom-select-sm">
-                                            <option value="continuous" >Continuous (CPU intensive)</option>
                                             <option value="discrete">Discrete</option>
                                             <option value="static" selected>Static</option>
                                         </select>
@@ -231,22 +202,6 @@
     <script src="js/containerDetails_stats.js"></script>
 
     <script src="js/loadModules.js"></script>
-
-    <script type="application/javascript">
-/*
-        $(document).ready(function(){
-
-            $('.nav-tabs a[href="#containerDetails_app"]').on('shown.bs.tab', function(event){
-
-                var iFrame = $("#app_iframe");
-                resizeIFrameToFitContent(iFrame);
-            });
-
-        });
-*/
-
-
-    </script>
 
 
 </body>

@@ -25,6 +25,8 @@ function updateStatsHistory(){
     // Request data to executionManager (executionservices)
     var urlStats = 'http://localhost/executionservices/assets' + '/stats';
     $.get(urlStats, function (data, status) {
+        // TODO: WE NEED TO DO SOMETHING WHEN WE GET ERRORS
+
         //if (error) {
         //    console.log('error:' + error);
         //}
@@ -308,8 +310,6 @@ function getNumberScale(num){
 // New data come in BYTES then we just have to divide by the pow current scale
 function formatNewDataToSameUnits(name, stdoutElem){
 
-    // we need to format memUsage, memLimit
-
     // get current units
     var currentMemUsageUnits = statsHistory[name].mem.memUsage.units,
         currentMemLimitUnits = statsHistory[name].mem.memLimit.units,
@@ -405,7 +405,7 @@ function formatValueScale(valueObj){
 // statsHistory[containerName].mem.memUsage
 // statsHistory[containerName].mem.memUsageUnits
 // graph2dMemUsage
-function formatDatasetScale(datasetObj, graph) {
+function formatDatasetScale(datasetObj) {
 
     // get max value
     var maxValue = datasetObj.dataset.max('y').y;
@@ -431,25 +431,11 @@ function formatDatasetScale(datasetObj, graph) {
 
     // Update scale on stats
     datasetObj.units+=powScale;
-    /*
-    // update options on graph
-    var optionMemUsage = {
-        dataAxis: {
-            left: {
-                title: {
-                    text: getPowerScaleToUnitsString(datasetObj.units)
-                }
-            }
-        }
-    };
-    graph.setOptions(optionMemUsage);
-    */
-}
 
+}
 
 // power    -> (number) Power number to convert into string (multiple of 3)
 // type     -> (String) if "binary" it will return in binary units (KiB, MiB,...) otherwise in decimal (KB, MB,...)
-
 function getPowerScaleToUnitsString(power, type){
     var unitsStr;
     switch (power){

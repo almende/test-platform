@@ -58,6 +58,7 @@ body{
   overflow: auto;
 }
 
+/*All buttons in table*/
 #runningTableContainers tbody tr td button{
   width: 100%;
 }

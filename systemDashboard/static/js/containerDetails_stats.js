@@ -243,11 +243,6 @@ function renderStep(graph, strategy, DELAY) {
     var range = graph.getWindow();
     var interval = range.end - range.start;
     switch (strategy.value) {
-        case 'continuous':                                  // THIS ONE IS NOT WORKING CORRECTLY!!!!
-            // continuously move the window
-            graph.setWindow(now - interval, now, {animation: false});
-            requestAnimationFrame(() => {renderStep(graph,strategy, DELAY);});
-            break;
         case 'discrete':
             graph.setWindow(now - interval, now, {animation: false});
             setTimeout(() => {renderStep(graph, strategy, DELAY)}, DELAY);

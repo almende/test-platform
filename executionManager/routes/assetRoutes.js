@@ -64,7 +64,6 @@ const getAssetRoutes = (app) => {
                 "pids":"{{ .PIDs }}"
             };
             let statsCommand = "docker stats --no-stream --format '" + JSON.stringify(strFormat) + "'";
-            //let startTime = Date.now();
 
             exec(statsCommand, (error, stdout, stderr) => {
 
