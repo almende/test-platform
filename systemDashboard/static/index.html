@@ -27,12 +27,26 @@
     <div class="boxBody">
 
         <div class="rowBody headerBody">
-            <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+            <nav class="navbar navbar-expand-sm bg-light navbar-light shadow-sm">
                 <!-- Brand/logo -->
                 <a class="navbar-brand " href="http://localhost"><img id="imageLogo" src="img/vf-OS_logo_01.png" alt="Logo"></a>
 
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost">Portal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="http://localhost/systemdashboard/index.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://vf-os.eu" target="_blank">About</a>
+                    </li>
+                </ul>
+
+
+
                 <!-- Navbar text-->
-                <span class="navbar-text">System Dashboard</span>
+
             </nav>
         </div>
 
@@ -58,6 +72,13 @@
                                     </tr>
                                     </thead>
                                     <tbody>
+                                    <tr>
+                                        <td colspan="8">
+                                            <div class="progress">
+                                                <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
                                     <!--
                                     <tr>
                                         <td>dc745c7a6318</td>
@@ -93,7 +114,7 @@
                                     <a class="nav-link" data-toggle="tab" href="#containerDetails_logs">Logs</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="tab" href="#containerDetails_config">Config</a>
+                                    <a class="nav-link" data-toggle="tab" href="#containerDetails_settings">Settings</a>
                                 </li>
                             </ul>
                         </div>
@@ -180,8 +201,8 @@
                             <!-- Tab containerDetails_logs -->
                             <div id="containerDetails_logs" class="tab-pane fade"></div>
 
-                            <!-- Tab containerDetails_config -->
-                            <div id="containerDetails_config" class="tab-pane fade"></div>
+                            <!-- Tab containerDetails_settings -->
+                            <div id="containerDetails_settings" class="tab-pane fade"></div>
                         </div>
                     </div>
                 </div>
@@ -191,12 +212,104 @@
 
         <div class="rowBody footerBody">
             <div class="container-fluid text-center bg-light">
-                <small>Copyright © Your Website 2018</small>
+                <small>Copyright © vf-OS 2018</small>
             </div>
         </div>
     </div>
 
 
+    <script>
+
+        var progressBarValue = 0;
+
+        $(document).ready(function(){
+/*
+            //var $alert = $('.alert');
+            var $progressBar = $('#progressBar');
+
+            var progress = 0;      // initial value of your progress bar
+            var timeout = 10;      // number of milliseconds between each frame
+            var increment = .5;    // increment for each frame
+            var maxprogress = 110; // when to leave stop running the animation
+
+            function animate() {
+                setTimeout(function () {
+
+                    if($("#progressBar").length !== 0){
+                        progress += increment;
+                        if(progress < maxprogress) {
+                            $progressBar.attr('value', progress);
+                            animate();
+                        } else {
+                            //$progressBar.css('display', 'none');
+                            //$alert.css('display', 'block');
+                        }
+                    }
+
+                }, timeout);
+            };
+            animate();
+*/
+            //var $alert = $('.alert');
+            var $progressBar = $('#progressBar');
+
+            var progress = 0;      // initial value of your progress bar
+            var timeout = 200;      // number of milliseconds between each frame
+            var increment = 10;    // increment for each frame
+            var maxprogress = 110; // when to leave stop running the animation
+
+            function animate() {
+                setTimeout(function () {
+
+                    if($("#progressBar").length !== 0){
+                        progress += increment;
+                        if(progress < maxprogress) {
+                            //$progressBar.attr('value', progress);
+                            $progressBar.attr('aria-valuenow', progress);
+                            $progressBar.width(progress + "%");
+                            //$progressBar.text(progress + "%");
+                            animate();
+                        }
+                    }
+
+                }, timeout);
+            };
+            animate();
+
+
+            /*
+            var percentage = 20;
+            $("#progressbar").animate(
+                {
+                    "value": percentage + "%"
+                },
+                {
+                    duration: 600,
+                    easing: 'linear'
+                }
+            );
+            */
+
+            // update stats history
+            //progressBar_timer = setInterval(updateProgressBar, 500);
+
+        });
+        
+        function updateProgressBar() {
+
+            progressBarValue+=25;
+            if(progressBarValue >= 100){
+                progressBarValue = 100;
+                clearInterval(progressBar_timer);
+            }
+
+            $("#progressBar").attr("width", progressBarValue + "%");
+            $("#progressBar").attr("aria-valuenow", progressBarValue);
+
+        }
+        
+    </script>
+    
     <script src="js/updateStatsHistory.js"></script>
 
     <script src="js/containerDetails_stats.js"></script>

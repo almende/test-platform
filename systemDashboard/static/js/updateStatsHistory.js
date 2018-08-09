@@ -17,6 +17,7 @@ var statsHistory = {};
 $(document).ready(function(){
 
     // update stats history
+    setTimeout(updateStatsHistory, 0);
     updateStatsHistory_timer = setInterval(updateStatsHistory, UPDATE_STATSHITORY_TIME);
 
 });

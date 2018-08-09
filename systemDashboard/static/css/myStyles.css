@@ -45,6 +45,10 @@ body{
   width: 120px;
 }
 
+#progressBar{
+  width: 100%;
+}
+
 .boxBody .rowBody.contentBody .container-fluid {
   margin-top: 10px;
 }
