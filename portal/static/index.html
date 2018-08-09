@@ -2,24 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>vf-OS Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="Company" content="Almende BV">
+    <meta name="Author" content="Luis F. M. Cunha">
+    <title>Portal</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="vendor/bootstrap4/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="vendor/jquery/jquery-3.3.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="vendor/pooper/popper.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="vendor/bootstrap4/bootstrap.min.js"></script>
+
+    <!-- my Styles -->
+    <link rel="stylesheet" href="./css/portalStyles.css">
+
 </head>
 <body>
+<div class="boxBody">
 
-<img src="images/logo.png" alt="Logo" /><br/>
-<br/>
-<br/>
-<img src="images/comingSoon.jpg" alt="ComingSoon" />
+    <div class="rowBody headerBody">
+        <nav class="navbar navbar-expand-sm bg-light navbar-light shadow-sm">
+            <!-- Brand/logo -->
+            <a class="navbar-brand " href="http://localhost"><img id="imageLogo" src="img/vf-OS_logo_01.png" alt="Logo"></a>
 
-<br/>
-<br/>
-<h2>Useful links:</h2>
-<a href="http://localhost:8080/dashboard/" target="_blank">Reverse Proxy Dashboard</a><br/>
-<a href="http://localhost/executionservices/assets" target="_blank">Asset List</a><br/><br/>
-<a href="http://localhost/assetB/person/all" target="_blank">Asset B</a><br/>
-<a href="http://localhost/assetA" target="_blank">Asset A</a><br/><br/>
-<a href="http://localhost/assetC" target="_blank">Asset C</a><br/>
-<a href="http://localhost/systemdashboard/index.html" target="_blank">System Dashboard</a><br/>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="http://localhost">Portal</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://localhost/systemdashboard/index.html">Dashboard</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="http://vf-os.eu" target="_blank">About</a>
+                </li>
+            </ul>
+
+        </nav>
+    </div>
+
+    <div class="rowBody contentBody">
+        <div class="container-fluid">
+            <div class="row" >
+                <div class="col-sm-12">
+
+                    <h5>Useful links:</h5>
+                    <div class="list-group">
+                        <a class="list-group-item list-group-item-action" href="http://localhost:8080/dashboard/" target="_blank">Reverse Proxy Dashboard</a>
+                        <a class="list-group-item list-group-item-action" href="http://localhost/executionservices/assets" target="_blank">Asset List</a>
+                        <a class="list-group-item list-group-item-action" href="http://localhost/assetB/person/all" target="_blank">Asset B</a>
+                        <a class="list-group-item list-group-item-action" href="http://localhost/assetA" target="_blank">Asset A</a>
+                        <a class="list-group-item list-group-item-action" href="http://localhost/assetC" target="_blank">Asset C</a>
+                        <a class="list-group-item list-group-item-action" href="http://localhost/systemdashboard/index.html" target="_blank">System Dashboard</a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="rowBody footerBody">
+        <div class="container-fluid text-center bg-light">
+            <small>Copyright © vf-OS 2018</small>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
