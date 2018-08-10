@@ -44,3 +44,6 @@ body{
 #imageLogo{
     width: 120px;
 }
+.card-max-width{
+    width: 200px;
+}
