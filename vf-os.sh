@@ -26,13 +26,14 @@ version: '3'
 
 services:
   reverse-proxy:
-    image: traefik # The official Traefik docker image
-    command: --api --docker # Enables the web UI and tells Træfik to listen to docker
+    image: traefik:latest # The official Traefik docker image
+    restart: "unless-stopped"
+    command: "--api --docker --docker.watch=true --web"
     ports:
-      - "8080:8080" # The Web UI (enabled by --api)
-      - "80:80" # http entry point
+      - "8080:8080"
+      - "80:80"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - default
       - execution-manager-net
@@ -51,6 +52,7 @@ services:
       - asset-net-11
   execution-manager:
     image: exec-manager
+    restart: "unless-stopped"
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/executionservices"
     volumes:
@@ -60,12 +62,28 @@ services:
       - DOCKER_COMPOSE_PATH=$(pwd)
     networks:
       - execution-manager-net
+  aim:
+    image: jboss/keycloak
+    restart: "unless-stopped"
+    command: ["-b", "0.0.0.0","-Dkeycloak.profile.feature.docker=enabled"]
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=vf-OS-test
+    networks:
+      - execution-manager-net
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/aim"
+      - "traefik.frontend.priority=-1"
+      - "traefik.port=8080"
+      - "traefik.docker.network=execution-manager-net"
   registry:
     image: registry:2
+    restart: "unless-stopped"
     networks:
       - execution-manager-net
   portal:
     image: portal
+    restart: "unless-stopped"
     labels:
       - "traefik.frontend.rule=PathPrefix:/"
       - "traefik.frontend.priority=-1"
@@ -73,6 +91,7 @@ services:
       - execution-manager-net
   dashboard:
     image: system-dashboard
+    restart: "unless-stopped"
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/systemdashboard"
       - "traefik.frontend.priority=-1"
@@ -109,7 +128,6 @@ networks:
     asset-net-11:
        driver: bridge
 EOF
-
 
 # Setup options for connecting to docker host
 if [ -z "$DOCKER_HOST" ]; then
