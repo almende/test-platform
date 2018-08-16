@@ -17,5 +17,5 @@ cd ../systemDashboard
 docker build . -t system-dashboard
 
 cd ../
-
-
+mkdir -p ./.aim_temp/
+docker build .aim_temp -f aim.dockerfile -t vfos/aim

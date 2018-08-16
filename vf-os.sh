@@ -63,16 +63,17 @@ services:
     networks:
       - execution-manager-net
   aim:
-    image: jboss/keycloak
+    image: vfos/aim
     restart: "unless-stopped"
     command: ["-b", "0.0.0.0","-Dkeycloak.profile.feature.docker=enabled"]
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=vf-OS-test
+      - PROXY_ADDRESS_FORWARDING=true
     networks:
       - execution-manager-net
     labels:
-      - "traefik.frontend.rule=PathPrefixStrip:/aim"
+      - "traefik.frontend.rule=PathPrefix:/aim"
       - "traefik.frontend.priority=-1"
       - "traefik.port=8080"
       - "traefik.docker.network=execution-manager-net"
