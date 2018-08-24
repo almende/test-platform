@@ -1,0 +1,8 @@
+{
+    "realm": "vf-OS",
+    "auth-server-url": "http://localhost/aim/auth",
+    "ssl-required": "none",
+    "resource": "webapps",
+    "public-client": true,
+    "confidential-port": 0
+}

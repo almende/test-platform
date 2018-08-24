@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 cd assetA
 docker build . -t asset-a
 
@@ -16,6 +18,7 @@ docker build . -t portal
 cd ../systemDashboard
 docker build . -t system-dashboard
 
+cd ../aim
+docker build . -t vfos/aim
+
 cd ../
-mkdir -p ./.aim_temp/
-docker build .aim_temp -f aim.dockerfile -t vfos/aim

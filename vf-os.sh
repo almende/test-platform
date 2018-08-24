@@ -65,7 +65,7 @@ services:
   aim:
     image: vfos/aim
     restart: "unless-stopped"
-    command: ["-b", "0.0.0.0","-Dkeycloak.profile.feature.docker=enabled"]
+    command: ["-b", "0.0.0.0","-Dkeycloak.profile.feature.docker=enabled", "-Dkeycloak.import=/opt/jboss/vf-OS-realm.json"]
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=vf-OS-test

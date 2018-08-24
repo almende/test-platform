@@ -19,6 +19,17 @@
     <!-- my Styles -->
     <link rel="stylesheet" href="./css/portalStyles.css">
 
+    <script src="aim/auth/js/keycloak.js"></script>
+
+    <script>
+        var keycloak = Keycloak();
+        keycloak.init({ onLoad: 'login-required' }).success(function(authenticated) {
+            alert(authenticated ? 'authenticated' : 'not authenticated');
+        }).error(function() {
+            alert('failed to initialize');
+        });
+    </script>
+
 </head>
 <body>
 <div class="boxBody">
