@@ -19,10 +19,10 @@
     <!-- my Styles -->
     <link rel="stylesheet" href="./css/portalStyles.css">
 
-    <script src="aim/auth/js/keycloak.js"></script>
+    <script src="/aim/auth/js/keycloak.js"></script>
 
     <script>
-        var keycloak = Keycloak();
+        var keycloak = Keycloak("/keycloak.json");
         keycloak.init({onLoad:"check-sso"}).success(function(authenticated) {
             console.log('KeyCloak initialized,',(authenticated?this.keycloak.idTokenParsed.preferred_username:"-none-"),"authenticated.");
             if (authenticated) {
@@ -57,20 +57,13 @@
                     <a class="nav-link" href="http://localhost/systemdashboard/index.html">Dashboard</a>
                 </li>
             </ul>
-
-            <ul class="navbar-nav" id="account">
-                <li class="nav-item">
-                    <a class="nav-link" onClick="keycloak.accountManagement();" target="_blank">user:<span id="username"></span></a>
-                </li>
-            </ul>
-
-            <ul class="navbar-nav" id="login">
-                <li class="nav-item">
-                    <a class="nav-link" onClick="keycloak.login();" target="_blank">Login</a>
-                </li>
-            </ul>
-
             <ul class="navbar-nav ml-auto">
+                <li class="nav-item" id="account">
+                    <a class="nav-link" onClick="keycloak.accountManagement();">user:<span id="username"></span></a>
+                </li>
+                <li class="nav-item" id="login">
+                    <a class="nav-link" onClick="keycloak.login();">Login</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="http://vf-os.eu" target="_blank">About</a>
                 </li>
