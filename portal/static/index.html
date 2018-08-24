@@ -23,10 +23,20 @@
 
     <script>
         var keycloak = Keycloak();
-        keycloak.init({ onLoad: 'login-required' }).success(function(authenticated) {
-            alert(authenticated ? 'authenticated' : 'not authenticated');
+        keycloak.init({onLoad:"check-sso"}).success(function(authenticated) {
+            console.log('KeyCloak initialized,',(authenticated?this.keycloak.idTokenParsed.preferred_username:"-none-"),"authenticated.");
+            if (authenticated) {
+                $("#login").hide();
+                document.getElementById('username').innerHTML = keycloak.idTokenParsed.preferred_username;
+                $("#account").show();
+            } else {
+                $("#account").hide();
+                $("#login").show();
+            }
         }).error(function() {
-            alert('failed to initialize');
+            $("#account").hide();
+            $("#login").hide();
+            console.log('KeyCloak failed to initialize');
         });
     </script>
 
@@ -45,6 +55,18 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="http://localhost/systemdashboard/index.html">Dashboard</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav" id="account">
+                <li class="nav-item">
+                    <a class="nav-link" onClick="keycloak.accountManagement();" target="_blank">user:<span id="username"></span></a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav" id="login">
+                <li class="nav-item">
+                    <a class="nav-link" onClick="keycloak.login();" target="_blank">Login</a>
                 </li>
             </ul>
 

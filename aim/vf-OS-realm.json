@@ -1,6 +1,8 @@
 {
   "id" : "vf-OS",
   "realm" : "vf-OS",
+  "displayName": "vf-OS Accounts",
+  "displayNameHtml": "<div style=\"display:inline-block\"><img src=\"/systemdashboard/img/vf-OS_logo_01.png\"></div>Accounts",
   "notBefore" : 0,
   "revokeRefreshToken" : false,
   "refreshTokenMaxReuse" : 0,
