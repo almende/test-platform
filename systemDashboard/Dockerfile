@@ -9,5 +9,7 @@ RUN npm install
 COPY . .
 
 EXPOSE 9000
-LABEL vf-OS true
 CMD ["npm", "start"]
+
+LABEL vf-OS=true
+LABEL vf-OS-platform=true

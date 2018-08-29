@@ -10,13 +10,16 @@ cd ../assetC
 docker build . -t asset-c
 
 cd ../executionManager
-docker build . -t exec-manager
+docker build . -t vfos/exec-manager
+
+cd ../deployment
+docker build . -t vfos/deploy
 
 cd ../portal
-docker build . -t portal
+docker build . -t vfos/portal
 
 cd ../systemDashboard
-docker build . -t system-dashboard
+docker build . -t vfos/system-dashboard
 
 cd ../aim
 docker build . -t vfos/aim

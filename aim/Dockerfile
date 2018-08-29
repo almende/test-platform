@@ -6,3 +6,5 @@ RUN sed -i -e 's/<web-context>auth<\/web-context>/<web-context>aim\/auth<\/web-c
 
 COPY vf-OS-realm.json .
 
+LABEL vf-OS=true
+LABEL vf-OS-platform=true

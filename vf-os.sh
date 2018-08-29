@@ -15,9 +15,6 @@
 
 set -e
 
-VERSION="1.21.2"
-IMAGE="docker/compose:$VERSION"
-
 INITIAL_COMPOSE_FILE=".vfos_compose.yml"
 DOCKER_COMPOSE_ALIAS="docker-compose"
 
@@ -51,7 +48,7 @@ services:
       - asset-net-10
       - asset-net-11
   execution-manager:
-    image: exec-manager
+    image: vfos/exec-manager
     restart: "unless-stopped"
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/executionservices"
@@ -78,12 +75,23 @@ services:
       - "traefik.port=8080"
       - "traefik.docker.network=execution-manager-net"
   registry:
-    image: registry:2
+    image: registry:2  #newer versions give "docker-credential-secretservice not installed or not available in PATH"
     restart: "unless-stopped"
+    ports:
+      - "5000:5000"    #Docker registry's can't handle subpath endpoints, need to be root-level citizen
+    networks:
+      - execution-manager-net
+  deployment:
+    image: vfos/deploy  #newer versions give "docker-credential-secretservice not installed or not available in PATH"
+    restart: "unless-stopped"
+    privileged: true
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/deployment"
+      - "traefik.frontend.priority=-1"
     networks:
       - execution-manager-net
   portal:
-    image: portal
+    image: vfos/portal
     restart: "unless-stopped"
     labels:
       - "traefik.frontend.rule=PathPrefix:/"
@@ -91,7 +99,7 @@ services:
     networks:
       - execution-manager-net
   dashboard:
-    image: system-dashboard
+    image: vfos/system-dashboard
     restart: "unless-stopped"
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/systemdashboard"
@@ -159,9 +167,6 @@ fi
 if [ -n "$compose_dir" ]; then
     VOLUMES="$VOLUMES -v $compose_dir:$compose_dir"
 fi
-if [ -n "$HOME" ]; then
-    VOLUMES="$VOLUMES -v $HOME:$HOME -v $HOME:/root" # mount $HOME in /root to share docker.config
-fi
 
 # Only allocate tty if we detect one
 if [ -t 1 ]; then
@@ -172,6 +177,6 @@ if [ -t 0 ]; then
 fi
 
 
-docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES -w "$(pwd)" --entrypoint=/bin/sh $IMAGE -c 'cat /dev/stdout' &
+docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES -w "$(pwd)" --entrypoint=/bin/sh docker/compose:1.22.0 -c 'cat /dev/stdout' &
 sleep 5; docker exec vf_os_platform_exec_control docker-compose up &
 

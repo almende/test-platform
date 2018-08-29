@@ -1,0 +1,24 @@
+{
+  "name": "deploymentManager",
+  "version": "1.0.0",
+  "description": "vf-OS deployment manager, responsible for downloading and deploying assets to the local quarantine registry",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/llatinov/sample-nodejs-rest-stub.git"
+  },
+  "author": "Ludo Stellingwerff <ludo@almende.org>",
+  "license": "ApacheV2",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.15.0"
+  }
+}
