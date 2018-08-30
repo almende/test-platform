@@ -12,7 +12,7 @@ COPY package.json ./
 RUN npm install
 
 COPY . .
-COPY entrypoint.sh ./
+
 COPY daemon.json /etc/docker/
 EXPOSE 9000
 

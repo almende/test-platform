@@ -178,5 +178,8 @@ fi
 
 
 docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES -w "$(pwd)" --entrypoint=/bin/sh docker/compose:1.22.0 -c 'cat /dev/stdout' &
-sleep 5; docker exec vf_os_platform_exec_control docker-compose up &
+until `docker ps | grep -q "vf_os_platform_exec_control"` && [ "`docker inspect -f {{.State.Running}} vf_os_platform_exec_control`"=="true" ]; do
+    sleep 0.1;
+done;
+docker exec vf_os_platform_exec_control docker-compose up &
 
