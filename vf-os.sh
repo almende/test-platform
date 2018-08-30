@@ -181,5 +181,4 @@ docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS 
 until `docker ps | grep -q "vf_os_platform_exec_control"` && [ "`docker inspect -f {{.State.Running}} vf_os_platform_exec_control`"=="true" ]; do
     sleep 0.1;
 done;
-docker exec vf_os_platform_exec_control docker-compose up &
-
+docker exec vf_os_platform_exec_control docker-compose up -d
