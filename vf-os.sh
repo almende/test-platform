@@ -17,6 +17,7 @@ set -e
 
 INITIAL_COMPOSE_FILE=".vfos_compose.yml"
 DOCKER_COMPOSE_ALIAS="docker-compose"
+PROJECTNAME="vfos"
 
 cat << EOF > $INITIAL_COMPOSE_FILE
 version: '3'
@@ -156,7 +157,7 @@ fi
 if [ -n "$INITIAL_COMPOSE_FILE" ]; then
     cat << EOF > $DOCKER_COMPOSE_ALIAS
 #!/bin/sh
-/usr/local/bin/docker-compose --file $INITIAL_COMPOSE_FILE \$@
+/usr/local/bin/docker-compose -p $PROJECTNAME --file $INITIAL_COMPOSE_FILE \$@
 
 EOF
 chmod +x $DOCKER_COMPOSE_ALIAS
