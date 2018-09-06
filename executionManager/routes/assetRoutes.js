@@ -5,7 +5,6 @@ const fs = require('fs');
 const Asset = require('../model/Asset');
 const exec = require('child_process').exec;
 
-
 const getAssetRoutes = (app) => {
     const router = new Router();
     const assets = [new Asset('assetA', 'asset-a'), new Asset('assetB', 'asset-b')];
@@ -72,6 +71,40 @@ const getAssetRoutes = (app) => {
                         "stdout" : stdout,
                         "timestamp": Date.now()
                     };
+
+                    // send answer
+                    res.setHeader('Content-Type', 'application/json');
+                    res.send(answer);
+                } else {
+                    console.log("ERRORS");
+                    res.setHeader('Content-Type', 'application/json');
+                    //res.status(500).send({'error': error, 'stderr': stderr});
+                    res.send({'error': error, 'stderr': stderr});
+                }
+            });
+
+        })
+        .post('/logs', (req, res) => {
+
+            //let logsCommand = "docker logs " + req.body.containerName + " | tail -n " + req.body.numOfLines;
+
+            let logsCommand = 'export TERM=linux-m1b;docker logs ' + req.body.containerName + ' | tail -n ' + req.body.numOfLines;
+
+            let logsCommand = 'docker exec vf_os_platform_exec_control docker-compose --file test_compose.yml logs --no-color assetA'
+
+            /*
+            export TERM=xterm-mono
+            TERM=linux-m1b
+            TERM=linux-m2
+            */
+            exec(logsCommand, (error, stdout, stderr) => {
+
+                if (!error) {
+                    let answer = {
+                        "stdout" : stdout,
+                        "timestamp": Date.now()
+                    };
+                    console.log(JSON.stringify(answer));
 
                     // send answer
                     res.setHeader('Content-Type', 'application/json');
