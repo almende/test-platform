@@ -17,14 +17,14 @@ var statsHistory = {};
 $(document).ready(function(){
 
     // update stats history
-    setTimeout(updateStatsHistory, 0);
-    updateStatsHistory_timer = setInterval(updateStatsHistory, UPDATE_STATSHITORY_TIME);
+    //setTimeout(updateStatsHistory, 0);
+    //updateStatsHistory_timer = setInterval(updateStatsHistory, UPDATE_STATSHITORY_TIME);
 
 });
 
 function updateStatsHistory(){
     // Request data to executionManager (executionservices)
-    var urlStats = 'http://localhost/executionservices/assets' + '/stats';
+    var urlStats = '/executionservices/assets' + '/stats';
     $.get(urlStats, function (data, status) {
         // TODO: WE NEED TO DO SOMETHING WHEN WE GET ERRORS
 

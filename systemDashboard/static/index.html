@@ -27,20 +27,45 @@
     <script>
         var keycloak = Keycloak("/keycloak.json");
         keycloak.init({onLoad:"check-sso"}).success(function(authenticated) {
-            console.log('KeyCloak initialized,',(authenticated?this.keycloak.idTokenParsed.preferred_username:"-none-"),"authenticated.");
-            if (authenticated) {
-                $("#login").hide();
-                document.getElementById('username').innerHTML = keycloak.idTokenParsed.preferred_username;
-                $("#account").show();
-            } else {
-                $("#account").hide();
-                $("#login").show();
-            }
+            console.log('KeyCloak initialized ');
         }).error(function() {
-            $("#account").hide();
-            $("#login").hide();
             console.log('KeyCloak failed to initialize');
         });
+
+        keycloak.onAuthSuccess = function () {
+
+            console.log("I'm in onAuthSuccess!!!!");
+            if (keycloak.authenticated) {
+                // Show user menus
+                $("#login").hide();
+                document.getElementById('username').innerHTML = keycloak.idTokenParsed.preferred_username;
+                $("#userMenu").show();
+
+
+
+                // Show containers info
+                $("#runningContainers").show();
+                loadingBar();
+
+                // Start timer to update containers info
+                // update stats history
+                setTimeout(updateStatsHistory, 0);
+                updateStatsHistory_timer = setInterval(updateStatsHistory, UPDATE_STATSHITORY_TIME);
+
+            } else {
+                // Hide user menus
+                $("#userMenu").hide();
+                document.getElementById('username').innerHTML = "";
+                $("#login").show();
+
+
+
+                $("#runningContainers").hide();
+                clearInterval(updateStatsHistory_timer);
+            }
+
+        }
+
     </script>
 
 
@@ -63,12 +88,22 @@
                 </ul>
 
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item" id="account">
-                        <a class="nav-link" onClick="keycloak.accountManagement();">user:<span id="username"></span></a>
-                    </li>
+
                     <li class="nav-item" id="login">
-                        <a class="nav-link" onClick="keycloak.login();">Login</a>
+                        <a class="nav-link" href="#" onClick="keycloak.login();">Login</a>
                     </li>
+
+                    <!-- Dropdown -->
+                    <li id="userMenu" class="nav-item dropdown" style="display: none;">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                            <span id="username"></span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#" onClick="keycloak.accountManagement();">Account Settings</a>
+                            <a class="dropdown-item" href="#" onClick="keycloak.logout();" >Logout</a>
+                        </div>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="http://vf-os.eu" target="_blank">About</a>
                     </li>
@@ -82,7 +117,7 @@
                 <div class="row" >
                     <div id="tableDiv" class="col-sm-12">
 
-                        <div id="runningContainers"class="border shadow p-2 mb-2 bg-white">
+                        <div id="runningContainers"class="border shadow p-2 mb-2 bg-white" style="display: none;">
                             <h3>Running vAsset Containers</h3>
                             <div class="table-responsive-xl">
                                 <table id="runningTableContainers" class="table table-hover table-light table-sm">
@@ -247,37 +282,24 @@
 
     <script>
 
-        var progressBarValue = 0;
+       // var progressBarValue = 0;
 
         $(document).ready(function(){
-/*
-            //var $alert = $('.alert');
-            var $progressBar = $('#progressBar');
 
-            var progress = 0;      // initial value of your progress bar
-            var timeout = 10;      // number of milliseconds between each frame
-            var increment = .5;    // increment for each frame
-            var maxprogress = 110; // when to leave stop running the animation
 
-            function animate() {
-                setTimeout(function () {
+            if(keycloak.authenticated){
+                console.log(" I'M authenticated");
+            } else {
+                console.log(" I'M not authenticated");
+            }
 
-                    if($("#progressBar").length !== 0){
-                        progress += increment;
-                        if(progress < maxprogress) {
-                            $progressBar.attr('value', progress);
-                            animate();
-                        } else {
-                            //$progressBar.css('display', 'none');
-                            //$alert.css('display', 'block');
-                        }
-                    }
 
-                }, timeout);
-            };
-            animate();
-*/
-            //var $alert = $('.alert');
+
+
+        });
+
+
+        function loadingBar(){
             var $progressBar = $('#progressBar');
 
             var progress = 0;      // initial value of your progress bar
@@ -300,41 +322,11 @@
                     }
 
                 }, timeout);
-            };
-            animate();
-
-
-            /*
-            var percentage = 20;
-            $("#progressbar").animate(
-                {
-                    "value": percentage + "%"
-                },
-                {
-                    duration: 600,
-                    easing: 'linear'
-                }
-            );
-            */
-
-            // update stats history
-            //progressBar_timer = setInterval(updateProgressBar, 500);
-
-        });
-        
-        function updateProgressBar() {
-
-            progressBarValue+=25;
-            if(progressBarValue >= 100){
-                progressBarValue = 100;
-                clearInterval(progressBar_timer);
             }
-
-            $("#progressBar").attr("width", progressBarValue + "%");
-            $("#progressBar").attr("aria-valuenow", progressBarValue);
-
+            animate();
         }
-        
+
+
     </script>
     
     <script src="js/updateStatsHistory.js"></script>

@@ -25,19 +25,45 @@
         var keycloak = Keycloak("/keycloak.json");
         keycloak.init({onLoad:"check-sso"}).success(function(authenticated) {
             console.log('KeyCloak initialized,',(authenticated?this.keycloak.idTokenParsed.preferred_username:"-none-"),"authenticated.");
-            if (authenticated) {
-                $("#login").hide();
-                document.getElementById('username').innerHTML = keycloak.idTokenParsed.preferred_username;
-                $("#account").show();
-            } else {
-                $("#account").hide();
-                $("#login").show();
-            }
         }).error(function() {
-            $("#account").hide();
-            $("#login").hide();
             console.log('KeyCloak failed to initialize');
         });
+
+
+        keycloak.onAuthSuccess = function () {
+
+            console.log("I'm in onAuthSuccess!!!!");
+            if (keycloak.authenticated) {
+                // Show user menus
+                $("#login").hide();
+                document.getElementById('username').innerHTML = keycloak.idTokenParsed.preferred_username;
+                $("#userMenu").show();
+
+
+
+                // Show containers info
+                $("#tableDiv").show();
+                //loadingBar();
+
+                // Start timer to update containers info
+                // update stats history
+                //setTimeout(updateStatsHistory, 0);
+                //updateStatsHistory_timer = setInterval(updateStatsHistory, UPDATE_STATSHITORY_TIME);
+
+            } else {
+                // Hide user menus
+                $("#userMenu").hide();
+                document.getElementById('username').innerHTML = "";
+                $("#login").show();
+
+
+
+                $("#tableDiv").hide();
+
+            }
+        }
+
+
     </script>
 
 </head>
@@ -58,12 +84,22 @@
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item" id="account">
-                    <a class="nav-link" onClick="keycloak.accountManagement();">user:<span id="username"></span></a>
-                </li>
+
                 <li class="nav-item" id="login">
-                    <a class="nav-link" onClick="keycloak.login();">Login</a>
+                    <a class="nav-link" href="#" onClick="keycloak.login();">Login</a>
                 </li>
+
+                <!-- Dropdown -->
+                <li id="userMenu" class="nav-item dropdown" style="display: none;">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                        <span id="username"></span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="#" onClick="keycloak.accountManagement();">Account Settings</a>
+                        <a class="dropdown-item" href="#" onClick="keycloak.logout();" >Logout</a>
+                    </div>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="http://vf-os.eu" target="_blank">About</a>
                 </li>
@@ -75,7 +111,7 @@
     <div class="rowBody contentBody">
         <div class="container-fluid">
             <div class="row">
-                <div id="tableDiv" class="col-sm-12">
+                <div id="tableDiv" class="col-sm-12" style="display: none;">
                     <h2>vApps</h2>
                     <div class="d-flex flex-wrap">
                         <div class="card card-max-width">
