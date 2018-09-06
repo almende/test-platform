@@ -86,11 +86,11 @@ const getAssetRoutes = (app) => {
         })
         .post('/logs', (req, res) => {
 
-            //let logsCommand = "docker logs " + req.body.containerName + " | tail -n " + req.body.numOfLines;
+            let logsCommand = "docker logs " + req.body.containerName + " | tail -n " + req.body.numOfLines;
 
-            let logsCommand = 'export TERM=linux-m1b;docker logs ' + req.body.containerName + ' | tail -n ' + req.body.numOfLines;
+            //let logsCommand = 'export TERM=linux-m1b;docker logs ' + req.body.containerName + ' | tail -n ' + req.body.numOfLines;
 
-            let logsCommand = 'docker exec vf_os_platform_exec_control docker-compose --file test_compose.yml logs --no-color assetA'
+            //let logsCommand = 'docker exec vf_os_platform_exec_control docker-compose --file test_compose.yml logs --no-color assetA'
 
             /*
             export TERM=xterm-mono
@@ -110,7 +110,7 @@ const getAssetRoutes = (app) => {
                     res.setHeader('Content-Type', 'application/json');
                     res.send(answer);
                 } else {
-                    console.log("ERRORS");
+                    console.log("ERRORS logs");
                     res.setHeader('Content-Type', 'application/json');
                     //res.status(500).send({'error': error, 'stderr': stderr});
                     res.send({'error': error, 'stderr': stderr});

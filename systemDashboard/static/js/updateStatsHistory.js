@@ -620,10 +620,10 @@ function viewDetails(thisElem) {
     }
 
     // Get container name (Or any other useful thing to request info)
-    var containerName = $(thisElem).text();
+    //var containerName = $(thisElem).text();
 
     // Change data of details view;
-    changeDetailsView(containerName);
+    changeDetailsView(DETAILS_CONTAINERNAME);
 
     // Resize App iframe
     resizeIFrameToFitContent($("#app_iframe"));
