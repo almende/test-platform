@@ -11,6 +11,8 @@ var UPDATE_STATSHITORY_TIME = 3000;      // Update tables every x milliseconds
 var DETAILS_CONTAINER_OPENED_FLAG = false; // True - details view opened | false - details view not opened
 var MAX_DATA_TIME_TO_SHOW = 120; // (Seconds). Data is stored in this interval. After it gets removed!
 
+var DETAILS_CONTAINERNAME = "NO_CONTAINER_NAME"; // defines a container name opened on the details view, otherwise NO_CONTAINER_NAME
+
 var updateStatsHistory_timer;
 var statsHistory = {};
 
@@ -609,6 +611,9 @@ function viewDetails(thisElem) {
     // Highlight the selected row
     $(thisElem).parentsUntil("tbody").addClass("table-info");
 
+    // Put in the global variable the Container Name
+    DETAILS_CONTAINERNAME = $(thisElem).text();
+
     // If details view is closed than open it
     if(!DETAILS_CONTAINER_OPENED_FLAG){
         toggleTableContent();
@@ -626,6 +631,7 @@ function viewDetails(thisElem) {
 }
 
 // show / hide details view
+// Used on the viewDetails() function and on the close button of the details view window
 function toggleTableContent() {
 
     // Hide content in tables
@@ -654,7 +660,8 @@ function toggleTableContent() {
         $("#runningContainers").removeClass("sticky-top");
 
         $("#detailsDiv").hide();
-        DETAILS_CONTAINER_OPENED_FLAG = false;
+        DETAILS_CONTAINER_OPENED_FLAG = false;          // puts flag off
+        DETAILS_CONTAINERNAME = "NO_CONTAINER_NAME";    // replaces container name "resets it"
     }else{                          // we are gonna open details
         $("#tableDiv").removeClass(tableBigSize);
         $("#tableDiv").addClass(tableSmallSize);    // Shrink table
