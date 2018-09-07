@@ -173,16 +173,16 @@
                             <!-- Nav pills -->
                             <ul class="nav nav-tabs" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" data-toggle="tab" href="#containerDetails_app">App</a>
+                                    <a id="linkToDetails_app" class="nav-link active" data-toggle="tab" href="#containerDetails_app">App</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="tab" href="#containerDetails_stats">Stats</a>
+                                    <a id="linkToDetails_stats" class="nav-link" data-toggle="tab" href="#containerDetails_stats">Stats</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="tab" href="#containerDetails_logs">Logs</a>
+                                    <a id="linkToDetails_logs" class="nav-link" data-toggle="tab" href="#containerDetails_logs">Logs</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" data-toggle="tab" href="#containerDetails_settings">Settings</a>
+                                    <a id="linkToDetails_settings" class="nav-link" data-toggle="tab" href="#containerDetails_settings">Settings</a>
                                 </li>
                             </ul>
                         </div>
@@ -270,7 +270,7 @@
                             <div id="containerDetails_logs" class="tab-pane fade">
 
                                 <pre><code id="logWindow"></code></pre>
-
+                                <p id="logErrorMessage" class="text-danger" style="display: none">Errors while updating logs! Logs not updated!</p>
                             </div>
 
                             <!-- Tab containerDetails_settings -->

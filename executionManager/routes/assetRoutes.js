@@ -89,14 +89,8 @@ const getAssetRoutes = (app) => {
             let logsCommand = "docker logs " + req.body.containerName + " | tail -n " + req.body.numOfLines;
 
             //let logsCommand = 'export TERM=linux-m1b;docker logs ' + req.body.containerName + ' | tail -n ' + req.body.numOfLines;
-
             //let logsCommand = 'docker exec vf_os_platform_exec_control docker-compose --file test_compose.yml logs --no-color assetA'
 
-            /*
-            export TERM=xterm-mono
-            TERM=linux-m1b
-            TERM=linux-m2
-            */
             exec(logsCommand, (error, stdout, stderr) => {
 
                 if (!error) {

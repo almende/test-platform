@@ -3,6 +3,8 @@
  */
 
 var UPDATE_LOGS_TIME = 3000; // Update log view every x milliseconds
+var updateLogs_timer;   // variable to hold timer of the logs messaging
+var previousLogContainerName = ""; // It helps to know if user did change or not to another container while showing the logs
 
 $(document).ready(function() {
 
@@ -13,6 +15,11 @@ $(document).ready(function() {
         // update stats history
         setTimeout(updateLogs, 0);
         updateLogs_timer = setInterval(updateLogs, UPDATE_LOGS_TIME);
+
+        setTimeout(function(){
+            var objDiv = document.getElementById("logWindow");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }, 100);
 
     });
 
@@ -40,23 +47,29 @@ function updateLogs(){
         };
 
         $.post(urlLogs, dataSend, function (data, status) {
-            // TODO: WE NEED TO DO SOMETHING WHEN WE GET ERRORS
 
-            //if (error) {
-            //    console.log('error:' + error);
-            //}
-            //if (!error && response.statusCode == 200) {
+            if(typeof data.stdout !== 'undefined'){
+                $("#logWindow").removeClass("border border-danger");    // remove red color on borders
+                $("#logErrorMessage").hide();    // hide error message
 
-            // puts info on the logWindow
+                // insert text
+                $("#logWindow").text(data.stdout);
 
-            $("#logWindow").text(data.stdout);
+                // formats all with the highlights library
+                $('pre code').each(function(i, block) {
+                    hljs.highlightBlock(block);
+                });
+                previousLogContainerName = DETAILS_CONTAINERNAME;
+            } else {
+                // TODO: WHAT TO DO? A LOADING ICON WHILE PREVIOUS INFO IS STILL SHOWN?
+                $("#logWindow").addClass("border border-danger");
+                $("#logErrorMessage").show();
 
-            // formats all with the highlights library
-            $('pre code').each(function(i, block) {
-                hljs.highlightBlock(block);
-            });
+                if(previousLogContainerName !== DETAILS_CONTAINERNAME){
+                    $("#logWindow").text("");
+                }
+            }
 
-            //}
         });
 
     } else{

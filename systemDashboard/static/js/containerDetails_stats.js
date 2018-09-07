@@ -226,6 +226,17 @@ function changeDetailsView(containerName) {
 
     // ---- Logs nav ----
 
+    // If log view is opened update it
+    if($("#linkToDetails_logs").hasClass("active") && $("#linkToDetails_logs").hasClass("show")){
+        updateLogs();
+
+        setTimeout(function(){
+            var objDiv = document.getElementById("logWindow");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }, 100);
+
+
+    }
     // ---- Config nav ----
 
 }

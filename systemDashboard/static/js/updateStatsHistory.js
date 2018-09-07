@@ -622,6 +622,8 @@ function viewDetails(thisElem) {
     // Get container name (Or any other useful thing to request info)
     //var containerName = $(thisElem).text();
 
+
+
     // Change data of details view;
     changeDetailsView(DETAILS_CONTAINERNAME);
 
@@ -634,7 +636,7 @@ function viewDetails(thisElem) {
 // Used on the viewDetails() function and on the close button of the details view window
 function toggleTableContent() {
 
-    // Hide content in tables
+    // Toggle content in tables
     var tableContentCollumns = [3, 4, 5, 6, 7, 8]; // collum number to toggle visibility
     for(let i=0; i<tableContentCollumns.length; i++){
         $('td:nth-child(' + tableContentCollumns[i] + '), th:nth-child(' + tableContentCollumns[i] + ')').toggle();
@@ -659,9 +661,13 @@ function toggleTableContent() {
 
         $("#runningContainers").removeClass("sticky-top");
 
+        // closes details view window
         $("#detailsDiv").hide();
         DETAILS_CONTAINER_OPENED_FLAG = false;          // puts flag off
+
+        // stops logs messaging
         DETAILS_CONTAINERNAME = "NO_CONTAINER_NAME";    // replaces container name "resets it"
+        clearInterval(updateLogs_timer); // stop messaging to update logs view
     }else{                          // we are gonna open details
         $("#tableDiv").removeClass(tableBigSize);
         $("#tableDiv").addClass(tableSmallSize);    // Shrink table
