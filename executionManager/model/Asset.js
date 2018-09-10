@@ -24,12 +24,19 @@ class Asset {
         let me = this;
         let getRunning = () => {
             return new Promise((resolve, reject) => {
-                exec('docker container ls --filter=\'label=com.docker.compose.service=' + me.id + '\' --format=\'{{.Names}}\'', (error, stdout, stderr) => {
+                exec('docker container ls --filter=\'label=com.docker.compose.service=' + me.id + '\' --format=\'{"name":{{json .Names}},"status":{{json .Status}}}\' -a', (error, stdout, stderr) => {
                     if (!error) {
                         if (stdout !== "") {
-                            me.status = "Running";
-                            me.containerName = stdout.replace(/(\r\n|\n|\r)/gm, "");
-                            resolve();
+                            let result = JSON.parse(stdout);
+                            if (result.status.startsWith("Up")) {
+                                me.status = "Running";
+                                me.containerName = result.name;
+                                resolve();
+                            } else {
+                                me.status = "Stopped";
+                                me.containerName = result.name;
+                                resolve();
+                            }
                         } else {
                             reject();
                         }
@@ -62,12 +69,12 @@ class Asset {
         };
         return new Promise((resolve, reject) => {
             getRunning().then(() => {
-                resolve("Running")
+                resolve(me.status);
             }).catch(() => {
                 getInstalled().then(() => {
-                    resolve("Installed")
+                    resolve(me.status);
                 }).catch(() => {
-                    reject("Uninstalled")
+                    reject(me.status)
                 })
             })
         });
@@ -75,7 +82,7 @@ class Asset {
 
     getLabels(imageOnly = false) {
         let me = this;
-        if (!imageOnly && this.status === 'Running' && this.containerName !== "Unknown") {
+        if (!imageOnly && this.containerName !== "Unknown" && (this.status === 'Running' || this.status === 'Stopped')) {
             return new Promise((resolve, reject) => {
                 exec('docker container inspect ' + me.containerName + ' --format=\'{{json .Config.Labels}}\'', (error, stdout, stderr) => {
                     if (!error) {
