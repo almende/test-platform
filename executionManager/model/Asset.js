@@ -3,7 +3,7 @@
 const exec = require('child_process').exec;
 
 class Asset {
-    constructor(id, imageId, autoStart=false) {
+    constructor(id, imageId, autoStart = false) {
         this.id = id;  //instance ID, used as runtime name and URL prefix
         this.imageId = imageId;  //image ID, as used by docker image
         this.autoStart = autoStart;
@@ -14,8 +14,10 @@ class Asset {
         setInterval(this.updateStatus.bind(this), 10000);
     }
 
-    updateStatus(){
-        this.getStatus().then((msg)=>{}).catch((msg)=>{});
+    updateStatus() {
+        this.getStatus().then((msg) => {
+        }).catch((msg) => {
+        });
     }
 
     getStatus() {
@@ -26,13 +28,13 @@ class Asset {
                     if (!error) {
                         if (stdout !== "") {
                             me.status = "Running";
-                            me.containerId = stdout.replace(/(\r\n|\n|\r)/gm,"");
+                            me.containerId = stdout.replace(/(\r\n|\n|\r)/gm, "");
                             resolve();
                         } else {
                             reject();
                         }
                     } else {
-                        console.log("docker container ls gives error:",error,stderr,me);
+                        console.log("docker container ls gives error:", error, stderr, me);
                         me.status = "Unknown";
                         reject(error, stderr);
                     }
@@ -51,7 +53,7 @@ class Asset {
                             reject();
                         }
                     } else {
-                        console.log("docker image ls gives error:",error,stderr,me);
+                        console.log("docker image ls gives error:", error, stderr, me);
                         me.status = "Unknown";
                         reject(error, stderr);
                     }
@@ -71,7 +73,7 @@ class Asset {
         });
     }
 
-    getLabels(imageOnly=false) {
+    getLabels(imageOnly = false) {
         let me = this;
         if (!imageOnly && this.status === 'Running' && this.containerId !== "Unknown") {
             return new Promise((resolve, reject) => {
@@ -84,17 +86,20 @@ class Asset {
                 });
             });
         } else {
-            return new Promise((resolve, reject) => {
-                exec('docker image inspect ' + me.imageId + ' --format=\'{{json .Config.Labels}}\'', (error, stdout, stderr) => {
-                    if (!error) {
-                        resolve(JSON.parse(stdout));
-                    } else {
-                        reject(error, stderr);
-                    }
+            if (this.status === "Unknown" || this.status === "Uninstalled") {
+                return Promise.resolve({});
+            } else {
+                return new Promise((resolve, reject) => {
+                    exec('docker image inspect ' + me.imageId + ' --format=\'{{json .Config.Labels}}\'', (error, stdout, stderr) => {
+                        if (!error) {
+                            resolve(JSON.parse(stdout));
+                        } else {
+                            reject(error, stderr);
+                        }
+                    });
                 });
-            });
+            }
         }
-        ;
     }
 
     getComposeSection(networkId) {

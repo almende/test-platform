@@ -11,9 +11,9 @@ const getAssetRoutes = (app) => {
     const router = new Router();
     storage.init().then(async () => {
         let assets = await storage.getItem('assets');
-        if (assets == null){
+        if (assets == null) {
             assets = [new Asset('assetA', 'asset-a', true), new Asset('assetB', 'asset-b', true), new Asset('assetC', 'asset-c')];
-            await storage.setItem('assets',assets);
+            await storage.setItem('assets', assets);
         }
         router
             .get('/', (req, res) => {
@@ -37,7 +37,7 @@ const getAssetRoutes = (app) => {
             .get('/compose_config', (req, res) => {
                 let configs = {};
                 Promise.all(assets.map((asset, index) => {
-                    if (asset.autoStart){
+                    if (asset.autoStart) {
                         return new Promise((resolve, reject) => {
                             asset.getComposeSection('asset-net-' + index.toString().padStart(2, '0')).then((config) => {
                                 configs[asset.id] = config;
@@ -192,23 +192,39 @@ const getAssetRoutes = (app) => {
                     }
                     //Send HTTP status
                     res.send({error: 'No such Asset: ' + req.params.id});
-                } else {
-                    let idx = assets.length;
-                    while (idx--) {
-                        if (assets[idx] && assets[idx].id === req.params.id) {
-                            res.send({error: 'Asset already exists! ' + req.params.id})
-                            return;
-                        }
-                    }
-
+                } else { //Update meta-info
                     try {
+                        let idx = assets.length;
                         let data = req.body;
-                        assets.push(new Asset(req.params.id, data.imageId, data.autoStart));
-                        res.send({result: 'OK'});
-                        await storage.setItem('assets',assets);
+                        while (idx--) {
+                            if (assets[idx] && assets[idx].id === req.params.id) {
+                                assets[idx].autoStart = data.autoStart;
+                                assets[idx].imageId = data.imageId;
+                                res.send({result: 'OK'});
+                                await storage.setItem('assets', assets);
+                                return;
+                            }
+                        }
                     } catch (e) {
                         res.send({error: e});
                     }
+                }
+            })
+            .put('/', async (req, res) => {
+                let idx = assets.length;
+                let data = req.body;
+                while (idx--) {
+                    if (assets[idx] && assets[idx].id === data.id) {
+                        res.send({error: 'Asset already exists! ' + data.id})
+                        return;
+                    }
+                }
+                try {
+                    assets.push(new Asset(data.id, data.imageId, data.autoStart));
+                    res.send({result: 'OK'});
+                    await storage.setItem('assets', assets);
+                } catch (e) {
+                    res.send({error: e});
                 }
             })
             .delete('/:id', async (req, res) => {
@@ -219,7 +235,7 @@ const getAssetRoutes = (app) => {
                         break;
                     }
                 }
-                await storage.setItem('assets',assets);
+                await storage.setItem('assets', assets);
                 res.send({result: 'OK'});
             });
 
