@@ -7,7 +7,7 @@ class Asset {
         this.id = id;  //instance ID, used as runtime name and URL prefix
         this.imageId = imageId;  //image ID, as used by docker image
         this.autoStart = autoStart;
-        this.containerId = "Unknown";
+        this.containerName = "Unknown";
         this.status = "Unknown";
 
         this.updateStatus.call(this);
@@ -28,7 +28,7 @@ class Asset {
                     if (!error) {
                         if (stdout !== "") {
                             me.status = "Running";
-                            me.containerId = stdout.replace(/(\r\n|\n|\r)/gm, "");
+                            me.containerName = stdout.replace(/(\r\n|\n|\r)/gm, "");
                             resolve();
                         } else {
                             reject();
@@ -75,9 +75,9 @@ class Asset {
 
     getLabels(imageOnly = false) {
         let me = this;
-        if (!imageOnly && this.status === 'Running' && this.containerId !== "Unknown") {
+        if (!imageOnly && this.status === 'Running' && this.containerName !== "Unknown") {
             return new Promise((resolve, reject) => {
-                exec('docker container inspect ' + me.containerId + ' --format=\'{{json .Config.Labels}}\'', (error, stdout, stderr) => {
+                exec('docker container inspect ' + me.containerName + ' --format=\'{{json .Config.Labels}}\'', (error, stdout, stderr) => {
                     if (!error) {
                         resolve(JSON.parse(stdout));
                     } else {
