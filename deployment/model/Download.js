@@ -68,7 +68,9 @@ class Download {
 
   deleteLocal () {
     this.status = 'Deleted'
-    fs.unlinkSync('downloads/' + this.id + '.download.zip')
+    try {
+      fs.unlinkSync('downloads/' + this.id + '.download.zip')
+    } catch (error) {}
   }
 
   tag (original, newTag) {

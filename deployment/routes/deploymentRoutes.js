@@ -50,7 +50,7 @@ const getDeploymentRoutes = (app) => {
         while (idx--) {
           if (downloads[idx] && downloads[idx].id === req.params.id) {
             downloads[idx].deleteLocal()
-            delete downloads[idx]
+            downloads.splice(idx, 1)
             res.send({ result: 'OK' })
             return
           }

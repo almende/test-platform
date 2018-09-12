@@ -31,7 +31,6 @@ services:
     volumes:
       - ./testImages:/usr/src/app/static
     networks:
-      - default
       - execution-manager-net
   reverse-proxy:
     image: traefik:latest # The official Traefik docker image
