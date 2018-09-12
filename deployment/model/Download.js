@@ -3,11 +3,14 @@
 const downloader = require('download')
 const fs = require('fs')
 const exec = require('child_process').exec
+const extract = require('extract-zip')
 
 class Download {
   constructor (id, url) {
     this.id = id
     this.url = url
+    this.remoteTag = id // todo: Allow override in metadata.
+    this.manifest = {}
     this.status = 'Initial'
     this.progress = {}
 
@@ -23,7 +26,7 @@ class Download {
         setTimeout(this.download.bind(this), 0)
         break
       case 'Downloaded':
-        setTimeout(this.unpack.bind(this), 0)
+        setTimeout(this.convert.bind(this), 0)
         break
       case 'Unpacked':
         setTimeout(this.install.bind(this), 0)
@@ -32,6 +35,7 @@ class Download {
       case 'Unpacking':
       case 'Installing':
       case 'Done':
+      case 'Error':
       default:
       // Do nothing, just wait.
     }
@@ -67,13 +71,73 @@ class Download {
     fs.unlinkSync('downloads/' + this.id + '.download.zip')
   }
 
+  tag (original, newTag) {
+    return new Promise((resolve, reject) => {
+      exec('docker image tag ' + original + ' ' + newTag, (error, stdout, stderr) => {
+        if (!error) {
+          resolve(stdout)
+        } else {
+          reject(error, stderr)
+        }
+      })
+    })
+  }
+
   unpack () {
-    // Check file format
-    // Run unzip into temporary folder: two files
-    // Load into local docker repos, with tag like temp/assetName
-    // Compare meta-info with labels
-    // If different, create Dockerfile with updated labels, built new image registry:5000/assetName
-    // else retag image registry:5000/assetName
+    let me = this
+    return new Promise((resolve, reject) => {
+      extract(me.id + '.download.zip', {
+        dir: 'downloads/' + me.id + '_unpacked',
+        onEntry: (entry) => {
+          if (entry.fileName.endsWith('manifest.json')) {
+            me.manifest = JSON.parse(fs.readFileSync('downloads/' + me.id + '_unpacked/' + entry.fileName, 'utf-8'))
+          }
+        }
+      }, (err) => {
+        if (!err) {
+          resolve()
+        } else {
+          reject(err)
+        }
+      })
+    })
+  }
+
+  load () {
+    let me = this
+    return new Promise((resolve, reject) => {
+      exec('docker load < downloads/' + me.id + '_unpacked/' + me.manifest.binaryFile, (error, stdout, stderr) => {
+        if (!error) {
+          resolve(stdout)
+        } else {
+          reject(error, stderr)
+        }
+      })
+    })
+  }
+
+  convert () {
+    let me = this
+    me.status = 'Unpacking'
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Check file format
+        // Run unzip into temporary folder: two files
+        await me.unpack()
+        // Load into local docker repos, with tag like temp/assetName
+        await me.load()
+        await me.tag(me.remoteTag, 'temp/' + me.id)
+        // Compare meta-info with labels
+        // If different, create Dockerfile with updated labels, built new image registry:5000/assetName
+        // else retag image registry:5000/assetName
+        await me.tag('temp/' + me.id, 'registry:5000/' + me.id)
+
+        me.status = 'Unpacked'
+      } catch (error) {
+        me.status = 'Error'
+        reject(error)
+      }
+    })
   }
 
   install () {

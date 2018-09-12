@@ -23,6 +23,16 @@ cat << EOF > $INITIAL_COMPOSE_FILE
 version: '3'
 
 services:
+  testServer:
+    image: vfos/test-server
+    restart: "unless-stopped"
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/testServer"
+    volumes:
+      - ./testImages:/usr/src/app/static
+    networks:
+      - default
+      - execution-manager-net
   reverse-proxy:
     image: traefik:latest # The official Traefik docker image
     restart: "unless-stopped"

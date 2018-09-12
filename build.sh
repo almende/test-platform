@@ -9,8 +9,21 @@ docker build . -t asset-b
 cd ../assetC
 docker build . -t asset-c
 
+cd ../
+mkdir -p ./testImages
+cd ./testImages
+docker save asset-a -o asset-a
+docker image rm asset-a
+docker save asset-b -o asset-b
+docker image rm asset-b
+docker save asset-c -o asset-c
+docker image rm asset-c
+
 cd ../executionManager
 docker build . -t vfos/exec-manager
+
+cd ../testServer
+docker build . -t vfos/test-server
 
 cd ../deployment
 docker build . -t vfos/deploy
