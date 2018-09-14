@@ -208,6 +208,20 @@ $(document).ready(function(){
 
 function changeDetailsView(containerName) {
 
+    // where is containerName
+    var location;
+    if (historyDB.runningVAssets.hasOwnProperty(containerName)) {
+        location = historyDB.runningVAssets;
+    } else if (historyDB.notRunningVAssets.hasOwnProperty(containerName)) {
+        location = historyDB.notRunningVAssets;
+    } else if (historyDB.otherContainers.hasOwnProperty(containerName)){
+        location = historyDB.otherContainers;
+    } else {
+        console.log("ERROR: containerName not found!")
+        return;
+    }
+
+
     // ---- App nav ----
     var iFrame = $("#app_iframe");
     resizeIFrameToFitContent(iFrame);
@@ -216,13 +230,13 @@ function changeDetailsView(containerName) {
     // ---- Stats nav ----
     // Change datasets
     detailsContainerName = containerName; // write the name of the container
-    graph2dCpu.setItems(statsHistory[containerName].cpu);
-    graph2dMemPerc.setItems(statsHistory[containerName].mem.memPerc);
+    graph2dCpu.setItems(location[containerName].cpu);
+    graph2dMemPerc.setItems(location[containerName].mem.memPerc);
 
-    graph2dMemUsage.setItems(statsHistory[containerName].mem.memUsage.dataset);
+    graph2dMemUsage.setItems(location[containerName].mem.memUsage.dataset);
 
-    graph2dNetIO.setItems(statsHistory[containerName].netIO.dataset);
-    graph2dBlockIO.setItems(statsHistory[containerName].blockIO.dataset);
+    graph2dNetIO.setItems(location[containerName].netIO.dataset);
+    graph2dBlockIO.setItems(location[containerName].blockIO.dataset);
 
     // ---- Logs nav ----
 

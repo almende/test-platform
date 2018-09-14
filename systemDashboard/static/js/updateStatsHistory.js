@@ -14,8 +14,68 @@ var MAX_DATA_TIME_TO_SHOW = 120; // (Seconds). Data is stored in this interval. 
 var DETAILS_CONTAINERNAME = "NO_CONTAINER_NAME"; // defines a container name opened on the details view, otherwise NO_CONTAINER_NAME
 
 var updateStatsHistory_timer;
-var statsHistory = {};
 
+var historyDB = {
+    runningVAssets:{},
+    notRunningVAssets:[],
+    otherContainers:{}
+};
+
+var tempStats,  // variable to hold the data that come from the request of /stats
+    tempAssets; // variable to hold the data that come from the request of /assets
+
+
+//-----------------------------------------------
+//-----------------------------------------------
+// Based on:
+// https://stackoverflow.com/questions/1759987/listening-for-variable-changes-in-javascript
+
+// Responsible to update table at the same time after getting results from /stats and /assets
+var updateTablesChecker = {
+
+    i_assetsUpdated_bool: false,
+    i_statsUpdated_bool: false,
+
+    update_listerner: function(val){},
+
+    set assetsUpdated_bool(val) {
+        this.i_assetsUpdated_bool = val;
+        this.update_listerner(val);
+    },
+    get assetsUpdated_bool(){
+        return this.i_assetsUpdated_bool;
+    },
+
+    set statsUpdated_bool(val) {
+        this.i_statsUpdated_bool = val;
+        this.update_listerner(val);
+    },
+    get statsUpdated_bool(){
+        return this.i_statsUpdated_bool;
+    },
+    get reset_bools(){
+        this.i_assetsUpdated_bool = false;
+        this.i_statsUpdated_bool = false;
+    },
+    registerListener: function(listener){
+        this.update_listerner = listener;
+    }
+};
+
+updateTablesChecker.registerListener(function(val) {
+    // Update tables if both variables were changed to true
+    if((this.assetsUpdated_bool) && (this.statsUpdated_bool)){
+
+        // merge data that was received with historyDB
+        mergeData();
+
+        // Update/render tables
+        updateTables();
+    }
+});
+
+//-----------------------------------------------
+//-----------------------------------------------
 $(document).ready(function(){
 
     // update stats history
@@ -25,28 +85,154 @@ $(document).ready(function(){
 });
 
 function updateStatsHistory(){
-    // Request data to executionManager (executionservices)
-    var urlStats = '/executionservices/assets' + '/stats';
+
+    // Resets checker variables
+    updateTablesChecker.reset_bools;
+
+
+    // Add statistics to History
+    var urlStats = '/executionservices/assets' + '/stats'; // Request data to executionManager (executionservices)
     $.get(urlStats, function (data, status) {
         // TODO: WE NEED TO DO SOMETHING WHEN WE GET ERRORS
 
-        //if (error) {
-        //    console.log('error:' + error);
-        //}
-        //if (!error && response.statusCode == 200) {
+        // format string data into values data
         formatNewData(data);
 
-        addStatsToHistory(data);
+        // store data globaly to be treated later
+        tempStats = data;
 
-        removeOldData();
+        // flags up that we have the stats data ready (Triggers the event)
+        updateTablesChecker.statsUpdated_bool = true;
 
-        // check if it is necessary to change units scale
-        changeDataScales();
-
-        updateTable();
-
-        //}
     });
+
+    // Make the correlation between ContainerName and AssetName
+    var urlAssets = '/executionservices/assets'; // Request data to executionManager (executionservices)
+    $.get(urlAssets, function (data, status) {
+        // TODO: WE NEED TO DO SOMETHING WHEN WE GET ERRORS
+
+        // store data globaly to be treated later
+        tempAssets = data;
+
+        // flags up that we have the stats data ready (Triggers the event)
+        updateTablesChecker.assetsUpdated_bool = true;
+
+    });
+
+}
+
+
+function mergeData(){
+
+    // ----- NOT RUNNING VASSETS TABLE ----
+
+    // clean all entries
+    historyDB.notRunningVAssets = [];
+
+    // for all elements in Assets list
+    for(let i=0; i < tempAssets.length; i++){
+        var entry = tempAssets[i];
+        // if containerName is unknown then it means this vAsset is not running, so,
+        if(entry.containerName === "Unknown"){
+            (historyDB.notRunningVAssets).push(entry); // store in notRunningVAssets
+            tempAssets[i] = "REMOVED"; // Mark element as removed
+        }
+    }
+
+    // remove "removed" elements from tempAssets array
+    tempAssets = tempAssets.filter(function (currentValue, index, arr) {
+        return (currentValue !== "REMOVED");
+    });
+
+    // ---------------------------------------
+
+    // ----- NOT RUNNING VASSETS TABLE ----
+
+    // Define all containerID undefined
+    // (It will help to know which container entries should be removed because they were stopped of running.
+    // After rewritting the new information the ones who were not updated should be removed)
+    for(var containerName in historyDB.runningVAssets){
+        historyDB.runningVAssets[containerName].containerID = undefined;
+    }
+
+    var tempStatsArray = tempStats.stdout;  // array with the stats info
+
+    for(var i=0; i < tempStatsArray.length; i++){
+        for(var k=0; k<tempAssets.length;k++){
+
+            // If it finds the match in both arrays
+            if(tempStatsArray[i].name === tempAssets[k].containerName){
+
+                // put stats data in historyDB
+                var newStats = {timestamp:tempStats.timestamp, stdout: [tempStatsArray[i]]};
+                var locRef = {obj: historyDB, objName:"runningVAssets"};
+                addStatsToHistory(locRef, newStats);
+
+                // add Asset Info To History
+                historyDB.runningVAssets[tempStatsArray[i].name].assetDetails = tempAssets[k];
+
+                // mark element as removed from stats list
+                tempStatsArray[i] = "REMOVED";
+
+                continue; // continues to next stats element
+            }
+        }
+    }
+
+    // remove "removed" elements from tempStatsArray array
+    tempStats.stdout = tempStatsArray.filter(function (currentValue, index, arr) {
+        return (currentValue !== "REMOVED");
+    });
+
+
+    // removed stopped containers by looking on containerID's not updated
+    for(var containerName in historyDB.runningVAssets){
+        if(historyDB.runningVAssets[containerName].containerID === undefined){
+         delete historyDB.runningVAssets[containerName]; // delete stopped vAsset from runningVAssets
+        }
+    }
+
+
+    // ---------------------------------------
+
+    // ----- OTHER CONTAINERS TABLE ----
+
+    // Define all containerID undefined
+    // (It will help to know which container entries should be removed because they were stopped of running.
+    // After rewritting the new information the ones who were not updated should be removed)
+    for(var containerName in historyDB.otherContainers){
+        historyDB.otherContainers[containerName].containerID = undefined;
+    }
+
+
+    var tempStatsArray = tempStats.stdout;  // array with the stats info
+
+    for(var i=0; i < tempStatsArray.length; i++){
+        // put stats data in historyDB
+        var newStats = {timestamp:tempStats.timestamp, stdout: [tempStatsArray[i]]};
+        var locRef = {obj: historyDB, objName:"otherContainers"};
+        addStatsToHistory(locRef, newStats);
+    }
+
+
+
+    // removed stopped containers by looking on containerID's not updated
+    for(var containerName in historyDB.otherContainers){
+        if(historyDB.otherContainers[containerName].containerID === undefined){
+            delete historyDB.otherContainers[containerName]; // delete stopped vAsset from runningVAssets
+        }
+    }
+    // ---------------------------------------
+
+    // remove all data from all sets
+    removeOldData();
+
+    // check if it is necessary to change units scale
+    changeDataScales();
+
+    // reset temp variables
+    tempStats = undefined;
+    tempAssets = undefined;
 }
 
 // Formats data that came from server. stdout value is a string that we have to parse.
@@ -175,38 +361,45 @@ function getStringValueInBytes(str, pattern){
 }
 
 function removeOldData(){
-    
-    // for all containers
-    for( var containerName in statsHistory){
 
-        var datasetsArray = [
-            statsHistory[containerName].cpu,
-            statsHistory[containerName].pids,
-            statsHistory[containerName].mem.memPerc,
-            statsHistory[containerName].mem.memUsage.dataset,
-            statsHistory[containerName].netIO.dataset,
-            statsHistory[containerName].blockIO.dataset
-        ];
+    var allObjectsData = [historyDB.runningVAssets, historyDB.otherContainers];
 
-        for(let i = 0; i < datasetsArray.length; i++){
+    for(let i = 0; i < allObjectsData.length; i++){
+        var group = allObjectsData[i];
 
-            var dataset = datasetsArray[i];                 // get dataset
-            var currentTime = graph2dCpu.getCurrentTime();  // get current time of any graph
+        // for all containers
+        for( var containerName in group){
 
-            // filter old data
-            var oldIds = dataset.getIds({
-                filter: function (item) {
-                    return item.x < vis.moment(currentTime).add(-MAX_DATA_TIME_TO_SHOW, 'seconds');
-                }
-            });
-            // remove old data of this dataset
-            dataset.remove(oldIds);
+            var datasetsArray = [
+                group[containerName].cpu,
+                group[containerName].pids,
+                group[containerName].mem.memPerc,
+                group[containerName].mem.memUsage.dataset,
+                group[containerName].netIO.dataset,
+                group[containerName].blockIO.dataset
+            ];
 
-            // if dataset is empty then remove all container from statsHistory
-            if(dataset.length === 0){
-                delete statsHistory[containerName];
-                break; // jump to next container in statsHistory
+            for(let k = 0; k < datasetsArray.length; k++){
+
+                var dataset = datasetsArray[k];                 // get dataset
+                var currentTime = graph2dCpu.getCurrentTime();  // get current time of any graph
+
+                // filter old data
+                var oldIds = dataset.getIds({
+                    filter: function (item) {
+                        return item.x < vis.moment(currentTime).add(-MAX_DATA_TIME_TO_SHOW, 'seconds');
+                    }
+                });
+                // remove old data of this dataset
+                dataset.remove(oldIds);
+
+                // If dataset and assetDetails are empty then remove all container from historyDB
+                //if( (dataset.length === 0) && (jQuery.isEmptyObject(historyDB[containerName].assetDetails) ){
+                //    delete historyDB[containerName];
+                //    break; // jump to next container in historyDB
+                //}
             }
+
         }
 
     }
@@ -214,80 +407,79 @@ function removeOldData(){
 }
 
 //
-// newStats        -> array with objects that contains container info
+// newStats.stdout        -> array with objects that contains container info
 //                      eg: [{container1_Info}, {container2_Info}, ... ]
-function addStatsToHistory(newStats){
+function addStatsToHistory(objLocation, newStats){
+
+    var location = objLocation.obj[objLocation.objName];
 
     var stdoutArray = newStats.stdout;
     for(let i = 0; i < stdoutArray.length; i++){ // run through all containers info
 
         var name = stdoutArray[i].name;
 
-        // If container does not exist in stats history then create it
-        if(!(name in statsHistory)){
-            statsHistory[name] = {}; // initialize object
-
-            statsHistory[name].containerID = undefined;
-
-            statsHistory[name].cpu = new vis.DataSet();
-            statsHistory[name].pids = new vis.DataSet();
-
-            statsHistory[name].mem = {};
-            statsHistory[name].mem.memPerc = new vis.DataSet();
-
-            statsHistory[name].mem.memUsage = {};
-            statsHistory[name].mem.memUsage.dataset = new vis.DataSet();
-            statsHistory[name].mem.memUsage.units = 0; // 0 -> Bytes. Then multiples of 3
-
-            statsHistory[name].mem.memLimit = {};
-            statsHistory[name].mem.memLimit.value = undefined;
-            statsHistory[name].mem.memLimit.units = 0;
-
-            statsHistory[name].netIO = {};
-            statsHistory[name].netIO.dataset = new vis.DataSet();
-            statsHistory[name].netIO.units = 0;
-
-            statsHistory[name].blockIO = {};
-            statsHistory[name].blockIO.dataset = new vis.DataSet();
-            statsHistory[name].blockIO.units = 0;
-
-            //statsHistory[name].blockIO.dataWritten = {};
-            //statsHistory[name].blockIO.dataWritten.dataset = new vis.DataSet();
-            //statsHistory[name].blockIO.dataWritten.units = 0;
+        // If container does not exists in stats history then create it
+        if(!(name in location)){
+            addNewEmptyEntryToHistory(location, name);
         }
 
         // format to the right units
-        formatNewDataToSameUnits(name, stdoutArray[i]);
+        formatNewDataToSameUnits(location, name, stdoutArray[i]);
 
         // add stats values to history
         var t = newStats.timestamp; // time of sampling
 
-        statsHistory[name].containerID = stdoutArray[i].containerID;
+        location[name].containerID = stdoutArray[i].containerID;
 
-        statsHistory[name].cpu.add({x: t, y: stdoutArray[i].cpu});
-        statsHistory[name].pids.add({x: t, y: stdoutArray[i].pids});
+        location[name].cpu.add({x: t, y: stdoutArray[i].cpu});
+        location[name].pids.add({x: t, y: stdoutArray[i].pids});
 
-        statsHistory[name].mem.memPerc.add({x: t, y: stdoutArray[i].mem.memPerc});
+        location[name].mem.memPerc.add({x: t, y: stdoutArray[i].mem.memPerc});
 
-        statsHistory[name].mem.memUsage.dataset.add({x: t, y: stdoutArray[i].mem.memUsage});
-        statsHistory[name].mem.memLimit.value = stdoutArray[i].mem.memLimit;
+        location[name].mem.memUsage.dataset.add({x: t, y: stdoutArray[i].mem.memUsage});
+        location[name].mem.memLimit.value = stdoutArray[i].mem.memLimit;
 
-        statsHistory[name].netIO.dataset.add([
+        location[name].netIO.dataset.add([
             {x: t, y: stdoutArray[i].netIO.netSent,     group: "netSent"},
             {x: t, y: stdoutArray[i].netIO.netReceived, group: "netReceived"}
         ]);
 
-
-        statsHistory[name].blockIO.dataset.add([
+        location[name].blockIO.dataset.add([
             {x: t, y: stdoutArray[i].blockIO.dataRead,      group: "dataRead"},
             {x: t, y: stdoutArray[i].blockIO.dataWritten,   group: "dataWritten"}
         ]);
 
-        //statsHistory[name].blockIO.dataRead.dataset.add({x: t, y: stdoutArray[i].blockIO.dataRead});
-        //statsHistory[name].blockIO.dataWritten.dataset.add({x: t, y: stdoutArray[i].blockIO.dataWritten});
-
     }
 
+}
+
+function addNewEmptyEntryToHistory(objLocation, containerName){
+    objLocation[containerName] = {}; // initialize object
+
+    objLocation[containerName].assetDetails = {};         // fill to be inserted by /assets list
+    objLocation[containerName].containerID = undefined;   // fill to be inserted by /stats list
+
+    objLocation[containerName].cpu = new vis.DataSet();
+    objLocation[containerName].pids = new vis.DataSet();
+
+    objLocation[containerName].mem = {};
+    objLocation[containerName].mem.memPerc = new vis.DataSet();
+
+    objLocation[containerName].mem.memUsage = {};
+    objLocation[containerName].mem.memUsage.dataset = new vis.DataSet();
+    objLocation[containerName].mem.memUsage.units = 0; // 0 -> Bytes. Then multiples of 3
+
+    objLocation[containerName].mem.memLimit = {};
+    objLocation[containerName].mem.memLimit.value = undefined;
+    objLocation[containerName].mem.memLimit.units = 0;
+
+    objLocation[containerName].netIO = {};
+    objLocation[containerName].netIO.dataset = new vis.DataSet();
+    objLocation[containerName].netIO.units = 0;
+
+    objLocation[containerName].blockIO = {};
+    objLocation[containerName].blockIO.dataset = new vis.DataSet();
+    objLocation[containerName].blockIO.units = 0;
 }
 
 // returns the number scale in power of 10 (multiples of 3)
@@ -311,13 +503,13 @@ function getNumberScale(num){
 }
 
 // New data come in BYTES then we just have to divide by the pow current scale
-function formatNewDataToSameUnits(name, stdoutElem){
+function formatNewDataToSameUnits(objLocation, name, stdoutElem){
 
     // get current units
-    var currentMemUsageUnits = statsHistory[name].mem.memUsage.units,
-        currentMemLimitUnits = statsHistory[name].mem.memLimit.units,
-        currentNetIOUnits = statsHistory[name].netIO.units,
-        currentBlockIOUnits = statsHistory[name].blockIO.units;
+    var currentMemUsageUnits = objLocation[name].mem.memUsage.units,
+        currentMemLimitUnits = objLocation[name].mem.memLimit.units,
+        currentNetIOUnits = objLocation[name].netIO.units,
+        currentBlockIOUnits = objLocation[name].blockIO.units;
 
     // transform number to the current units
     stdoutElem.mem.memUsage = stdoutElem.mem.memUsage / Math.pow(10, currentMemUsageUnits);
@@ -334,33 +526,40 @@ function formatNewDataToSameUnits(name, stdoutElem){
 
 function changeDataScales(){
 
-    // for all containers
-    for(var containerName in statsHistory){
+    var allObjectsData = [historyDB.runningVAssets, historyDB.otherContainers];
 
-        // --- memUsage ---
-        formatDatasetScale(statsHistory[containerName].mem.memUsage, graph2dMemUsage);
-        updateGraphScaleAxis(statsHistory[containerName].mem.memUsage, graph2dMemUsage, "binary");
-        // --- memLimit ---
-        formatValueScale(statsHistory[containerName].mem.memLimit);
+    for(let i = 0; i < allObjectsData.length; i++) {
+        var group = allObjectsData[i];
 
-        // --- netIO ---
-        formatDatasetScale(statsHistory[containerName].netIO, graph2dNetIO);
-        updateGraphScaleAxis(statsHistory[containerName].netIO, graph2dNetIO);
+        // for all containers
+        for (var containerName in group) {
 
-        // --- blockIO ---
-        formatDatasetScale(statsHistory[containerName].blockIO, graph2dBlockIO);
-        updateGraphScaleAxis(statsHistory[containerName].blockIO, graph2dBlockIO);
+            // --- memUsage ---
+            formatDatasetScale(group[containerName].mem.memUsage, graph2dMemUsage);
+            updateGraphScaleAxis(group[containerName].mem.memUsage, graph2dMemUsage, "binary");
 
+            // --- memLimit ---
+            formatValueScale(group[containerName].mem.memLimit);
+
+            // --- netIO ---
+            formatDatasetScale(group[containerName].netIO, graph2dNetIO);
+            updateGraphScaleAxis(group[containerName].netIO, graph2dNetIO);
+
+            // --- blockIO ---
+            formatDatasetScale(group[containerName].blockIO, graph2dBlockIO);
+            updateGraphScaleAxis(group[containerName].blockIO, graph2dBlockIO);
+
+        }
+
+        if(detailsContainerName in group){
+            // update scales on graphs
+            updateGraphScaleAxis(group[detailsContainerName].mem.memUsage, graph2dMemUsage, "binary");
+            updateGraphScaleAxis(group[detailsContainerName].netIO, graph2dNetIO);
+            updateGraphScaleAxis(group[detailsContainerName].blockIO, graph2dBlockIO);
+        }
     }
 
 
-
-    if(detailsContainerName in statsHistory){
-        // update scales on graphs
-        updateGraphScaleAxis(statsHistory[detailsContainerName].mem.memUsage, graph2dMemUsage, "binary");
-        updateGraphScaleAxis(statsHistory[detailsContainerName].netIO, graph2dNetIO);
-        updateGraphScaleAxis(statsHistory[detailsContainerName].blockIO, graph2dBlockIO);
-    }
 
 }
 
@@ -405,8 +604,8 @@ function formatValueScale(valueObj){
     valueObj.units+=powScale;
 }
 
-// statsHistory[containerName].mem.memUsage
-// statsHistory[containerName].mem.memUsageUnits
+// historyDB[containerName].mem.memUsage
+// historyDB[containerName].mem.memUsageUnits
 // graph2dMemUsage
 function formatDatasetScale(datasetObj) {
 
@@ -488,6 +687,46 @@ function getPowerScaleToUnitsString(power, type){
     return unitsStr;
 }
 
+// This function is called when assetsUpdated_bool and statsUpdated_bool on updateTablesChecker variable
+// are both set to "true"
+function updateTables(){
+
+    // ------ update runningVAssets table ------
+    // Don't update tables if container details is open
+    if(!DETAILS_CONTAINER_OPENED_FLAG){
+        // Empty all tables
+        $("#runningVAssetsTable tbody").empty();
+
+        addRowsToTable(historyDB.runningVAssets, "runningVAssetsTable");
+    }
+
+    // ------ update notRunningVAssets table ------
+    // Empty table
+    $("#notRunningVAssetsTable tbody").empty();
+
+    var rowTemplate='';
+    var noRunningArray = historyDB.notRunningVAssets;
+    for(let i = 0; i < noRunningArray.length; i++){
+
+        var assetName = noRunningArray[i].id;
+        rowTemplate +=
+            '<tr> ' +
+            '<td class="align-middle">' + assetName + '</td> ' +
+            '<td class="align-middle" onclick="">' + '<button type="button" class="btn btn-success">RUN</button></td> '+
+            '</tr>';
+    }
+
+    // Append row in the last table position
+    $('#notRunningVAssetsTable > tbody:last-child').append(rowTemplate);
+
+    // ------ update otherContainers table ------
+    // Don't update tables if container details is open
+    if(!DETAILS_CONTAINER_OPENED_FLAG) {
+        // Empty table
+        $("#otherContainersTable tbody").empty();
+        addRowsToTable(historyDB.otherContainers, "otherContainersTable");
+    }
+}
 
 function updateTable(){
 
@@ -500,37 +739,37 @@ function updateTable(){
     }
 }
 
-function addRows(){
+function addRowsToTable(objLocation, idTable){
 
-    // Check if statsHistory is empty
-    if(Object.keys(statsHistory).length == 0){
+    // Check if historyDB is empty
+    if(Object.keys(objLocation).length == 0){
         return;
     }
 
     var rowTemplate = '';
 
-    for(var key in statsHistory){
+    for(var key in objLocation){
 
-        var containerID = statsHistory[key].containerID,
-            cpuVal = statsHistory[key].cpu.max('x').y,
+        var containerID = objLocation[key].containerID,
+            cpuVal = objLocation[key].cpu.max('x').y,
 
-            memUsageVal = statsHistory[key].mem.memUsage.dataset.max('x').y,
-            memUsageUnits_string = getPowerScaleToUnitsString(statsHistory[key].mem.memUsage.units, "binary"),
+            memUsageVal = objLocation[key].mem.memUsage.dataset.max('x').y,
+            memUsageUnits_string = getPowerScaleToUnitsString(objLocation[key].mem.memUsage.units, "binary"),
 
-            memLimitVal = statsHistory[key].mem.memLimit.value,
-            memLimitUnits_string = getPowerScaleToUnitsString(statsHistory[key].mem.memLimit.units, "binary"),
+            memLimitVal = objLocation[key].mem.memLimit.value,
+            memLimitUnits_string = getPowerScaleToUnitsString(objLocation[key].mem.memLimit.units, "binary"),
 
-            memPerc = statsHistory[key].mem.memPerc.max('x').y;
+            memPerc = objLocation[key].mem.memPerc.max('x').y;
 
 
         //--- Net IO ---
         // retrieve a filtered subset of the data
-        var itemsNetIOReceived = new vis.DataSet(statsHistory[key].netIO.dataset.get({
+        var itemsNetIOReceived = new vis.DataSet(objLocation[key].netIO.dataset.get({
             filter: function (item) {
                 return item.group == "netReceived";
             }
         }));
-        var itemsNetIOSent = new vis.DataSet(statsHistory[key].netIO.dataset.get({
+        var itemsNetIOSent = new vis.DataSet(objLocation[key].netIO.dataset.get({
             filter: function (item) {
                 return item.group == "netSent";
             }
@@ -538,7 +777,7 @@ function addRows(){
 
         var netReceivedVal = itemsNetIOReceived.max('x').y;
         var netSentVal = itemsNetIOSent.max('x').y;
-        var netIOUnits = statsHistory[key].netIO.units;
+        var netIOUnits = objLocation[key].netIO.units;
 
         var valueObjReceived = {"value":netReceivedVal, "units": netIOUnits};
         formatValueScale(valueObjReceived);
@@ -546,7 +785,7 @@ function addRows(){
         var netReceive = valueObjReceived.value,
             netReceiveUnits = getPowerScaleToUnitsString(valueObjReceived.units);
 
-        var valueObjSent     = {"value":netSentVal, "units": netIOUnits};
+        var valueObjSent = {"value":netSentVal, "units": netIOUnits};
         formatValueScale(valueObjSent);
 
         var netSent = valueObjSent.value,
@@ -554,12 +793,12 @@ function addRows(){
 
 
         //--- BLOCK IO ---
-        var itemsBlockIORead = new vis.DataSet(statsHistory[key].blockIO.dataset.get({
+        var itemsBlockIORead = new vis.DataSet(objLocation[key].blockIO.dataset.get({
             filter: function (item) {
                 return item.group == "dataRead";
             }
         }));
-        var itemsBlockIOWritten = new vis.DataSet(statsHistory[key].blockIO.dataset.get({
+        var itemsBlockIOWritten = new vis.DataSet(objLocation[key].blockIO.dataset.get({
             filter: function (item) {
                 return item.group == "dataWritten";
             }
@@ -567,7 +806,7 @@ function addRows(){
 
         var blockIOReadVal = itemsBlockIORead.max('x').y;
         var blockIOWrittenVal = itemsBlockIOWritten.max('x').y;
-        var blockIOUnits = statsHistory[key].blockIO.units;
+        var blockIOUnits = objLocation[key].blockIO.units;
 
         var valueObjRead = {"value":blockIOReadVal, "units": blockIOUnits};
         formatValueScale(valueObjRead);
@@ -581,10 +820,19 @@ function addRows(){
 
 
         // --- pids ---
-        var pidsVal = statsHistory[key].pids.max('x').y;
+        var pidsVal = objLocation[key].pids.max('x').y;
+
+        // --- Asset name ---
+        var assetName;
+        if(jQuery.isEmptyObject(objLocation[key].assetDetails)){
+            assetName = "N/A";
+        } else {
+            assetName = objLocation[key].assetDetails.id;
+        }
 
         rowTemplate +=
             '<tr> ' +
+            '<td class="align-middle">' + assetName + '</td> ' +
             '<td class="align-middle">' + containerID + '</td> ' +
             '<td class="align-middle" onclick="viewDetails(this)">' + '<button type="button" class="btn btn-light">' + key + '</button></td> ' +
             '<td class="align-middle">' + cpuVal.toFixed(2) + "%" + '</td> ' +
@@ -597,7 +845,7 @@ function addRows(){
     }
 
     // Append row in the last table position
-    $('#runningTableContainers > tbody:last-child').append(rowTemplate);
+    $('#'+idTable+' > tbody:last-child').append(rowTemplate);
 }
 
 
@@ -619,11 +867,6 @@ function viewDetails(thisElem) {
         toggleTableContent();
     }
 
-    // Get container name (Or any other useful thing to request info)
-    //var containerName = $(thisElem).text();
-
-
-
     // Change data of details view;
     changeDetailsView(DETAILS_CONTAINERNAME);
 
@@ -636,8 +879,8 @@ function viewDetails(thisElem) {
 // Used on the viewDetails() function and on the close button of the details view window
 function toggleTableContent() {
 
-    // Toggle content in tables
-    var tableContentCollumns = [3, 4, 5, 6, 7, 8]; // collum number to toggle visibility
+    // Toggle content in Running Container tables
+    var tableContentCollumns = [4, 5, 6, 7, 8, 9]; // collum number to toggle visibility (I do not like this way yet)
     for(let i=0; i<tableContentCollumns.length; i++){
         $('td:nth-child(' + tableContentCollumns[i] + '), th:nth-child(' + tableContentCollumns[i] + ')').toggle();
     }
@@ -650,8 +893,8 @@ function toggleTableContent() {
 
     // Toggle details and table
     if(DETAILS_CONTAINER_OPENED_FLAG){     // we are gonna close details view
-        $("#tableDiv").removeClass(tableSmallSize);
-        $("#tableDiv").addClass(tableBigSize);   // expande table
+        $("#allTables").removeClass(tableSmallSize);
+        $("#allTables").addClass(tableBigSize);   // expande table
 
         $("#detailsDiv").removeClass(detailsbigSize);
         $("#detailsDiv").addClass(detailsSmallSize);    // Shrink details view
@@ -659,7 +902,7 @@ function toggleTableContent() {
         // Deselect any previous highlighted row (if exists)
         deselectRow();
 
-        $("#runningContainers").removeClass("sticky-top");
+        //$("#runningVAssets").removeClass("sticky-top");
 
         // closes details view window
         $("#detailsDiv").hide();
@@ -669,13 +912,13 @@ function toggleTableContent() {
         DETAILS_CONTAINERNAME = "NO_CONTAINER_NAME";    // replaces container name "resets it"
         clearInterval(updateLogs_timer); // stop messaging to update logs view
     }else{                          // we are gonna open details
-        $("#tableDiv").removeClass(tableBigSize);
-        $("#tableDiv").addClass(tableSmallSize);    // Shrink table
+        $("#allTables").removeClass(tableBigSize);
+        $("#allTables").addClass(tableSmallSize);    // Shrink table
 
         $("#detailsDiv").removeClass(detailsSmallSize);
         $("#detailsDiv").addClass(detailsbigSize);  // expande details view
 
-        $("#runningContainers").addClass("sticky-top"); // makes the table stick to the top when scrolling down
+        //$("#runningVAssets").addClass("sticky-top"); // makes the table stick to the top when scrolling down
 
         $("#detailsDiv").show("slow");
         DETAILS_CONTAINER_OPENED_FLAG = true;

@@ -50,7 +50,7 @@
 
 
                 // Show containers info
-                $("#runningContainers").show();
+                $("#runningVAssets, #notRunningVAssets, #otherContainers").show();
                 loadingBar();
 
                 // Start timer to update containers info
@@ -65,8 +65,8 @@
                 $("#login").show();
 
 
-
-                $("#runningContainers").hide();
+                // Hide containers info
+                $("#runningVAssets, #notRunningVAssets, #otherContainers").hide();
                 clearInterval(updateStatsHistory_timer);
             }
 
@@ -120,50 +120,140 @@
 
         <div class="rowBody contentBody">
             <div class="container-fluid">
-                <div class="row" >
-                    <div id="tableDiv" class="col-sm-12">
 
-                        <div id="runningContainers"class="border shadow p-2 mb-2 bg-white" style="display: none;">
-                            <h3>Running vAsset Containers</h3>
-                            <div class="table-responsive-xl">
-                                <table id="runningTableContainers" class="table table-hover table-light table-sm">
-                                    <thead class="thead-light">
-                                    <tr>
-                                        <th class="align-middle">CONTAINER ID</th>
-                                        <th class="align-middle">NAME</th>
-                                        <th class="align-middle">CPU %</th>
-                                        <th class="align-middle">MEM USAGE / LIMIT</th>
-                                        <th class="align-middle">MEM %</th>
-                                        <th class="align-middle">NET I/O</th>
-                                        <th class="align-middle">BLOCK I/O</th>
-                                        <th class="align-middle">PIDS</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td colspan="8">
-                                            <div class="progress">
-                                                <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!--
-                                    <tr>
-                                        <td>dc745c7a6318</td>
-                                        <td>test-platform_reverse-proxy_2</td>
-                                        <td>0.03%</td>
-                                        <td>10.5MiB / 15.54GiB</td>
-                                        <td>0.07%</td>
-                                        <td>162kB / 0B</td>
-                                        <td>209kB / 0B</td>
-                                        <td>17</td>
-                                    </tr>
-                                    -->
-                                    </tbody>
-                                </table>
+                <div class="row" >
+
+                    <div id="allTables" class="col-sm-12">
+
+                            <div id="runningVAssets" class="border shadow p-2 mb-2 bg-white" style="display: none;">
+
+                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_runningVAssets" role="button" aria-expanded="true" aria-controls="wrapperCollapse_runningContainers" onclick="collapseChangeIcon(this)">
+                                    <div class="btn btn-info btn-block text-left mb-1">
+                                        <span class="collapseIcon">-</span>
+                                        <span> Running vAssets</span>
+                                    </div>
+                                </a>
+
+                                <div id="wrapperCollapse_runningVAssets" class="collapse show">
+                                    <div class="table-responsive-xl">
+                                        <table id="runningVAssetsTable" class="table table-hover table-light table-sm">
+                                            <thead class="thead-light">
+                                            <tr>
+                                                <th class="align-middle">ASSET NAME</th>
+                                                <th class="align-middle">CONTAINER ID</th>
+                                                <th class="align-middle">CONTAINER NAME</th>
+                                                <th class="align-middle">CPU %</th>
+                                                <th class="align-middle">MEM USAGE / LIMIT</th>
+                                                <th class="align-middle">MEM %</th>
+                                                <th class="align-middle">NET I/O</th>
+                                                <th class="align-middle">BLOCK I/O</th>
+                                                <th class="align-middle">PIDS</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td colspan="9">
+                                                    <div class="progress">
+                                                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <!--
+                                            <tr>
+                                                <td>N/A</td>
+                                                <td>dc745c7a6318</td>
+                                                <td>test-platform_reverse-proxy_2</td>
+                                                <td>0.03%</td>
+                                                <td>10.5MiB / 15.54GiB</td>
+                                                <td>0.07%</td>
+                                                <td>162kB / 0B</td>
+                                                <td>209kB / 0B</td>
+                                                <td>17</td>
+                                            </tr>
+                                            -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
                             </div>
-                        </div>
+
+
+                            <div id="notRunningVAssets" class="border shadow p-2 mb-2 bg-white" style="display: none;">
+
+                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_notRunningVAssets" role="button" aria-expanded="true" aria-controls="wrapperCollapse_notRunningVAssets" onclick="collapseChangeIcon(this)">
+                                    <div class="btn btn-info btn-block text-left mb-1">
+                                        <span class="collapseIcon">-</span>
+                                        <span> Not running vAssets</span>
+                                    </div>
+                                </a>
+
+                                <div id="wrapperCollapse_notRunningVAssets" class="collapse show">
+                                    <div class="table-responsive-xl">
+                                        <table id="notRunningVAssetsTable" class="table table-hover table-light table-sm">
+                                            <thead class="thead-light">
+                                            <tr>
+                                                <th class="w-75 align-middle">ASSET NAME</th>
+                                                <th class="align-middle">TASK</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div id="otherContainers" class="border shadow p-2 mb-2 bg-white" style="display: none;">
+
+
+                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_otherContainers" role="button" aria-expanded="true" aria-controls="wrapperCollapse_otherContainers" onclick="collapseChangeIcon(this)">
+                                    <div class="btn btn-info btn-block text-left mb-1">
+                                        <span class="collapseIcon">-</span>
+                                        <span> Other Containers</span>
+                                    </div>
+                                </a>
+
+                                <div id="wrapperCollapse_otherContainers" class="collapse show">
+                                    <div class="table-responsive-xl">
+                                        <table id="otherContainersTable" class="table table-hover table-light table-sm">
+                                            <thead class="thead-light">
+                                            <tr>
+                                                <th class="align-middle">ASSET NAME</th>
+                                                <th class="align-middle">CONTAINER ID</th>
+                                                <th class="align-middle">CONTAINER NAME</th>
+                                                <th class="align-middle">CPU %</th>
+                                                <th class="align-middle">MEM USAGE / LIMIT</th>
+                                                <th class="align-middle">MEM %</th>
+                                                <th class="align-middle">NET I/O</th>
+                                                <th class="align-middle">BLOCK I/O</th>
+                                                <th class="align-middle">PIDS</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <!--
+                                            <tr>
+                                                <td>N/A</td>
+                                                <td>dc745c7a6318</td>
+                                                <td>test-platform_reverse-proxy_2</td>
+                                                <td>0.03%</td>
+                                                <td>10.5MiB / 15.54GiB</td>
+                                                <td>0.07%</td>
+                                                <td>162kB / 0B</td>
+                                                <td>209kB / 0B</td>
+                                                <td>17</td>
+                                            </tr>
+                                            -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
+
                     </div>
+
                     <div id="detailsDiv" class="border shadow p-2 mb-2 bg-white" style="display: none">
 
                         <div>
@@ -327,6 +417,18 @@
                 }, timeout);
             }
             animate();
+        }
+
+        function collapseChangeIcon(thisElem){
+
+            var icon = $(thisElem).find(".collapseIcon");
+            var iconText = $(icon).text();
+
+            if(iconText === "-"){
+                $(icon).text("+");
+            }else{
+                $(icon).text("-");
+            }
         }
 
 

@@ -45,6 +45,14 @@ body{
   width: 120px;
 }
 
+/*Removes underline on links
+!!Not working yet!!
+
+.collapseMenuBar{
+  text-decoration:none;
+}
+*/
+
 #progressBar{
   width: 100%;
 }
@@ -53,17 +61,29 @@ body{
   margin-top: 10px;
 }
 
+#detailsDiv{
+  height: 100%;
+}
+
 #closeDetailsButton{
   float: right;
 }
 
-#runningContainers{
+#wrapperCollapse_runningVAssets,
+#wrapperCollapse_notRunningVAssetst,
+#wrapperCollapse_otherContainers{
   max-height: 100vh;
   overflow: auto;
 }
+/*
+#runningVAssets, #notRunningVAssets, #otherContainers{
+  max-height: 100vh;
+  overflow: auto;
+}
+*/
 
 /*All buttons in table*/
-#runningTableContainers tbody tr td button{
+table tbody tr td button{
   width: 100%;
 }
 
