@@ -1,13 +1,13 @@
 FROM node:alpine
 
-RUN mkdir -p /usr/src/app
+RUN mkdir -p /usr/src/app/downloads
 WORKDIR /usr/src/app
 
 COPY package.json ./
 RUN npm install
 
 COPY . .
-RUN mkdir -p downloads
+
 
 EXPOSE 9000
 CMD ["npm", "start"]

@@ -18,16 +18,17 @@ set -e
 INITIAL_COMPOSE_FILE=".vfos_compose.yml"
 DOCKER_COMPOSE_ALIAS="docker-compose"
 PROJECTNAME="vfos"
+PERSISTENT_VOLUME="/persist"
 
 cat << EOF > $INITIAL_COMPOSE_FILE
 version: '3'
 
 services:
-  testServer:
+  testserver:
     image: vfos/test-server
     restart: "unless-stopped"
     labels:
-      - "traefik.frontend.rule=PathPrefixStrip:/testServer"
+      - "traefik.frontend.rule=PathPrefixStrip:/testserver"
     volumes:
       - ./testImages:/usr/src/app/static
     networks:
@@ -65,6 +66,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - $(pwd):$(pwd)
+      - .executionservices_persist:$PERSISTENT_VOLUME
     environment:
       - DOCKER_COMPOSE_PATH=$(pwd)
     networks:
@@ -100,6 +102,8 @@ services:
       - "traefik.frontend.priority=-1"
     networks:
       - execution-manager-net
+    volumes:
+      - .deployment_persist:$PERSISTENT_VOLUME
   portal:
     image: vfos/portal
     restart: "unless-stopped"

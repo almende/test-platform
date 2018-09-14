@@ -8,10 +8,10 @@ const storage = require('node-persist')
 
 const getAssetRoutes = (app) => {
   const router = new Router()
-  storage.init().then(async () => {
+  storage.init({ 'dir': '/persist/assetRoutes' }).then(async () => {
     let assets = await storage.getItem('assets')
     if (assets == null) {
-      assets = [new Asset('assetA', 'asset-a', true), new Asset('assetB', 'asset-b', true), new Asset('assetC', 'asset-c')]
+      assets = []
       await storage.setItem('assets', assets)
     }
     router
@@ -120,12 +120,16 @@ const getAssetRoutes = (app) => {
       .post('/reload', (req, res) => {
         let configs = {}
         Promise.all(assets.map((asset, index) => {
-          return new Promise((resolve, reject) => {
-            asset.getComposeSection('asset-net-' + index.toString().padStart(2, '0')).then((config) => {
-              configs[asset.id] = config
-              resolve()
-            }).catch(reject)
-          })
+          if (asset.autoStart) {
+            return new Promise((resolve, reject) => {
+              asset.getComposeSection('asset-net-' + index.toString().padStart(2, '0')).then((config) => {
+                configs[asset.id] = config
+                resolve()
+              }).catch(reject)
+            })
+          } else {
+            return Promise.resolve()
+          }
         })).then(
           () => {
             let data = 'version: \'3\'\n'
@@ -135,7 +139,7 @@ const getAssetRoutes = (app) => {
               if (err) {
                 res.send(err)
               } else {
-                exec('docker exec vf_os_platform_exec_control docker-compose --file test_compose.yml up -d --remove-orphans', (error, stdout, stderr) => {
+                exec('docker exec vf_os_platform_exec_control docker-compose --file test_compose.yml up -d --no-recreate --remove-orphans', (error, stdout, stderr) => {
                   if (!error) {
                     res.send({ result: 'OK' })
                   } else {

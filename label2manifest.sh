@@ -6,7 +6,7 @@
 
 cat << EOF > manifest.json
 {
-    'binaryFile':$1
+    "binaryFile":"$1"
 }
 EOF
 

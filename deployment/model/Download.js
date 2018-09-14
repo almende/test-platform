@@ -14,12 +14,12 @@ class Download {
     this.status = 'Initial'
     this.progress = {}
 
+    this.updateStatus()
     this.proceed()
     setInterval(this.proceed.bind(this), 2000)
   };
 
   proceed () {
-    this.updateStatus()
     // check status, decide next step
     switch (this.status) {
       case 'Initial':
@@ -42,7 +42,15 @@ class Download {
   }
 
   updateStatus () {
-
+    // Check status of files on fs and in register
+    if (fs.existsSync('/usr/src/app/downloads/' + this.id + '.download.zip')) {
+      this.status = 'Downloaded'
+    }
+    if (fs.existsSync('/usr/src/app/downloads/' + this.id + '_unpacked/manifest.json')) {
+      this.manifest = JSON.parse(fs.readFileSync('/usr/src/app/downloads/' + this.id + '_unpacked/manifest.json', 'utf-8'))
+      this.status = 'Unpacked'
+    }
+    // todo: check existence of register:5000/this.id
   }
 
   download () {
@@ -88,16 +96,16 @@ class Download {
   unpack () {
     let me = this
     return new Promise((resolve, reject) => {
-      extract(me.id + '.download.zip', {
-        dir: 'downloads/' + me.id + '_unpacked',
-        onEntry: (entry) => {
-          if (entry.fileName.endsWith('manifest.json')) {
-            me.manifest = JSON.parse(fs.readFileSync('downloads/' + me.id + '_unpacked/' + entry.fileName, 'utf-8'))
-          }
-        }
+      extract('/usr/src/app/downloads/' + me.id + '.download.zip', {
+        dir: '/usr/src/app/downloads/' + me.id + '_unpacked'
       }, (err) => {
         if (!err) {
-          resolve()
+          try {
+            me.manifest = JSON.parse(fs.readFileSync('/usr/src/app/downloads/' + me.id + '_unpacked/manifest.json', 'utf-8'))
+            resolve()
+          } catch (error) {
+            reject(error)
+          }
         } else {
           reject(err)
         }
@@ -144,10 +152,12 @@ class Download {
 
   install () {
     let me = this
+    me.status = 'Installing'
     // Upload image to Registry: tag with registry:5000/assetName
     return new Promise((resolve, reject) => {
       exec('docker image push registry:5000/' + me.id, (error, stdout, stderr) => {
         if (!error) {
+          me.status = 'Done'
           resolve(stdout)
         } else {
           reject(error, stderr)

@@ -1,3 +1,5 @@
 .idea
 .vfos_compose.yml
 testImages
+.deployment_persist
+.executionservices_persist

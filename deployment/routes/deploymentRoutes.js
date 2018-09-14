@@ -6,11 +6,13 @@ const storage = require('node-persist')
 
 const getDeploymentRoutes = (app) => {
   const router = new Router()
-  storage.init().then(async () => {
+  storage.init({ 'dir': '/persist/deploymentRoutes' }).then(async () => {
     let downloads = await storage.getItem('downloads')
     if (downloads == null) {
       downloads = []
       await storage.setItem('downloads', downloads)
+    } else {
+      // todo: run recreate objects on downloads.
     }
     router
       .get('/', (req, res) => {
