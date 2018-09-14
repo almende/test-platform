@@ -13,6 +13,10 @@ const getAssetRoutes = (app) => {
     if (assets == null) {
       assets = []
       await storage.setItem('assets', assets)
+    } else {
+      assets = assets.map((entry) => {
+        return Asset.reconstruct(entry)
+      })
     }
     router
       .get('/', (req, res) => {

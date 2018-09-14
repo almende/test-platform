@@ -93,6 +93,8 @@ services:
       - "5000:5000"    #Docker registry's can't handle subpath endpoints, need to be root-level citizen
     networks:
       - execution-manager-net
+    volumes:
+      - .registry_persist:/var/lib/registry
   deployment:
     image: vfos/deploy  #newer versions give "docker-credential-secretservice not installed or not available in PATH"
     restart: "unless-stopped"

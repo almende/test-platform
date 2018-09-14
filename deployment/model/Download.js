@@ -167,4 +167,8 @@ class Download {
   }
 }
 
+Download.reconstruct = function (obj) {
+  return new Download(obj.id, obj.url)
+}
+
 module.exports = Download
