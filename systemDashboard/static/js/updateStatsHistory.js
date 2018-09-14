@@ -89,11 +89,11 @@ function updateStatsHistory(){
     // Resets checker variables
     updateTablesChecker.reset_bools;
 
-
     // Add statistics to History
     var urlStats = '/executionservices/assets' + '/stats'; // Request data to executionManager (executionservices)
     $.get(urlStats, function (data, status) {
-        // TODO: WE NEED TO DO SOMETHING WHEN WE GET ERRORS
+
+      if(!("error" in data)){
 
         // format string data into values data
         formatNewData(data);
@@ -103,20 +103,25 @@ function updateStatsHistory(){
 
         // flags up that we have the stats data ready (Triggers the event)
         updateTablesChecker.statsUpdated_bool = true;
+      }else{
+        console.log("ERROR: /stats returned an error!")
+      }
 
     });
 
     // Make the correlation between ContainerName and AssetName
     var urlAssets = '/executionservices/assets'; // Request data to executionManager (executionservices)
     $.get(urlAssets, function (data, status) {
-        // TODO: WE NEED TO DO SOMETHING WHEN WE GET ERRORS
 
+      if(!("error" in data)){
         // store data globaly to be treated later
         tempAssets = data;
 
         // flags up that we have the stats data ready (Triggers the event)
         updateTablesChecker.assetsUpdated_bool = true;
-
+      } else {
+        console.log("ERROR: /assets returned an error!")
+      }
     });
 
 }

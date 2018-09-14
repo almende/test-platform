@@ -71,7 +71,7 @@ const getAssetRoutes = (app) => {
           'blockIO': '{{ .BlockIO }}',
           'pids': '{{ .PIDs }}'
         }
-        let statsCommand = 'docker stats --no-stream --format ' + JSON.stringify(strFormat)
+        let statsCommand = 'docker stats --no-stream --format \'' + JSON.stringify(strFormat) + '\''
 
         exec(statsCommand, (error, stdout, stderr) => {
           if (!error) {
