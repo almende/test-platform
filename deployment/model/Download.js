@@ -48,9 +48,8 @@ class Download {
     }
     if (fs.existsSync('/usr/src/app/downloads/' + this.id + '_unpacked/manifest.json')) {
       this.manifest = JSON.parse(fs.readFileSync('/usr/src/app/downloads/' + this.id + '_unpacked/manifest.json', 'utf-8'))
-      this.status = 'Unpacked'
+      this.status = 'Done' // Just assume that the actual push is done
     }
-    // todo: check existence of register:5000/this.id
   }
 
   download () {
@@ -78,6 +77,9 @@ class Download {
     this.status = 'Deleted'
     try {
       fs.unlinkSync('downloads/' + this.id + '.download.zip')
+      fs.unlinkSync('downloads/' + this.id + '_unpacked/manifest.json')
+      fs.unlinkSync('downloads/' + this.id + '_unpacked/' + this.manifest.binaryFile)
+      fs.unlinkSync('downloads/' + this.id + '_unpacked/')
     } catch (error) {}
   }
 

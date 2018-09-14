@@ -115,6 +115,7 @@ class Asset {
       me.getLabels(true).then((labels) => {
         // TODO: Depending on labels, generate config in json (conversion to yml is done later)
         let result = {}
+        result['id'] = me.id
         result['image'] = me.imageId
         result['labels'] = ['traefik.frontend.rule=PathPrefixStrip:/' + me.id]
         result['networks'] = [networkId]
