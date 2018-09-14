@@ -3,11 +3,11 @@
 const exec = require('child_process').exec
 
 class Asset {
-  constructor (id, imageId, autoStart = false) {
+  constructor (id, imageId, autoStart = false, containerName = 'Unknown') {
     this.id = id // instance ID, used as runtime name and URL prefix
     this.imageId = imageId // image ID, as used by docker image
     this.autoStart = autoStart
-    this.containerName = 'Unknown'
+    this.containerName = containerName
     this.status = 'Unknown'
 
     this.updateStatus()
@@ -152,6 +152,10 @@ class Asset {
       })
     })
   }
+}
+
+Asset.reconstruct = function (obj) {
+  return new Asset(obj.id, obj.imageId, obj.autoStart, obj.containerName)
 }
 
 module.exports = Asset

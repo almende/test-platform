@@ -12,7 +12,9 @@ const getDeploymentRoutes = (app) => {
       downloads = []
       await storage.setItem('downloads', downloads)
     } else {
-      // todo: run recreate objects on downloads.
+      downloads = downloads.map((entry) => {
+        return Download.reconstruct(entry)
+      })
     }
     router
       .get('/', (req, res) => {
