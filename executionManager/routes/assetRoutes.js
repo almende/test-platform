@@ -18,6 +18,31 @@ const getAssetRoutes = (app) => {
         return Asset.reconstruct(entry)
       })
     }
+
+    const createComposeConfig = function () {
+      return new Promise(
+        (resolve, reject) => {
+          let configs = {}
+          Promise.all(
+            assets.map((asset, index) => {
+              if (asset.autoStart) {
+                return asset.getComposeSection('asset-net-' + index.toString().padStart(2, '0'))
+              } else {
+                return Promise.resolve({})
+              }
+            })
+          ).then((config) => {
+            config.map((entry) => {
+              configs[entry.id] = entry
+              delete entry.id
+            })
+            resolve(configs)
+          }).catch((error) => {
+            reject(error)
+          })
+        })
+    }
+
     router
       .get('/', (req, res) => {
         Promise.all(assets.map((asset) => {
@@ -38,20 +63,8 @@ const getAssetRoutes = (app) => {
         )
       })
       .get('/compose_config', (req, res) => {
-        let configs = {}
-        Promise.all(assets.map((asset, index) => {
-          if (asset.autoStart) {
-            return new Promise((resolve, reject) => {
-              asset.getComposeSection('asset-net-' + index.toString().padStart(2, '0')).then((config) => {
-                configs[asset.id] = config
-                resolve()
-              }).catch(reject)
-            })
-          } else {
-            return Promise.resolve()
-          }
-        })).then(
-          () => {
+        createComposeConfig().then(
+          (configs) => {
             res.send(configs)
           }
         ).catch(
@@ -122,20 +135,8 @@ const getAssetRoutes = (app) => {
         })
       })
       .post('/reload', (req, res) => {
-        let configs = {}
-        Promise.all(assets.map((asset, index) => {
-          if (asset.autoStart) {
-            return new Promise((resolve, reject) => {
-              asset.getComposeSection('asset-net-' + index.toString().padStart(2, '0')).then((config) => {
-                configs[asset.id] = config
-                resolve()
-              }).catch(reject)
-            })
-          } else {
-            return Promise.resolve()
-          }
-        })).then(
-          () => {
+        createComposeConfig().then(
+          (configs) => {
             let data = 'version: \'3\'\n'
             data += 'services: '
             data += JSON.stringify(configs)
@@ -166,6 +167,7 @@ const getAssetRoutes = (app) => {
             if (assets[idx] && assets[idx].id === req.params.id) {
               let asset = assets[idx]
               if (req.query.action === 'start') {
+                asset.autoStart = true
                 asset.start().then(
                   (stdout) => {
                     res.send({ result: 'OK', stdout: stdout })
@@ -176,6 +178,7 @@ const getAssetRoutes = (app) => {
                   }
                 )
               } else if (req.query.action === 'stop') {
+                asset.autoStart = false
                 asset.stop().then(
                   (stdout) => {
                     res.send({ result: 'OK', stdout: stdout })
@@ -199,8 +202,12 @@ const getAssetRoutes = (app) => {
             let data = req.body
             while (idx--) {
               if (assets[idx] && assets[idx].id === req.params.id) {
-                assets[idx].autoStart = data.autoStart
-                assets[idx].imageId = data.imageId
+                if (data.autoStart !== null) {
+                  assets[idx].autoStart = data.autoStart
+                }
+                if (data.imageId !== null) {
+                  assets[idx].imageId = data.imageId
+                }
                 res.send({ result: 'OK' })
                 await storage.setItem('assets', assets)
                 return
