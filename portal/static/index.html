@@ -42,13 +42,12 @@
 
 
                 // Show containers info
-                $("#tableDiv").show();
+                $("#allBodyContent").show();
                 //loadingBar();
 
-                // Start timer to update containers info
-                // update stats history
-                //setTimeout(updateStatsHistory, 0);
-                //updateStatsHistory_timer = setInterval(updateStatsHistory, UPDATE_STATSHITORY_TIME);
+                // Start timer to update vApps info
+                setTimeout(updateInstalledVApps, 0);
+                updateStatsHistory_timer = setInterval(updateInstalledVApps, UPDATE_VAPPS_TIME);
 
             } else {
                 // Hide user menus
@@ -58,7 +57,7 @@
 
 
 
-                $("#tableDiv").hide();
+                $("#allBodyContent").hide();
 
             }
         }
@@ -110,48 +109,24 @@
 
     <div class="rowBody contentBody">
         <div class="container-fluid">
-            <div class="row">
-                <div id="tableDiv" class="col-sm-12" style="display: none;">
-                    <h2>vApps</h2>
-                    <div class="d-flex flex-wrap">
-                        <div class="card card-max-width">
-                            <a href="http://localhost/assetA" target="_blank">
-                                <img class="card-img-top" src="img/vApps/1.png"
-                                     alt="Asset A">
-                                <div class="card-body">
-                                    <h5 class="card-title">Asset A</h5>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="card card-max-width">
-                            <a href="http://localhost/assetB/person/all" target="_blank">
-                                <img class="card-img-top" src="img/vApps/2.png"
-                                     alt="Asset B">
-                                <div class="card-body">
-                                    <h5 class="card-title">Asset B</h5>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="card card-max-width">
-                            <a href="http://localhost/assetC" target="_blank">
-                                <img class="card-img-top" src="img/vApps/3.png" alt="Asset C">
-                                <div class="card-body">
-                                    <h5 class="card-title">Asset C</h5>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="card card-max-width">
-                            <a href="http://localhost:8080/dashboard/"
-                               target="_blank">
-                                <img class="card-img-top" src="img/vApps/4.png" alt="Traffik Proxy Dashboard">
-                                <div class="card-body">
-                                    <h5 class="card-title">Reverse Proxy Dashboard</h5>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+            <div id="allBodyContent" style="display: none;">
 
+
+                <div class="row">
+                    <div id="InstalledVApps" class="col-sm-12" >
+
+                        <div class="border shadow p-2 mb-2 bg-white">
+                            <h2>vApps</h2>
+                            <div id="cardsHolder"class="d-flex flex-wrap">
+
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
+
+
+
             </div>
         </div>
     </div>
@@ -162,6 +137,57 @@
         </div>
     </div>
 </div>
+
+<script>
+    // GLOBAL VARIABLES
+    var UPDATE_VAPPS_TIME = 3000; // timer to update the list of vApps
+
+    function updateInstalledVApps () {
+
+      // Make the correlation between ContainerName and AssetName
+      var urlAssets = '/executionservices/assets'; // Request data to executionManager (executionservices)
+      $.get(urlAssets, function (data, status) {
+
+        if(!("error" in data)){
+
+          // clean cards holder
+          $("#cardsHolder").empty();
+
+          rowTemplate = '';
+          for(let i=0; i < data.length; i++){
+
+            var vApp = data[i];
+
+            var vApp_link   = "http://localhost/" + vApp.id,
+                vApp_icon   = "http://localhost/" + vApp.id + "/" + vApp.labels['vf-OS.icon'],
+                vApp_title  = vApp.id;
+
+            rowTemplate +=
+              '<div class="card card-max-width">' +
+                '<a href="'+ vApp_link + '" target="_blank">' +
+                    '<img class="card-img-top" src="' + vApp_icon + '" alt="vApp Icon">' +
+                    '<div class="card-body">' +
+                        '<h5 class="card-title">' + vApp_title + '</h5>' +
+                    '</div>' +
+                '</a>' +
+              '</div>';
+
+          }
+
+          // Append row in the last table position
+          $('#cardsHolder').append(rowTemplate);
+
+        } else {
+          console.log("ERROR: /assets returned an error!")
+        }
+      });
+
+    }
+
+
+
+</script>
+
 
 </body>
 </html>

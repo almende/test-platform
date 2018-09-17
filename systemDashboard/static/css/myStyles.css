@@ -52,13 +52,13 @@ body{
   text-decoration:none;
 }
 */
+/* Creates a small space between nav-bar and body */
+.boxBody .rowBody.contentBody .container-fluid {
+  margin-top: 10px;
+}
 
 #progressBar{
   width: 100%;
-}
-
-.boxBody .rowBody.contentBody .container-fluid {
-  margin-top: 10px;
 }
 
 #detailsDiv{

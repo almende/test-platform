@@ -10,5 +10,8 @@ COPY . .
 
 EXPOSE 9000
 LABEL vf-OS true
+
+LABEL vf-OS.icon img/2.png
+
 CMD ["npm", "start"]
 

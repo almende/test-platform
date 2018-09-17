@@ -5,6 +5,7 @@ const request = require('request');
 const express = require('express');
 const app = new express();
 
+app.use(express.static('static'));
 
 app.get('/', (req, res) => {
 

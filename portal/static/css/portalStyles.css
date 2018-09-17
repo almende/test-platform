@@ -44,6 +44,12 @@ body{
 #imageLogo{
     width: 120px;
 }
+
+/* Creates a small space between nav-bar and body */
+.boxBody .rowBody.contentBody .container-fluid {
+    margin-top: 10px;
+}
+
 .card-max-width{
     width: 200px;
 }
