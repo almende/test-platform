@@ -16,6 +16,9 @@
     <!-- Latest compiled JavaScript -->
     <script src="vendor/bootstrap4/bootstrap.min.js"></script>
 
+
+    <link href="vendor/fontwesome/css/all.css" rel="stylesheet"> <!--load all styles -->
+
     <!-- my Styles -->
     <link rel="stylesheet" href="./css/portalStyles.css">
 
@@ -111,7 +114,28 @@
         <div class="container-fluid">
             <div id="allBodyContent" style="display: none;">
 
-
+                <!-- Modal for vApps descriptions -->
+                <div class="modal fade" id="vAppsDescriptionModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 id="modalTitle" class="modal-title" >vApp Title</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p id="modalDescription">Description</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close Window</button>
+                                <a id="modalOpenLink" href="#" type="button" class="btn btn-primary" target="_blank">Open</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Running vApss list -->
                 <div class="row">
                     <div id="InstalledVApps" class="col-sm-12" >
 
@@ -125,8 +149,6 @@
                     </div>
                 </div>
 
-
-
             </div>
         </div>
     </div>
@@ -138,56 +160,7 @@
     </div>
 </div>
 
-<script>
-    // GLOBAL VARIABLES
-    var UPDATE_VAPPS_TIME = 3000; // timer to update the list of vApps
-
-    function updateInstalledVApps () {
-
-      // Make the correlation between ContainerName and AssetName
-      var urlAssets = '/executionservices/assets'; // Request data to executionManager (executionservices)
-      $.get(urlAssets, function (data, status) {
-
-        if(!("error" in data)){
-
-          // clean cards holder
-          $("#cardsHolder").empty();
-
-          rowTemplate = '';
-          for(let i=0; i < data.length; i++){
-
-            var vApp = data[i];
-
-            var vApp_link   = "http://localhost/" + vApp.id,
-                vApp_icon   = "http://localhost/" + vApp.id + "/" + vApp.labels['vf-OS.icon'],
-                vApp_title  = vApp.id;
-
-            rowTemplate +=
-              '<div class="card card-max-width">' +
-                '<a href="'+ vApp_link + '" target="_blank">' +
-                    '<img class="card-img-top" src="' + vApp_icon + '" alt="vApp Icon">' +
-                    '<div class="card-body">' +
-                        '<h5 class="card-title">' + vApp_title + '</h5>' +
-                    '</div>' +
-                '</a>' +
-              '</div>';
-
-          }
-
-          // Append row in the last table position
-          $('#cardsHolder').append(rowTemplate);
-
-        } else {
-          console.log("ERROR: /assets returned an error!")
-        }
-      });
-
-    }
-
-
-
-</script>
-
+<script src="js/updateVApps.js"></script>
 
 </body>
 </html>

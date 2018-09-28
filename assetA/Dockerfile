@@ -12,6 +12,12 @@ EXPOSE 9001
 LABEL vf-OS true
 LABEL vf-OS.depends asset-b
 
-LABEL vf-OS.icon img/1.png
 
+LABEL vf-OS.author="AuthorName"
+LABEL vf-OS.binaryFile="binaryFile"
+LABEL vf-OS.name="AssetA"
+LABEL vf-OS.securityEndpoints="securityStuffJSON"
+
+LABEL vf-OS.iconHDUri="img/small_icon.png"
+LABEL vf-OS.description="Description of Asset A"
 CMD ["npm", "start"]

@@ -50,6 +50,27 @@ body{
     margin-top: 10px;
 }
 
-.card-max-width{
-    width: 200px;
+.card-sizes{
+    width: 180px;
+    height: 200px;
+}
+
+
+.iconHolder{
+    position: relative;
+    /*background-image: url("../img/notFoundIcon.png");*/
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.icon{
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-width: 100%;
+    max-height: 100%;
 }
