@@ -246,7 +246,6 @@ const getAssetRoutes = (app) => {
         await storage.setItem('assets', assets)
         res.send({ result: 'OK' })
       })
-
     app.use('/assets', router)
   })
 }
