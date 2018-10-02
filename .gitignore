@@ -4,3 +4,4 @@ testImages
 .deployment_persist
 .executionservices_persist
 .registry_persist
+node_modules
