@@ -14,6 +14,7 @@
 
 
 set -e
+set -o xtrace
 
 INITIAL_COMPOSE_FILE=".vfos_compose.yml"
 DOCKER_COMPOSE_ALIAS="docker-compose"
@@ -175,8 +176,8 @@ if [ -n "$INITIAL_COMPOSE_FILE" ]; then
 /usr/local/bin/docker-compose -p $PROJECTNAME --file $INITIAL_COMPOSE_FILE \$@
 
 EOF
-chmod +x $DOCKER_COMPOSE_ALIAS
-    COMPOSE_OPTIONS="$COMPOSE_OPTIONS -e PATH=.:$PATH"
+    chmod +x $DOCKER_COMPOSE_ALIAS
+    COMPOSE_OPTIONS="$COMPOSE_OPTIONS -e PATH=.:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     compose_dir=$(realpath $(dirname $INITIAL_COMPOSE_FILE))
 fi
 # TODO: also check --file argument
