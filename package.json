@@ -1,0 +1,10 @@
+{
+  "name": "platform-build",
+  "version": "1.0.0",
+  "description": "Building tools for the platform",
+  "author": "Luis F.M. <luis@almende.org>",
+  "dependencies": {
+    "buffer-crc32": "^0.2.13",
+    "yazl": "^2.4.3"
+  }
+}
