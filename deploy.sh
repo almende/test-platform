@@ -19,7 +19,3 @@ cp -r ./testImages vfosPlatform/
 
 zip -8r vfosPlatform.zip vfosPlatform/*
 zip -8r vfosPlatform.zip vfosPlatform/.registry_persist
-
-#TODO: Don't store the entire AIM external image in the registry
-#TODO: Change foldername from dist to something more vfossy
-#Upload sources to owncloud

@@ -9,12 +9,11 @@ RUN npm install
 COPY . .
 
 EXPOSE 9001
-LABEL vf-OS true
-LABEL vf-OS.depends asset-b
+LABEL vf-OS=true
+LABEL vf-OS.depends=asset-b
 
 
 LABEL vf-OS.author="AuthorName"
-LABEL vf-OS.binaryFile="binaryFile"
 LABEL vf-OS.name="AssetA"
 LABEL vf-OS.securityEndpoints="securityStuffJSON"
 
