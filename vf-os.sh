@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Run docker-compose in a container, modified for vf-OS by including our initial compose-file.
 #
@@ -14,9 +14,10 @@
 
 
 set -e
-set -o xtrace
+#set -o xtrace
 
 INITIAL_COMPOSE_FILE=".vfos_compose.yml"
+PLATFORM_COMPOSE_FILE=".platform_compose.yml"
 DOCKER_COMPOSE_ALIAS="docker-compose"
 PROJECTNAME="vfos"
 PERSISTENT_VOLUME="/persist"
@@ -25,15 +26,6 @@ cat << EOF > $INITIAL_COMPOSE_FILE
 version: '3'
 
 services:
-  testserver:
-    image: vfos/test-server
-    restart: "unless-stopped"
-    labels:
-      - "traefik.frontend.rule=PathPrefixStrip:/testserver"
-    volumes:
-      - ./testImages:/usr/src/app/static
-    networks:
-      - execution-manager-net
   reverse-proxy:
     image: traefik:latest # The official Traefik docker image
     restart: "unless-stopped"
@@ -59,9 +51,20 @@ services:
       - asset-net-09
       - asset-net-10
       - asset-net-11
-  execution-manager:
-    image: vfos/exec-manager
+  registry:
+    image: registry:2  #newer versions give "docker-credential-secretservice not installed or not available in PATH"
     restart: "unless-stopped"
+    ports:
+      - "5000:5000"    #Docker registry's can't handle subpath endpoints, need to be root-level citizen
+    networks:
+      - execution-manager-net
+    volumes:
+      - .registry_persist:/var/lib/registry
+  execution-manager:
+    image: localhost:5000/vfos/exec-manager
+    restart: "unless-stopped"
+    depends_on:
+      - registry
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/executionservices"
     volumes:
@@ -73,8 +76,10 @@ services:
     networks:
       - execution-manager-net
   aim:
-    image: vfos/aim
+    image: localhost:5000/vfos/aim
     restart: "unless-stopped"
+    depends_on:
+      - registry
     command: ["-b", "0.0.0.0","-Dkeycloak.profile.feature.docker=enabled", "-Dkeycloak.import=/opt/jboss/vf-OS-realm.json"]
     environment:
       - KEYCLOAK_USER=admin
@@ -87,18 +92,11 @@ services:
       - "traefik.frontend.priority=-1"
       - "traefik.port=8080"
       - "traefik.docker.network=execution-manager-net"
-  registry:
-    image: registry:2  #newer versions give "docker-credential-secretservice not installed or not available in PATH"
-    restart: "unless-stopped"
-    ports:
-      - "5000:5000"    #Docker registry's can't handle subpath endpoints, need to be root-level citizen
-    networks:
-      - execution-manager-net
-    volumes:
-      - .registry_persist:/var/lib/registry
   deployment:
-    image: vfos/deploy  #newer versions give "docker-credential-secretservice not installed or not available in PATH"
+    image: localhost:5000/vfos/deploy  #newer versions give "docker-credential-secretservice not installed or not available in PATH"
     restart: "unless-stopped"
+    depends_on:
+      - registry
     privileged: true
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/deployment"
@@ -108,21 +106,36 @@ services:
     volumes:
       - .deployment_persist:$PERSISTENT_VOLUME
   portal:
-    image: vfos/portal
+    image: localhost:5000/vfos/portal
     restart: "unless-stopped"
+    depends_on:
+      - registry
     labels:
       - "traefik.frontend.rule=PathPrefix:/"
       - "traefik.frontend.priority=-1"
     networks:
       - execution-manager-net
   dashboard:
-    image: vfos/system-dashboard
+    image: localhost:5000/vfos/system-dashboard
     restart: "unless-stopped"
+    depends_on:
+      - registry
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/systemdashboard"
       - "traefik.frontend.priority=-1"
     networks:
       - system-dashboard-net
+  testserver:
+    image: localhost:5000/vfos/test-server
+    restart: "unless-stopped"
+    depends_on:
+      - registry
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/testserver"
+    volumes:
+      - ./testImages:/usr/src/app/static
+    networks:
+      - execution-manager-net
 
 networks:
     execution-manager-net:
@@ -153,7 +166,9 @@ networks:
        driver: bridge
     asset-net-11:
        driver: bridge
+
 EOF
+
 
 # Setup options for connecting to docker host
 if [ -z "$DOCKER_HOST" ]; then
@@ -165,24 +180,9 @@ else
     DOCKER_ADDR="-e DOCKER_HOST -e DOCKER_TLS_VERIFY -e DOCKER_CERT_PATH"
 fi
 
-
 # Setup volume mounts for compose config and context
 if [ "$(pwd)" != '/' ]; then
     VOLUMES="-v $(pwd):$(pwd)"
-fi
-if [ -n "$INITIAL_COMPOSE_FILE" ]; then
-    cat << EOF > $DOCKER_COMPOSE_ALIAS
-#!/bin/sh
-/usr/local/bin/docker-compose -p $PROJECTNAME --file $INITIAL_COMPOSE_FILE \$@
-
-EOF
-    chmod +x $DOCKER_COMPOSE_ALIAS
-    COMPOSE_OPTIONS="$COMPOSE_OPTIONS -e PATH=.:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-    compose_dir=$(realpath $(dirname $INITIAL_COMPOSE_FILE))
-fi
-# TODO: also check --file argument
-if [ -n "$compose_dir" ]; then
-    VOLUMES="$VOLUMES -v $compose_dir:$compose_dir"
 fi
 
 # Only allocate tty if we detect one
@@ -193,9 +193,33 @@ if [ -t 0 ]; then
     DOCKER_RUN_OPTIONS="$DOCKER_RUN_OPTIONS -i"
 fi
 
+#Initial startup:
+cat << EOF > $DOCKER_COMPOSE_ALIAS
+#!/bin/sh
+/usr/local/bin/docker-compose -p $PROJECTNAME --file $INITIAL_COMPOSE_FILE \$@
 
+EOF
+chmod +x $DOCKER_COMPOSE_ALIAS
+COMPOSE_OPTIONS="$COMPOSE_OPTIONS -e PATH=.:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+compose_dir=$(realpath $(dirname $INITIAL_COMPOSE_FILE))
+VOLUMES="$VOLUMES -v $compose_dir:$compose_dir"
 docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES -w "$(pwd)" --entrypoint=/bin/sh docker/compose:1.22.0 -c 'cat /dev/stdout' &
+
 until `docker ps | grep -q "vf_os_platform_exec_control"` && [ "`docker inspect -f {{.State.Running}} vf_os_platform_exec_control`"=="true" ]; do
     sleep 0.1;
 done;
-docker exec vf_os_platform_exec_control docker-compose up -d
+
+#Start registry
+docker exec vf_os_platform_exec_control docker-compose up -d registry &
+
+until `docker ps | grep -q "vfos_registry_1"` && [ "`docker inspect -f {{.State.Running}} vfos_registry_1`"=="true" ]; do
+    sleep 0.1;
+done;
+
+if [[ "$1" == "dev" ]]; then
+    #Only start the registry, for building support
+    echo "Started registry."
+else
+    #Start everything
+    docker exec vf_os_platform_exec_control docker-compose up -d;
+fi

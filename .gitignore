@@ -5,3 +5,4 @@ testImages
 .executionservices_persist
 .registry_persist
 node_modules
+dist
