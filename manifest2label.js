@@ -156,6 +156,16 @@ let push = function (dockerImage, basename) {
   })
 }
 
+let getFullImageName = function (imageFile, list) {
+  let result = list[0][0]
+  list.map((item) => {
+    if (item[0].includes(imageFile)) {
+      result = item[0]
+    }
+  })
+  return result
+}
+
 // Main program:
 
 let main = async function () {
@@ -165,9 +175,9 @@ let main = async function () {
     let list = await imageList(zipFile + '_unpacked/' + manifest.binaryFile)
     console.log('Images:', list)
     await load(zipFile + '_unpacked/' + manifest.binaryFile)
-    let fullImageName = list[0][0] // Assume it's the first tag of the first image, check!!! TODO.
+    let fullImageName = getFullImageName(manifest.binaryFile, list)
     let labels = await getLabels(fullImageName)
-    console.log('Labels:', labels)
+    console.log('Labels from:' + fullImageName, labels)
 
     let newLabels = compareLabels(manifest, labels)
     let diff = jsonDiff.diff(labels, newLabels)
@@ -180,6 +190,9 @@ let main = async function () {
 
     if (pushToRepository) {
       await push(fullImageName, manifest.binaryFile)
+      for (let i = 0; i < list.length; i++) {
+        await push(list[i][0], list[i][0].replace(/:.*/, ''))
+      }
     }
     if (deleteArtifacts) {
       console.log('Cleaning up behind me.')

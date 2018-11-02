@@ -1,7 +1,7 @@
 'use strict'
 
 const downloader = require('download')
-const fs = require('fs')
+const fs = require('fs-extra')
 const exec = require('child_process').exec
 
 class Download {
@@ -64,10 +64,8 @@ class Download {
   deleteLocal () {
     this.status = 'Deleted'
     try {
-      fs.unlinkSync('downloads/' + this.id + '.download.zip')
-      fs.unlinkSync('downloads/' + this.id + '.download.zip_unpacked/manifest.json')
-      fs.unlinkSync('downloads/' + this.id + '.download.zip_unpacked/' + this.manifest.binaryFile)
-      fs.unlinkSync('downloads/' + this.id + '.download.zip_unpacked/')
+      fs.removeSync('downloads/' + this.id + '.download.zip')
+      fs.removeSync('downloads/' + this.id + '.download.zip_unpacked')
     } catch (error) {}
   }
 
@@ -76,7 +74,7 @@ class Download {
     me.status = 'Installing'
     // Upload image to Registry: tag with registry:5000/assetName
     return new Promise((resolve, reject) => {
-      exec('manifest2label.js ' + me.id + '.download.zip true true registry', (error, stdout, stderr) => {
+      exec('/usr/src/app/manifest2label.js /usr/src/app/downloads/' + me.id + '.download.zip false true registry', (error, stdout, stderr) => {
         if (!error) {
           me.status = 'Done'
           resolve(stdout)
