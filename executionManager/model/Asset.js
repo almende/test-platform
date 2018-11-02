@@ -120,6 +120,7 @@ class Asset {
         result['labels'] = ['traefik.frontend.rule=PathPrefixStrip:/' + me.id]
         result['networks'] = [networkId]
         resolve(result)
+
       }).catch((err, stderr) => {
         reject(err, stderr)
       })

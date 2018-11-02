@@ -19,7 +19,11 @@
     "express": "^4.16.2",
     "node-persist":"^3.0.1",
     "download":"^7.1.0",
-    "extract-zip":"^1.6.7"
+    "extract-zip":"^1.6.7",
+    "buffer-crc32": "^0.2.13",
+    "json-diff": "^0.5.3",
+    "tar": "^4.4.6",
+    "yazl": "^2.4.3"
   },
   "devDependencies": {
     "eslint": "^4.15.0"

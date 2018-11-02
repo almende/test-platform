@@ -16,17 +16,14 @@ cd ../
 mkdir -p ./testImages
 cd ./testImages
 
-docker save asset-a -o asset-a
 ../label2manifest.js asset-a true
 docker image rm asset-a
 docker image rm localhost:5000/asset-a
 
-docker save asset-b -o asset-b
 ../label2manifest.js asset-b true
 docker image rm asset-b
 docker image rm localhost:5000/asset-b
 
-docker save asset-c -o asset-c
 ../label2manifest.js asset-c true
 docker image rm asset-c
 docker image rm localhost:5000/asset-c
@@ -42,6 +39,7 @@ docker tag vfos/test-server localhost:5000/vfos/test-server
 docker push localhost:5000/vfos/test-server
 
 cd ../deployment
+cp ../manifest2label.js ./
 docker build . -t vfos/deploy
 docker tag vfos/deploy localhost:5000/vfos/deploy
 docker push localhost:5000/vfos/deploy

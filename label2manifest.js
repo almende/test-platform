@@ -7,10 +7,12 @@ const zip = require('yazl')
 
 let dockerImage = process.argv[2]
 let deleteArtifacts = process.argv[3] ? process.argv[3] : false
+let additionalImages = process.argv[4] ? process.argv[4] : ''
+
 let imageFile = dockerImage.replace(/.*\//gi, '')
 
 if (!dockerImage) {
-  console.log('Call this script as: "' + process.argv[1] + ' <dockerImage> <deleteArtifacts>"')
+  console.log('Call this script as: ' + process.argv[1] + ' <dockerImage> <deleteArtifacts> ["<additionalImages>"]')
   process.exit(1)
 }
 
@@ -18,7 +20,8 @@ let result = {
   'binaryFile': imageFile
 }
 
-let saveCommand = 'docker save ' + dockerImage + ' -o ' + imageFile
+let saveCommand = 'docker save -o ' + imageFile + '  ' + dockerImage + ' ' + additionalImages
+
 exec(saveCommand, (error, stdout, stderr) => {
   if (error) {
     console.log(error, stderr)
