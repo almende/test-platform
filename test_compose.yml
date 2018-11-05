@@ -1,2 +1,0 @@
-version: '3'
-services: {"assetB":{"image":"localhost:5000/asset-b","labels":["traefik.frontend.rule=PathPrefixStrip:/assetB"],"networks":["asset-net-00"]},"assetA":{"image":"localhost:5000/asset-a","labels":["traefik.frontend.rule=PathPrefixStrip:/assetA"],"networks":["asset-net-01"]}}

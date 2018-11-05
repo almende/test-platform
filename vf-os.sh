@@ -16,13 +16,15 @@
 set -e
 #set -o xtrace
 
-INITIAL_COMPOSE_FILE=".vfos_compose.yml"
-PLATFORM_COMPOSE_FILE=".platform_compose.yml"
+INITIAL_COMPOSE_FILE="platform_compose.yml"
 DOCKER_COMPOSE_ALIAS="docker-compose"
 PROJECTNAME="vfos"
 PERSISTENT_VOLUME="/persist"
 
-cat << EOF > $INITIAL_COMPOSE_FILE
+
+mkdir -p .compose
+
+cat << EOF > .compose/$INITIAL_COMPOSE_FILE
 version: '3'
 
 services:
@@ -39,18 +41,6 @@ services:
       - default
       - execution-manager-net
       - system-dashboard-net
-      - asset-net-00
-      - asset-net-01
-      - asset-net-02
-      - asset-net-03
-      - asset-net-04
-      - asset-net-05
-      - asset-net-06
-      - asset-net-07
-      - asset-net-08
-      - asset-net-09
-      - asset-net-10
-      - asset-net-11
   registry:
     image: registry:2  #newer versions give "docker-credential-secretservice not installed or not available in PATH"
     restart: "unless-stopped"
@@ -69,10 +59,10 @@ services:
       - "traefik.frontend.rule=PathPrefixStrip:/executionservices"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - $(pwd):$(pwd)
+      - .compose:/var/run/compose
       - .executionservices_persist:$PERSISTENT_VOLUME
     environment:
-      - DOCKER_COMPOSE_PATH=$(pwd)
+      - DOCKER_COMPOSE_PATH=/var/run/compose
     networks:
       - execution-manager-net
   aim:
@@ -142,30 +132,6 @@ networks:
        driver: bridge
     system-dashboard-net:
        driver: bridge
-    asset-net-00:
-       driver: bridge
-    asset-net-01:
-       driver: bridge
-    asset-net-02:
-       driver: bridge
-    asset-net-03:
-       driver: bridge
-    asset-net-04:
-       driver: bridge
-    asset-net-05:
-       driver: bridge
-    asset-net-06:
-       driver: bridge
-    asset-net-07:
-       driver: bridge
-    asset-net-08:
-       driver: bridge
-    asset-net-09:
-       driver: bridge
-    asset-net-10:
-       driver: bridge
-    asset-net-11:
-       driver: bridge
 
 EOF
 
@@ -180,11 +146,6 @@ else
     DOCKER_ADDR="-e DOCKER_HOST -e DOCKER_TLS_VERIFY -e DOCKER_CERT_PATH"
 fi
 
-# Setup volume mounts for compose config and context
-if [ "$(pwd)" != '/' ]; then
-    VOLUMES="-v $(pwd):$(pwd)"
-fi
-
 # Only allocate tty if we detect one
 if [ -t 1 ]; then
     DOCKER_RUN_OPTIONS="-t"
@@ -194,16 +155,15 @@ if [ -t 0 ]; then
 fi
 
 #Initial startup:
-cat << EOF > $DOCKER_COMPOSE_ALIAS
+cat << EOF > .compose/$DOCKER_COMPOSE_ALIAS
 #!/bin/sh
-/usr/local/bin/docker-compose -p $PROJECTNAME --file $INITIAL_COMPOSE_FILE \$@
+/usr/local/bin/docker-compose -p $PROJECTNAME --file /compose/$INITIAL_COMPOSE_FILE \$@
 
 EOF
 chmod +x $DOCKER_COMPOSE_ALIAS
-COMPOSE_OPTIONS="$COMPOSE_OPTIONS -e PATH=.:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-compose_dir=$(realpath $(dirname $INITIAL_COMPOSE_FILE))
-VOLUMES="$VOLUMES -v $compose_dir:$compose_dir"
-docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES -w "$(pwd)" --entrypoint=/bin/sh docker/compose:1.22.0 -c 'cat /dev/stdout' &
+COMPOSE_OPTIONS="$COMPOSE_OPTIONS -e PATH=.:/compose:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+VOLUMES="-v $(pwd)/.compose:/compose"
+docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES --entrypoint=/bin/sh docker/compose:1.22.0 -c 'cat /dev/stdout' &
 
 until `docker ps | grep -q "vf_os_platform_exec_control"` && [ "`docker inspect -f {{.State.Running}} vf_os_platform_exec_control`"=="true" ]; do
     sleep 0.1;
