@@ -19,4 +19,7 @@ LABEL vf-OS.securityEndpoints="securityStuffJSON"
 
 LABEL vf-OS.iconHDUri="img/small_icon.png"
 LABEL vf-OS.description="Description of Asset A"
+
+LABEL vf-OS.compose.0.socket="true"
+
 CMD ["npm", "start"]

@@ -16,7 +16,8 @@
 set -e
 #set -o xtrace
 
-INITIAL_COMPOSE_FILE="platform_compose.yml"
+INITIAL_COMPOSE_FILE="0_platform_compose.yml"
+NETWORK_COMPOSE_FILE="1_networks_compose.yml"
 DOCKER_COMPOSE_ALIAS="docker-compose"
 PROJECTNAME="vfos"
 PERSISTENT_VOLUME="/persist"
@@ -59,8 +60,8 @@ services:
       - "traefik.frontend.rule=PathPrefixStrip:/executionservices"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - .compose:/var/run/compose
-      - .executionservices_persist:$PERSISTENT_VOLUME
+      - $(pwd)/.compose:/var/run/compose
+      - $(pwd)/.executionservices_persist:$PERSISTENT_VOLUME
     environment:
       - DOCKER_COMPOSE_PATH=/var/run/compose
     networks:
@@ -94,7 +95,7 @@ services:
     networks:
       - execution-manager-net
     volumes:
-      - .deployment_persist:$PERSISTENT_VOLUME
+      - $(pwd)/.deployment_persist:$PERSISTENT_VOLUME
   portal:
     image: localhost:5000/vfos/portal
     restart: "unless-stopped"
@@ -123,7 +124,7 @@ services:
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/testserver"
     volumes:
-      - ./testImages:/usr/src/app/static
+      - $(pwd)/testImages:/usr/src/app/static
     networks:
       - execution-manager-net
 
@@ -132,7 +133,56 @@ networks:
        driver: bridge
     system-dashboard-net:
        driver: bridge
+EOF
 
+
+cat << EOF > .compose/$NETWORK_COMPOSE_FILE
+version: '3'
+
+services:
+  reverse-proxy:
+    networks:
+      - default
+      - execution-manager-net
+      - system-dashboard-net
+      - asset-net-00
+      - asset-net-01
+      - asset-net-02
+      - asset-net-03
+      - asset-net-04
+      - asset-net-05
+      - asset-net-06
+      - asset-net-07
+      - asset-net-08
+      - asset-net-09
+      - asset-net-10
+      - asset-net-11
+
+networks:
+    asset-net-00:
+       driver: bridge
+    asset-net-01:
+       driver: bridge
+    asset-net-02:
+       driver: bridge
+    asset-net-03:
+       driver: bridge
+    asset-net-04:
+       driver: bridge
+    asset-net-05:
+       driver: bridge
+    asset-net-06:
+       driver: bridge
+    asset-net-07:
+       driver: bridge
+    asset-net-08:
+       driver: bridge
+    asset-net-09:
+       driver: bridge
+    asset-net-10:
+       driver: bridge
+    asset-net-11:
+       driver: bridge
 EOF
 
 
@@ -157,10 +207,11 @@ fi
 #Initial startup:
 cat << EOF > .compose/$DOCKER_COMPOSE_ALIAS
 #!/bin/sh
-/usr/local/bin/docker-compose -p $PROJECTNAME --file /compose/$INITIAL_COMPOSE_FILE \$@
+
+/usr/local/bin/docker-compose -p $PROJECTNAME \`ls -1 /compose/*.yml | sed -e 's/^/-f /' | tr '\n' ' '\` \$@
 
 EOF
-chmod +x $DOCKER_COMPOSE_ALIAS
+chmod +x .compose/$DOCKER_COMPOSE_ALIAS
 COMPOSE_OPTIONS="$COMPOSE_OPTIONS -e PATH=.:/compose:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 VOLUMES="-v $(pwd)/.compose:/compose"
 docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES --entrypoint=/bin/sh docker/compose:1.22.0 -c 'cat /dev/stdout' &
