@@ -65,6 +65,7 @@ services:
       - $(pwd)/.persist/executionservices_persist:$PERSISTENT_VOLUME
     environment:
       - DOCKER_COMPOSE_PATH=/var/run/compose
+      - HOST_PWD=$(pwd)
     networks:
       - execution-manager-net
   aim:
@@ -222,7 +223,7 @@ until `docker ps | grep -q "vf_os_platform_exec_control"` && [ "`docker inspect 
 done;
 
 #Start registry
-docker exec vf_os_platform_exec_control docker-compose up -d registry &
+docker exec vf_os_platform_exec_control docker-compose up --no-recreate --remove-orphans -d registry  &
 
 until `docker ps | grep -q "vfos_registry_1"` && [ "`docker inspect -f {{.State.Running}} vfos_registry_1`"=="true" ]; do
     sleep 0.1;
@@ -233,5 +234,5 @@ if [[ "$1" == "dev" ]]; then
     echo "Started registry."
 else
     #Start everything
-    docker exec vf_os_platform_exec_control docker-compose up -d;
+    docker exec vf_os_platform_exec_control docker-compose up --no-recreate --remove-orphans -d ;
 fi

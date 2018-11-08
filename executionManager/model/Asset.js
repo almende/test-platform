@@ -20,6 +20,19 @@ class Asset {
     })
   }
 
+  writeConfigFile () {
+    let me = this
+    return new Promise((resolve, reject) => {
+      exec('./installAsset.js localhost:5000/' + me.imageId + ' /var/run/compose ' + process.env.HOST_PWD, (error, stdout, stderr) => {
+        if (error) {
+          reject(error, stderr)
+        } else {
+          resolve(stdout)
+        }
+      })
+    })
+  }
+
   getStatus () {
     let me = this
     let getRunning = () => {
@@ -107,52 +120,6 @@ class Asset {
         })
       }
     }
-  }
-
-  getComposeSection (networkId) {
-    let me = this
-    return new Promise((resolve, reject) => {
-      me.getLabels(true).then((labels) => {
-        // TODO: Depending on labels, generate config in json (conversion to yml is done later)
-        let result = {}
-        result['id'] = me.id
-        result['image'] = me.imageId
-        result['labels'] = ['traefik.frontend.rule=PathPrefixStrip:/' + me.id]
-        result['networks'] = [networkId]
-        resolve(result)
-
-      }).catch((err, stderr) => {
-        reject(err, stderr)
-      })
-    })
-  }
-
-  start () {
-    let me = this
-    return new Promise((resolve, reject) => {
-      exec('docker exec vf_os_platform_exec_control docker-compose --file test_compose.yml start ' + me.id, (error, stdout, stderr) => {
-        if (!error) {
-          me.status = 'Running'
-          resolve(stdout)
-        } else {
-          reject(error, stderr)
-        }
-      })
-    })
-  }
-
-  stop () {
-    let me = this
-    return new Promise((resolve, reject) => {
-      exec('docker exec vf_os_platform_exec_control docker-compose --file test_compose.yml stop -t 5 ' + me.id, (error, stdout, stderr) => {
-        if (!error) {
-          me.status = 'Stopped'
-          resolve(stdout)
-        } else {
-          reject(error, stderr)
-        }
-      })
-    })
   }
 }
 

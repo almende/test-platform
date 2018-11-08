@@ -29,6 +29,7 @@ docker image rm asset-c
 docker image rm localhost:5000/asset-c
 
 cd ../executionManager
+cp ../installAsset.js ./
 docker build . -t vfos/exec-manager
 docker tag vfos/exec-manager localhost:5000/vfos/exec-manager
 docker push localhost:5000/vfos/exec-manager

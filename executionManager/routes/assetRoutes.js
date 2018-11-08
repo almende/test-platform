@@ -6,6 +6,17 @@ const Asset = require('../model/Asset')
 const exec = require('child_process').exec
 const storage = require('node-persist')
 
+const reload = function () {
+  return new Promise((resolve, reject) => {
+    exec('docker exec vf_os_platform_exec_control docker-compose up -d', (error, stdout, stderr) => {
+      if (error) {
+        reject(error, stderr)
+      }
+      resolve(stdout)
+    })
+  })
+}
+
 const getAssetRoutes = (app) => {
   const router = new Router()
   storage.init({ 'dir': '/persist/assetRoutes' }).then(async () => {
@@ -17,30 +28,6 @@ const getAssetRoutes = (app) => {
       assets = assets.map((entry) => {
         return Asset.reconstruct(entry)
       })
-    }
-
-    const createComposeConfig = function () {
-      return new Promise(
-        (resolve, reject) => {
-          let configs = {}
-          Promise.all(
-            assets.map((asset, index) => {
-              if (asset.autoStart) {
-                return asset.getComposeSection('asset-net-' + index.toString().padStart(2, '0'))
-              } else {
-                return Promise.resolve({})
-              }
-            })
-          ).then((config) => {
-            config.map((entry) => {
-              configs[entry.id] = entry
-              delete entry.id
-            })
-            resolve(configs)
-          }).catch((error) => {
-            reject(error)
-          })
-        })
     }
 
     router
@@ -55,17 +42,6 @@ const getAssetRoutes = (app) => {
         })).then(
           () => {
             res.send(assets)
-          }
-        ).catch(
-          (errors) => {
-            res.send(errors)
-          }
-        )
-      })
-      .get('/compose_config', (req, res) => {
-        createComposeConfig().then(
-          (configs) => {
-            res.send(configs)
           }
         ).catch(
           (errors) => {
@@ -134,88 +110,40 @@ const getAssetRoutes = (app) => {
           }
         })
       })
-      .post('/reload', (req, res) => {
-        createComposeConfig().then(
-          (configs) => {
-            let data = 'version: \'3\'\n'
-            data += 'services: '
-            data += JSON.stringify(configs)
-            fs.writeFile(process.env.DOCKER_COMPOSE_PATH + '/test_compose.yml', data, (err) => {
-              if (err) {
-                res.send(err)
-              } else {
-                exec('docker exec vf_os_platform_exec_control docker-compose --file test_compose.yml up -d --no-recreate --remove-orphans', (error, stdout, stderr) => {
-                  if (!error) {
-                    res.send({ result: 'OK' })
-                  } else {
-                    res.status(500).send({ 'error': error, 'stderr': stderr })
-                  }
-                })
-              }
-            })
-          }
-        ).catch(
-          (errors) => {
-            res.send(errors)
-          }
-        )
+      .get('/:id/compose_config', (req, res) => {
+        // just get the file from disk
+        var readStream = fs.createReadStream('/var/run/compose/3_' + req.params.id + '_compose.yml')
+        readStream.pipe(res)
       })
       .post('/:id', async (req, res) => {
-        if (req.query.action) {
+        try {
           let idx = assets.length
+          let data = req.body
           while (idx--) {
             if (assets[idx] && assets[idx].id === req.params.id) {
               let asset = assets[idx]
-              if (req.query.action === 'start') {
-                asset.autoStart = true
-                asset.start().then(
-                  (stdout) => {
-                    res.send({ result: 'OK', stdout: stdout })
-                  }
-                ).catch(
-                  (reason) => {
-                    res.status(500).send(reason)
-                  }
-                )
-              } else if (req.query.action === 'stop') {
-                asset.autoStart = false
-                asset.stop().then(
-                  (stdout) => {
-                    res.send({ result: 'OK', stdout: stdout })
-                  }
-                ).catch(
-                  (reason) => {
-                    res.status(500).send(reason)
-                  }
-                )
-              } else {
-                res.send({ error: 'No such action: ' + req.params.id + ' : ' + req.query.action })
+              if (data.autoStart !== null) {
+                asset.autoStart = data.autoStart
               }
+              if (data.imageId !== null) {
+                asset.imageId = data.imageId
+              }
+              res.send({ result: 'OK' })
+              await storage.setItem('assets', assets)
+              await asset.writeConfigFile()
+              reload().then(() => {
+                res.send({ result: 'OK' })
+              }).catch((err, stderr) => {
+                res.send({
+                  error: err,
+                  stderr: stderr
+                })
+              })
               return
             }
           }
-          // Send HTTP status
-          res.send({ error: 'No such Asset: ' + req.params.id })
-        } else { // Update meta-info
-          try {
-            let idx = assets.length
-            let data = req.body
-            while (idx--) {
-              if (assets[idx] && assets[idx].id === req.params.id) {
-                if (data.autoStart !== null) {
-                  assets[idx].autoStart = data.autoStart
-                }
-                if (data.imageId !== null) {
-                  assets[idx].imageId = data.imageId
-                }
-                res.send({ result: 'OK' })
-                await storage.setItem('assets', assets)
-                return
-              }
-            }
-          } catch (e) {
-            res.send({ error: e })
-          }
+        } catch (e) {
+          res.send({ error: e })
         }
       })
       .put('/', async (req, res) => {
@@ -228,9 +156,18 @@ const getAssetRoutes = (app) => {
           }
         }
         try {
-          assets.push(new Asset(data.id, data.imageId, data.autoStart))
-          res.send({ result: 'OK' })
+          let asset = new Asset(data.id, data.imageId, data.autoStart)
+          assets.push(asset)
           await storage.setItem('assets', assets)
+          await asset.writeConfigFile()
+          reload().then(() => {
+            res.send({ result: 'OK' })
+          }).catch((err, stderr) => {
+            res.send({
+              error: err,
+              stderr: stderr
+            })
+          })
         } catch (e) {
           res.send({ error: e })
         }
@@ -244,8 +181,18 @@ const getAssetRoutes = (app) => {
           }
         }
         await storage.setItem('assets', assets)
-        res.send({ result: 'OK' })
+
+        fs.unlinkSync('/var/run/compose/3_' + req.params.id + '_compose.yml')
+        reload().then(() => {
+          res.send({ result: 'OK' })
+        }).catch((err, stderr) => {
+          res.send({
+            error: err,
+            stderr: stderr
+          })
+        })
       })
+
     app.use('/assets', router)
   })
 }
