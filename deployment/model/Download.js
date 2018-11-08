@@ -35,7 +35,7 @@ class Download {
     if (fs.existsSync('/usr/src/app/downloads/' + this.id + '.download.zip')) {
       this.status = 'Downloaded'
     }
-    if (fs.existsSync('/usr/src/app/downloads/' + this.id + '.download.zip_unpacked/manifest.json')) {
+    if (fs.existsSync('/usr/src/app/downloads/' + this.id + '.download.zip_unpacked') && fs.existsSync('/usr/src/app/downloads/' + this.id + '.download.zip_unpacked/manifest.json')) {
       this.status = 'Done' // Just assume that the actual push is done
     }
   }

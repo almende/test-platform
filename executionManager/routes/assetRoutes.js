@@ -128,11 +128,10 @@ const getAssetRoutes = (app) => {
               if (data.imageId !== null) {
                 asset.imageId = data.imageId
               }
-              res.send({ result: 'OK' })
               await storage.setItem('assets', assets)
-              await asset.writeConfigFile()
+              let output = await asset.writeConfigFile()
               reload().then(() => {
-                res.send({ result: 'OK' })
+                res.send({ result: 'OK', output: output })
               }).catch((err, stderr) => {
                 res.send({
                   error: err,
@@ -159,9 +158,9 @@ const getAssetRoutes = (app) => {
           let asset = new Asset(data.id, data.imageId, data.autoStart)
           assets.push(asset)
           await storage.setItem('assets', assets)
-          await asset.writeConfigFile()
+          let output = await asset.writeConfigFile()
           reload().then(() => {
-            res.send({ result: 'OK' })
+            res.send({ result: 'OK', output: output })
           }).catch((err, stderr) => {
             res.send({
               error: err,
@@ -181,8 +180,9 @@ const getAssetRoutes = (app) => {
           }
         }
         await storage.setItem('assets', assets)
-
-        fs.unlinkSync('/var/run/compose/3_' + req.params.id + '_compose.yml')
+        if (fs.existsSync('/var/run/compose/3_' + req.params.id + '_compose.yml')) {
+          fs.unlinkSync('/var/run/compose/3_' + req.params.id + '_compose.yml')
+        }
         reload().then(() => {
           res.send({ result: 'OK' })
         }).catch((err, stderr) => {

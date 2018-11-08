@@ -10,4 +10,5 @@ docker image rm vfos/portal
 docker image rm localhost:5000/vfos/portal
 docker image rm vfos/test-server
 docker image rm localhost:5000/vfos/test-server
-
+rm -rf .persist
+rm -rf .compose/3*

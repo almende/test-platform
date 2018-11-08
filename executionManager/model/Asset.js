@@ -23,7 +23,7 @@ class Asset {
   writeConfigFile () {
     let me = this
     return new Promise((resolve, reject) => {
-      exec('./installAsset.js localhost:5000/' + me.imageId + ' /var/run/compose ' + process.env.HOST_PWD, (error, stdout, stderr) => {
+      exec('./installAsset.js registry:5000/' + me.imageId + ' /var/run/compose ' + process.env.HOST_PWD, (error, stdout, stderr) => {
         if (error) {
           reject(error, stderr)
         } else {

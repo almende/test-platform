@@ -22,7 +22,7 @@ if (!zipFile) {
 let unpack = function (zipFile) {
   return new Promise((resolve, reject) => {
     extract(zipFile, {
-      dir: process.cwd() + '/' + zipFile + '_unpacked'
+      dir: zipFile + '_unpacked'
     }, (err) => {
       if (!err) {
         try {

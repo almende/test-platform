@@ -85,7 +85,7 @@ new Promise((resolve, reject) => {
                     result[index]['volumes'].push(volumeFolder + 'shared_' + innerKey + '_persist:' + asset['volume']['shared'][innerKey])
                   })
                 } else {
-                  result[index]['volumes'].push(volumeFolder + dockerImage + '_' + index + '_' + volumeIndx + '_persist:' + asset['volume'][key])
+                  result[index]['volumes'].push(volumeFolder + imageFile + '_' + index + '_' + volumeIndx + '_persist:' + asset['volume'][key])
                 }
               })
             }
