@@ -24,6 +24,7 @@ PERSISTENT_VOLUME="/persist"
 
 
 mkdir -p .compose
+mkdir -p .persist
 
 cat << EOF > .compose/$INITIAL_COMPOSE_FILE
 version: '3'
@@ -50,7 +51,7 @@ services:
     networks:
       - execution-manager-net
     volumes:
-      - .registry_persist:/var/lib/registry
+      - $(pwd)/.persist/registry_persist:/var/lib/registry
   execution-manager:
     image: localhost:5000/vfos/exec-manager
     restart: "unless-stopped"
@@ -61,7 +62,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - $(pwd)/.compose:/var/run/compose
-      - $(pwd)/.executionservices_persist:$PERSISTENT_VOLUME
+      - $(pwd)/.persist/executionservices_persist:$PERSISTENT_VOLUME
     environment:
       - DOCKER_COMPOSE_PATH=/var/run/compose
     networks:
@@ -95,7 +96,7 @@ services:
     networks:
       - execution-manager-net
     volumes:
-      - $(pwd)/.deployment_persist:$PERSISTENT_VOLUME
+      - $(pwd)/.persist/deployment_persist:$PERSISTENT_VOLUME
   portal:
     image: localhost:5000/vfos/portal
     restart: "unless-stopped"

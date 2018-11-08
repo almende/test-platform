@@ -6,3 +6,4 @@ testImages
 node_modules
 dist
 .compose
+.persist
