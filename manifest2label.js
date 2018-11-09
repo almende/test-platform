@@ -13,7 +13,7 @@ const pushToRepository = process.argv[4] ? JSON.parse(process.argv[4]) : false
 const registerHost = process.argv[5] ? process.argv[5] : 'localhost'
 
 if (!zipFile) {
-  console.log('Call this script as: ' + process.argv[1] + ' <zipFile> <deleteArtifacts>')
+  console.log('Call this script as: ' + process.argv[1] + ' <zipFile> [<deleteArtifacts>] [<push2Repos>] [<registryHost>]')
   process.exit(1)
 }
 

@@ -171,8 +171,38 @@ label2manifest <imageid> [<deleteArtifacts>] [<additionalImages>]
 
 Through the additional images you can create a multiple image asset, but the meta-information should be placed as labels only in the first image of the set. For these cases it is expected that those labels contain a series of: _vf-OS.compose.1.*_ labels to configure these extra images. (and _vf-OS.compose.2.*_ for the second extra image, etc.)
 
-#### Install asset locally
+The script will create a zipfile in the folder where you run the script, called *imageid.zip*, e.g. *asset-c.zip*.
 
+#### Deploy asset to local quarantine registry
+In the final setup of the platform, all assets will be installed from the vf-OS Store, by downloading, checking, intermediate storing in the quarantine registry, and installation of the asset into the local docker environment. This is a complex, multi-step process that is annoying and slow during development testing. 
+To ease this for developers, a script is provided that bypasses many of these steps and can deploy the asset from the zipfile, directly into the quarantine repository. This script is called *manifest2label.js* to mimic it's mirror counterpart.
+
+```shell
+user@host:~/platform$ manifest2label.js $PWD/asset-c.zip true true
+Read manifest: { binaryFile: 'asset-c',
+  'vf-OS': 'true',
+  depends: 'asset-b',
+  icon: 'img/3.png' }
+Images: [ [ 'asset-c:latest' ] ]
+Labels from:asset-c:latest { 'vf-OS': 'true',
+  'vf-OS.depends': 'asset-b',
+  'vf-OS.icon': 'img/3.png' }
+Cleaning up behind me.
+Done cleanup.
+Also cleaned images. 
+```
+There are four parameters to this script:
+``` shell
+manifest2label <fullPath2zipfile> [<deleteArtifacts>] [<push2Repos>] [<registryHost>]
+```
+* fullPath2zipfile: The zipfile to unpack, NOTE: Must be a full path at this time. (see example to use the current working dir.)
+* deleteArtifacts: Should the script cleanup the unpackaged image and manifest.json file it created after uploading? Simple *true* or *false* parameter, defaults to *false*.
+* push2Repos: Should the script push the image from the local Docker daemon to the quarantine registry as well? Simple *true* or *false* parameter, defaults to *false*.
+* registryHost: The hostname of the quarantine registry, defaults to *localhost* which never needs to change.
 
 #### Deploy asset to vf-OS Store
+TODO
+
+#### Install asset locally
+
 

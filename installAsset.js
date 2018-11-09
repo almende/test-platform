@@ -101,7 +101,7 @@ new Promise((resolve, reject) => {
             }
           })
         }
-      } catch (e) { console.log('could parse vf-OS.compose.0.socket', e) }
+      } catch (e) { console.log('Had trouble parsing the labels!', e) }
 
       // console.log(JSON.stringify(labels))
       // console.log(JSON.stringify(result))
