@@ -126,6 +126,11 @@ You can just create you component(s) through any development process you'll like
 
 Before creating the zipfile, you need to build your docker image with the correct labels on them.
 
+***
+*note: You can install this docker image directly as an asset into the platform, bypassing the whole quarantine registry. This is a good way to test the labels. Skip directly to [Install asset locally](#installLocally) for this.
+***
+
+
 #### Create asset zipfile
 
 To facilitate the creation of the zipfile for distributing the assets, the platform provides a tool, called `label2manifest.js`, which you can find in the root folder of the source distribution and/or in the *tools* folder of the binary distribution.
@@ -175,7 +180,7 @@ The script will create a zipfile in the folder where you run the script, called 
 
 #### Deploy asset to local quarantine registry
 In the final setup of the platform, all assets will be installed from the vf-OS Store, by downloading, checking, intermediate storing in the quarantine registry, and installation of the asset into the local docker environment. This is a complex, multi-step process that is annoying and slow during development testing. 
-To ease this for developers, a script is provided that bypasses many of these steps and can deploy the asset from the zipfile, directly into the quarantine repository. This script is called *manifest2label.js* to mimic it's mirror counterpart.
+To ease this for developers, a script is provided that bypasses many of these steps and can deploy the asset from the zipfile, directly into the quarantine repository. This script is called *manifest2label.js* to mimic it's mirror counterpart. This script is provided in the tools folder of the binary distribution, and requires running *npm install* for it's dependencies.
 
 ```shell
 user@host:~/platform$ manifest2label.js $PWD/asset-c.zip true true
@@ -203,6 +208,42 @@ manifest2label <fullPath2zipfile> [<deleteArtifacts>] [<push2Repos>] [<registryH
 #### Deploy asset to vf-OS Store
 TODO
 
-#### Install asset locally
+#### <a name="installLocally"></a>Install asset locally
 
+To get the asset from the local quarantine registry into the actual running platform, requires the generation of the docker-compose file for this asset. This can be done through the REST API of the platform, but to simplify this a script *installAsset.js* is provided that does this. This script is provided in the tools folder of the binary distribution, and requires running *npm install* for it's dependencies.
 
+***
+*note: You can also install an Asset directly from your local docker daemon, bypassing the whole quarantine registry. In the example below, you don't include the 'localhost:5000/' part for such images. (Just use the local imageid)
+***
+
+Before running the script the platform should be running, to provide access to the registry. Run the script like:
+
+```shell
+user@host:~/platform$ installAsset.js localhost:5000/asset-a true
+Got metadata from docker image: localhost:5000/asset-c
+Platform reloaded. 
+user@host:~/platform$ ls .compose
+0_platform_compose.yml  1_networks_compose.yml  3_asset-c_compose.yml  docker-compose
+user@host:~/platform$ docker container list
+CONTAINER ID        IMAGE                                  COMMAND                  CREATED             STATUS              PORTS                                        NAMES
+ccb18f1062d8        localhost:5000/vfos/deploy             "/usr/src/app/entryp…"   23 seconds ago      Up 19 seconds       9000/tcp                                     vfos_deployment_1
+7cda48ac56a4        localhost:5000/vfos/system-dashboard   "npm start"              23 seconds ago      Up 18 seconds       9000/tcp                                     vfos_dashboard_1
+067dd4ec6b0a        localhost:5000/vfos/test-server        "npm start"              23 seconds ago      Up 15 seconds       9000/tcp                                     vfos_testserver_1
+0afa60d16778        localhost:5000/vfos/exec-manager       "npm start"              23 seconds ago      Up 17 seconds       9000/tcp                                     vfos_execution-manager_1
+f16f1a26a87c        localhost:5000/asset-c                 "npm start"              23 seconds ago      Up 15 seconds       9001/tcp                                     vfos_asset-c_1
+789b38d393a8        localhost:5000/vfos/aim                "/opt/jboss/tools/do…"   23 seconds ago      Up 20 seconds       8080/tcp                                     vfos_aim_1
+91187164867b        localhost:5000/vfos/portal             "npm start"              23 seconds ago      Up 21 seconds       9000/tcp                                     vfos_portal_1
+c06837648ca6        traefik:latest                         "/traefik --api --do…"   23 seconds ago      Up 12 seconds       0.0.0.0:80->80/tcp, 0.0.0.0:8080->8080/tcp   vfos_reverse-proxy_1
+f53130f4f819        registry:2                             "/entrypoint.sh /etc…"   About an hour ago   Up About an hour    0.0.0.0:5000->5000/tcp                       vfos_registry_1
+2bfa81621399        docker/compose:1.22.0                  "/bin/sh -c 'cat /de…"   About an hour ago   Up About an hour                                                 vf_os_platform_exec_control
+```
+As you can see in the example, the script creates a docker-compose file, called *3_assetId_compose.yml* which is included by the reload of the platform.
+
+There are four parameters to this script:
+``` shell
+installAsset.js <imageUrl> [<reload>] [<targetFolder>] [<volumesFolder>]
+```
+* imageUrl: The imageId or url to the registry imageId.
+* reload: Should the platform reload its configfiles? (Basically running *docker-compose up*) Simple *true* or *false* parameter, defaults to *false*.
+* targetFolder: Path to the folder where the compose file needs to be generated. Defaults to $PWD/.compose.
+* volumesFolder: Absolute path in the host to the folder where the host side of volume mounts needs to be placed. Defaults to $PWD/.persist.

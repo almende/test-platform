@@ -5,12 +5,13 @@ const exec = require('child_process').exec
 const fs = require('fs')
 
 let dockerImage = process.argv[2]
-let folder = process.argv[3]
-let volumeFolder = process.argv[4] ? process.argv[4] : process.cwd() + '/.persist/'
+let reload = process.argv[3] ? process.argv[3] : false
+let folder = process.argv[4] ? process.argv[4] : process.cwd() + '/.compose/'
+let volumeFolder = process.argv[5] ? process.argv[5] : process.cwd() + '/.persist/'
 if (!volumeFolder.endsWith('/')) volumeFolder += '/'
 
-if (!dockerImage && process.argv.length < 4) {
-  console.log('Call this script as: ' + process.argv[1] + ' <dockerImage> <targetFolder> <volumesFolder>')
+if (!dockerImage && process.argv.length < 3) {
+  console.log('Call this script as: ' + process.argv[1] + ' <dockerUrl> [<reload>] [<targetFolder>] [<volumesFolder>]')
   process.exit(1)
 }
 let imageFile = dockerImage.replace(/.*\//gi, '')
@@ -119,8 +120,17 @@ new Promise((resolve, reject) => {
 
       // Generate docker-compose file for this asset into folder
       fs.writeFileSync(folder + '/3_' + imageFile + '_compose.yml', 'version: "3"\nservices:\n ' + services)
+      // If parameter: call docker-compose image to reload asset
+      if (reload) {
+        exec('docker exec vf_os_platform_exec_control docker-compose up -d', (error, stdout, stderr) => {
+          if (error) {
+            console.log('Failed to reload the platform.', stderr)
+          } else {
+            console.log('Platform reloaded.', stdout)
+          }
+        })
+      }
     }
-    // If parameter: call docker-compose image to reload asset
   })
 }).catch((e) => {
   console.error('failed to pull image', e)

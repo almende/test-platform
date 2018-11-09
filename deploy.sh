@@ -15,6 +15,7 @@ cp stop.sh vfosPlatform/
 cp start.sh vfosPlatform/
 
 cp label2manifest.js vfosPlatform/tools/
+cp manifest2label.js vfosPlatform/tools/
 cp installAsset.js vfosPlatform/tools/
 cp package.json vfosPlatform/tools/
 
