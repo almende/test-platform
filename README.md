@@ -16,7 +16,7 @@ Two options: binary distribution or based on the platform source
 
 The binary distribution consist of a large zip file `vfosPlatform.zip`, which includes a copy of the quarantine local Docker registry, which stores the binary images of the platform assets.
 
-To start with this distribution, you'll have to unzip the file and directly go to the common steps below.
+To start with this distribution, you'll have to unzip the file and directly go to the common steps below. You can download the zipfile from the github releases page: (https://github.com/almende/test-platform/releases/download/1.0.0/vfosPlatform.zip)
 
 #### From Source
 
