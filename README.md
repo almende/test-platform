@@ -22,7 +22,7 @@ To start with this distribution, you'll have to unzip the file and directly go t
 
 First step is to build the docker images for the platform itself. This build process will start a reduced version of the platform to provide access to the vf-OS quarantine local Docker registry in which the assets will be stored before installation. See overview above.
 
-``` bash
+``` shell
 user@host:~/platform$ ./build.sh
 npm WARN platform-build@1.0.0 No repository field.
 npm WARN platform-build@1.0.0 No license field.
@@ -80,7 +80,7 @@ After this script has finished, you can start the platform through the main star
 
 To start the platform you need to run the start.sh script. The first time you run this script it will install runtime dependencies, including the platform assets themselves from the local quarantine repository.
 
-``` bash
+``` shell
 user@host:~/platform$ ./start.sh
 48071984db7f5ea86ed09403d2cf0e3744494e7b34efd875a092b68d4b494b6c
 Creating network "vfos_default" with the default driver
@@ -122,9 +122,57 @@ Now for the good part: How to add your own assets to the running platform? This 
 
 #### Create asset code
 
+You can just create you component(s) through any development process you'll like, including using the vf-OS Studio. The only vf-OS specific requirement is how to add the correct meta-information for your component. This is documented in [vf-OS MetaData format](https://docs.google.com/document/d/1SnfLrZ7bi8S2BTyfZFnDYWB4GRX7L9uqp9Baz0orWlY)
+
+Before creating the zipfile, you need to build your docker image with the correct labels on them.
+
 #### Create asset zipfile
 
+To facilitate the creation of the zipfile for distributing the assets, the platform provides a tool, called `label2manifest.js`, which you can find in the root folder of the source distribution and/or in the *tools* folder of the binary distribution.
+
+This script will take the image from your local running docker daemon, so you need to run the script on the same machine as where you created the asset code.
+
+The script is written for node.js, and has some external dependencies. There is a *package.json* file in the same folder as the script, which you need to install.
+
+``` shell
+user@host:~/platform$ ls package.json label2manifest.js
+label2manifest.js  package.json
+user@host:~/platform$ npm install
+npm WARN platform-build@1.0.0 No repository field.
+npm WARN platform-build@1.0.0 No license field.
+
+audited 48 packages in 1.212s
+found 0 vulnerabilities
+
+user@host:~/platform$
+```
+After installing these dependencies, you can run the script to create the zipfile. Below is an example for a dockerimage called *asset-c*.
+
+``` shell
+user@host:~/platform$ label2manifest.js asset-c true
+Exported docker image: asset-c
+Got metadata from docker image: asset-c
+{ 'vf-OS': 'true',
+  'vf-OS.depends': 'asset-b',
+  'vf-OS.icon': 'img/3.png' } { binaryFile: 'asset-c',
+  'vf-OS': 'true',
+  depends: 'asset-b',
+  icon: 'img/3.png' } 'asset-c'
+done, deleting artifacts
+
+```
+There are three parameters to this script:
+``` shell
+label2manifest <imageid> [<deleteArtifacts>] [<additionalImages>]
+```
+* imageid: The name of the main Docker image itself, the one with the labels inside.
+* deleteArtifacts: Should the script cleanup the exported image and the new manifest.json file it created after putting them into the zipfile? Simple *true* or *false* parameter, defaults to *false*.
+* additionalImages: quoted string containing a space separated list of other docker images you like to include into the asset zipfile. e.g. `"asset-c-backend asset-c-config"`
+
+Through the additional images you can create a multiple image asset, but the meta-information should be placed as labels only in the first image of the set. For these cases it is expected that those labels contain a series of: _vf-OS.compose.1.*_ labels to configure these extra images. (and _vf-OS.compose.2.*_ for the second extra image, etc.)
+
 #### Install asset locally
+
 
 #### Deploy asset to vf-OS Store
 
