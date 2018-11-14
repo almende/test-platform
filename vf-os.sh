@@ -16,6 +16,9 @@
 set -e
 #set -o xtrace
 
+CURRENT_DIR=$(pwd)
+if command -v cygpath &> /dev/null; then CURRENT_DIR=`cygpath -aw $(pwd)`; fi
+
 INITIAL_COMPOSE_FILE="0_platform_compose.yml"
 NETWORK_COMPOSE_FILE="1_networks_compose.yml"
 DOCKER_COMPOSE_ALIAS="docker-compose"
@@ -51,7 +54,7 @@ services:
     networks:
       - execution-manager-net
     volumes:
-      - $(pwd)/.persist/registry_persist:/var/lib/registry
+      - $CURRENT_DIR/.persist/registry_persist:/var/lib/registry
   execution-manager:
     image: localhost:5000/vfos/exec-manager
     restart: "unless-stopped"
@@ -61,11 +64,11 @@ services:
       - "traefik.frontend.rule=PathPrefixStrip:/executionservices"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - $(pwd)/.compose:/var/run/compose
-      - $(pwd)/.persist/executionservices_persist:$PERSISTENT_VOLUME
+      - $CURRENT_DIR/.compose:/var/run/compose
+      - $CURRENT_DIR/.persist/executionservices_persist:$PERSISTENT_VOLUME
     environment:
       - DOCKER_COMPOSE_PATH=/var/run/compose
-      - HOST_PWD=$(pwd)
+      - HOST_PWD=$CURRENT_DIR
     networks:
       - execution-manager-net
   aim:
@@ -97,7 +100,7 @@ services:
     networks:
       - execution-manager-net
     volumes:
-      - $(pwd)/.persist/deployment_persist:$PERSISTENT_VOLUME
+      - $CURRENT_DIR/.persist/deployment_persist:$PERSISTENT_VOLUME
   portal:
     image: localhost:5000/vfos/portal
     restart: "unless-stopped"
@@ -126,7 +129,7 @@ services:
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/testserver"
     volumes:
-      - $(pwd)/testImages:/usr/src/app/static
+      - $CURRENT_DIR/testImages:/usr/src/app/static
     networks:
       - execution-manager-net
 
@@ -215,7 +218,7 @@ cat << EOF > .compose/$DOCKER_COMPOSE_ALIAS
 EOF
 chmod +x .compose/$DOCKER_COMPOSE_ALIAS
 COMPOSE_OPTIONS="$COMPOSE_OPTIONS -e PATH=.:/compose:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-VOLUMES="-v $(pwd)/.compose:/compose"
+VOLUMES="-v $CURRENT_DIR/.compose:/compose"
 docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES --entrypoint=/bin/sh docker/compose:1.22.0 -c 'cat /dev/stdout' &
 
 until `docker ps | grep -q "vf_os_platform_exec_control"` && [ "`docker inspect -f {{.State.Running}} vf_os_platform_exec_control`"=="true" ]; do
