@@ -14,7 +14,7 @@ if (!dockerImage && process.argv.length < 3) {
   console.log('Call this script as: ' + process.argv[1] + ' <dockerUrl> [<reload>] [<targetFolder>] [<volumesFolder>]')
   process.exit(1)
 }
-let imageFile = dockerImage.replace(/.*\//gi, '')
+let imageFile = dockerImage.replace(/.*\//gi, '').replace(/:.*/gi, '')
 
 new Promise((resolve, reject) => {
   if (dockerImage.includes(':')) {
@@ -103,6 +103,8 @@ new Promise((resolve, reject) => {
           })
         }
       } catch (e) { console.log('Had trouble parsing the labels!', e) }
+
+      // TODO: Add a network from the pool!
 
       // console.log(JSON.stringify(labels))
       // console.log(JSON.stringify(result))

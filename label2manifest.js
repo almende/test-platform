@@ -9,7 +9,7 @@ let dockerImage = process.argv[2]
 let deleteArtifacts = process.argv[3] ? process.argv[3] : false
 let additionalImages = process.argv[4] ? process.argv[4] : ''
 
-let imageFile = dockerImage.replace(/.*\//gi, '')
+let imageFile = dockerImage.replace(/.*\//gi, '').replace(/:.*/gi, '')
 
 if (!dockerImage) {
   console.log('Call this script as: ' + process.argv[1] + ' <dockerImage> <deleteArtifacts> ["<additionalImages>"]')
@@ -39,6 +39,7 @@ exec(saveCommand, (error, stdout, stderr) => {
       Object.keys(labels).map((key) => {
         result[key.replace('vf-OS.', '')] = labels[key]
       })
+      result['vf-OS.binaryFile'] = imageFile
 
       console.log(labels, result, imageFile)
       fs.writeFileSync('manifest.json', JSON.stringify(result))
