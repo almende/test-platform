@@ -114,14 +114,14 @@ new Promise((resolve, reject) => {
         if (res['image']) {
           let id = res['id'] ? res['id'] : 'unnamed_asset_' + index
           delete res['id']
-          services += id + ':\n  ' + JSON.stringify(res) + '\n'
+          services += ' ' + id + ':\n  ' + JSON.stringify(res) + '\n'
         } else {
           console.log('Missing docker image name for asset:', res, index)
         }
       })
 
       // Generate docker-compose file for this asset into folder
-      fs.writeFileSync(folder + '/3_' + imageFile + '_compose.yml', 'version: "3"\nservices:\n ' + services)
+      fs.writeFileSync(folder + '/3_' + imageFile + '_compose.yml', 'version: "3"\nservices:\n' + services)
       // If parameter: call docker-compose image to reload asset
       if (reload) {
         exec('docker exec vf_os_platform_exec_control docker-compose up -d', (error, stdout, stderr) => {
