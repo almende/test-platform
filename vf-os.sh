@@ -25,6 +25,19 @@ DOCKER_COMPOSE_ALIAS="docker-compose"
 PROJECTNAME="vfos"
 PERSISTENT_VOLUME="/persist"
 
+mkdir -p .control_build
+cd .control_build
+
+cat << EOF > Dockerfile
+FROM docker/compose:1.22.0
+RUN apk --no-cache add dumb-init
+ENTRYPOINT ["/usr/bin/dumb-init", "-c"]
+CMD ["cat","/dev/stdout"]
+EOF
+docker build . -t vfos/control
+
+cd ../
+
 
 mkdir -p .compose
 mkdir -p .persist
@@ -219,7 +232,7 @@ EOF
 chmod +x .compose/$DOCKER_COMPOSE_ALIAS
 COMPOSE_OPTIONS="$COMPOSE_OPTIONS -e PATH=.:/compose:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 VOLUMES="-v $CURRENT_DIR/.compose:/compose"
-docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES --entrypoint=/bin/sh docker/compose:1.22.0 -c 'cat /dev/stdout' &
+docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES vfos/control &
 
 until `docker ps | grep -q "vf_os_platform_exec_control"` && [ "`docker inspect -f {{.State.Running}} vf_os_platform_exec_control`"=="true" ]; do
     sleep 0.1;

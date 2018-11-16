@@ -54,7 +54,6 @@ new Promise((resolve, reject) => {
       result[0] = {}
       result[0]['id'] = id
       result[0]['image'] = dockerImage
-      result[0]['labels'] = ['traefik.frontend.rule=PathPrefixStrip:/' + id]
 
       try {
         if (labels['compose']) {
@@ -113,6 +112,7 @@ new Promise((resolve, reject) => {
       result.map((res, index) => {
         if (res['image']) {
           let id = res['id'] ? res['id'] : 'unnamed_asset_' + index
+          res['labels'] = ['traefik.frontend.rule=PathPrefixStrip:/' + id]
           delete res['id']
           services += ' ' + id + ':\n  ' + JSON.stringify(res) + '\n'
         } else {
