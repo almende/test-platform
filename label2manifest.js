@@ -6,7 +6,7 @@ const fs = require('fs')
 const zip = require('yazl')
 
 let dockerImage = process.argv[2]
-let deleteArtifacts = process.argv[3] ? process.argv[3] : false
+let deleteArtifacts = process.argv[3] ? JSON.parse(process.argv[3]) : false
 let additionalImages = process.argv[4] ? process.argv[4] : ''
 
 let imageFile = dockerImage.replace(/.*\//gi, '').replace(/:.*/gi, '')

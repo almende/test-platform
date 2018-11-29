@@ -49,10 +49,11 @@ services:
   reverse-proxy:
     image: traefik:latest # The official Traefik docker image
     restart: "unless-stopped"
-    command: "--api --docker --docker.watch=true --web"
+    command: "--api --docker --docker.watch=true --defaultentrypoints=http --entryPoints='Name:http Address::80' --entryPoints='Name:che Address::8081'"
     ports:
       - "8080:8080"
       - "80:80"
+      - "8081:8081"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
@@ -146,63 +147,10 @@ services:
     networks:
       - execution-manager-net
 
-networks:
-    execution-manager-net:
-       driver: bridge
-    system-dashboard-net:
-       driver: bridge
 EOF
 
-
-cat << EOF > .compose/$NETWORK_COMPOSE_FILE
-version: '3'
-
-services:
-  reverse-proxy:
-    networks:
-      - default
-      - execution-manager-net
-      - system-dashboard-net
-      - asset-net-00
-      - asset-net-01
-      - asset-net-02
-      - asset-net-03
-      - asset-net-04
-      - asset-net-05
-      - asset-net-06
-      - asset-net-07
-      - asset-net-08
-      - asset-net-09
-      - asset-net-10
-      - asset-net-11
-
-networks:
-    asset-net-00:
-       driver: bridge
-    asset-net-01:
-       driver: bridge
-    asset-net-02:
-       driver: bridge
-    asset-net-03:
-       driver: bridge
-    asset-net-04:
-       driver: bridge
-    asset-net-05:
-       driver: bridge
-    asset-net-06:
-       driver: bridge
-    asset-net-07:
-       driver: bridge
-    asset-net-08:
-       driver: bridge
-    asset-net-09:
-       driver: bridge
-    asset-net-10:
-       driver: bridge
-    asset-net-11:
-       driver: bridge
-EOF
-
+#Setup basic network configuration
+./assignNetwork.js
 
 # Setup options for connecting to docker host
 if [ -z "$DOCKER_HOST" ]; then

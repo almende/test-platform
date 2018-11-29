@@ -4,9 +4,9 @@
 const exec = require('child_process').exec
 const fs = require('fs')
 
-let dockerImage = process.argv[2]
-let reload = process.argv[3] ? process.argv[3] : false
-let folder = process.argv[4] ? process.argv[4] : process.cwd() + '/.compose/'
+const dockerImage = process.argv[2]
+const reload = process.argv[3] ? JSON.parse(process.argv[3]) : false
+const folder = process.argv[4] ? process.argv[4] : process.cwd() + '/.compose/'
 let volumeFolder = process.argv[5] ? process.argv[5] : process.cwd() + '/.persist/'
 if (!volumeFolder.endsWith('/')) volumeFolder += '/'
 
