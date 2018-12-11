@@ -138,6 +138,13 @@ The platform provides a couple of tools to facilitate the development, distribut
 
 [cookbook]: doc/Cookbook.png "Usefull scripts"
 
+In the image the following scripts and commands are shown:
+
+- Docker build
+- label2manifest.js
+- manifest2label.js
+- installAsset.js
+- reload.js
 
 #### Create asset zipfile
 
