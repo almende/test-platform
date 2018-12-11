@@ -118,17 +118,7 @@ Creating vfos_testserver_1        ... done
 
 ## Asset deployment
 
-Now for the good part: How to add your own assets to the running platform? This takes a few steps:
-
-#### Create asset code
-
-You can just create you component(s) through any development process you'll like, including using the vf-OS Studio. The only vf-OS specific requirement is how to add the correct meta-information for your component. This is documented in [vf-OS MetaData format](https://docs.google.com/document/d/1SnfLrZ7bi8S2BTyfZFnDYWB4GRX7L9uqp9Baz0orWlY)
-
-Before creating the zipfile, you need to build your docker image with the correct labels on them.
-
-***
-*note: You can install this docker image directly as an asset into the platform, bypassing the whole quarantine registry. This is a good way to test the labels. Skip directly to [Install asset locally](#installLocally) for this.
-***
+Now for the good part: How to add your own assets to the running platform?
 
 #### Useful scripts
 
@@ -145,6 +135,17 @@ In the image the following scripts and commands are shown:
 - manifest2label.js
 - installAsset.js
 - reload.js
+
+#### Create asset code
+
+You can just create you component(s) through any development process you'll like, including using the vf-OS Studio. The only vf-OS specific requirement is how to add the correct meta-information for your component. This is documented in [vf-OS MetaData format](https://docs.google.com/document/d/1SnfLrZ7bi8S2BTyfZFnDYWB4GRX7L9uqp9Baz0orWlY)
+
+Before creating the zipfile, you need to build your docker image with the correct labels on them.
+
+***
+*note: You can install this docker image directly as an asset into the platform, bypassing the whole quarantine registry. This is a good way to test the labels. Skip directly to [Install asset locally](#installLocally) for this.
+***
+
 
 #### Create asset zipfile
 
