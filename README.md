@@ -8,6 +8,12 @@ This code represents the Platform deliverable for the vf-OS project.
 
 [overview]: doc/deployment.png "Deployment of assets overview"
 
+#### Pre-requisites:
+
+- Ubuntu 16.04+ although it’s best to use the latest LTS version 18.04.1.
+- Node 8+, install through: [https://github.com/nodesource/distributions](https://github.com/nodesource/distributions)
+- Docker 18+, install through: [https://docs.docker.com/install/linux/docker-ce/ubuntu/](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+
 ## Installation
 
 Two options: binary distribution or based on the platform source
