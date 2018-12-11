@@ -130,6 +130,14 @@ Before creating the zipfile, you need to build your docker image with the correc
 *note: You can install this docker image directly as an asset into the platform, bypassing the whole quarantine registry. This is a good way to test the labels. Skip directly to [Install asset locally](#installLocally) for this.
 ***
 
+#### Useful scripts
+
+The platform provides a couple of tools to facilitate the development, distribution and installation of assets. See image below for an overview of these scripts and each function they provide. In the next few paragraphs each script is decribed with some examples.
+
+![Scripts][cookbook]
+
+[cookbook]: doc/Cookbook.png "Usefull scripts"
+
 
 #### Create asset zipfile
 
