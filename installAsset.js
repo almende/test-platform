@@ -16,6 +16,16 @@ if (!dockerImage && process.argv.length < 3) {
 }
 let imageFile = dockerImage.replace(/.*\//gi, '').replace(/:.*/gi, '')
 
+function getOverrides (label) {
+  switch (label) {
+    case 'che':
+      return ['traefik.frontend.entryPoints=che', 'traefik.frontend.rule=PathPrefix:/', 'traefik.port=8081']
+    default:
+      console.log('Unknown override requested')
+  }
+  return ''
+}
+
 new Promise((resolve, reject) => {
   if (dockerImage.includes(':')) {
     let pullCommand = 'docker pull ' + dockerImage
@@ -99,20 +109,23 @@ new Promise((resolve, reject) => {
               if (!result[index]['volumes']) result[index]['volumes'] = []
               result[index]['volumes'].push('/var/run/docker.sock:/var/run/docker.sock')
             }
+            if (asset['traefikOverride']) {
+              result[index]['traefikOverride'] = asset['traefikOverride']
+            }
           })
         }
       } catch (e) { console.log('Had trouble parsing the labels!', e) }
-
-      // TODO: Add a network from the pool!
-
-      // console.log(JSON.stringify(labels))
-      // console.log(JSON.stringify(result))
 
       let services = ''
       result.map((res, index) => {
         if (res['image']) {
           let id = res['id'] ? res['id'] : 'unnamed_asset_' + index
-          res['labels'] = ['traefik.frontend.rule=PathPrefixStrip:/' + id]
+          if (!res['traefikOverride']) {
+            res['labels'] = ['traefik.frontend.rule=PathPrefixStrip:/' + id]
+          } else {
+            res['labels'] = getOverrides(res['traefikOverride'])
+          }
+          delete res['traefikOverride']
           delete res['id']
           services += ' ' + id + ':\n  ' + JSON.stringify(res) + '\n'
         } else {
