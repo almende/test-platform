@@ -53,7 +53,6 @@ services:
     ports:
       - "8080:8080"
       - "80:80"
-      - "8081:8081"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
@@ -146,7 +145,21 @@ services:
       - $CURRENT_DIR/testImages:/usr/src/app/static
     networks:
       - execution-manager-net
-
+  che:
+    image: eclipse/che-server:nightly
+    restart: "unless-stopped"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $CURRENT_DIR/.persist/che_data:/data
+      - $CURRENT_DIR/.persist/che_conf:/conf
+      - $CURRENT_DIR/.persist/che_logs:/logs
+    network_mode: host
+    environment:
+      - CHE_SINGLE_PORT=true
+      - CHE_HOST=localhost
+      - CHE_DOCKER_IP_EXTERNAL=127.0.0.1
+      - CHE_PORT=8081
+      - CHE_REGISTRY_HOST=localhost
 EOF
 
 #Setup basic network configuration
