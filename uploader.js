@@ -2,9 +2,11 @@
 'use strict'
 
 const fs = require('fs')
+const http = require('http')
+const https = require('https')
+const md5File = require('md5-file')
 const axios = require('axios')
 const FormData = require('form-data')
-const formData = new FormData()
 
 // console.log ("parameters: "+ process.argv.length)
 // for (let param in process.argv){
@@ -19,6 +21,7 @@ const formData = new FormData()
 const productName = process.argv[2]
 const priceInfo = process.argv[3]
 const fileName = process.argv[4]
+const shortName = fileName.replace(/^.*[\\\/]/, '')
 const accessToken = process.argv[5]
 
 if (accessToken === null) {
@@ -43,51 +46,102 @@ axios({
   .then(function (response) {
     fs.stat(fileName, function (error, stat) {
       if (error) { throw error }
+      let chunkSize = 10 * 1024 * 1024
+      let chunks = (Math.floor(stat.size / chunkSize) + 1)
 
-      var stream = fs.createReadStream(fileName, { highWaterMark: 100 * 1024 * 1024 })
+      let md5 = md5File.sync(fileName)
+      var stream = fs.createReadStream(fileName, { highWaterMark: chunkSize })
       let i = 0
+      let promises = []
+      let lastRequest = null
+      console.log('ProductID: ' + response.data.data.product.productId)
+      console.log('current chunkSize..', chunkSize)
+      console.log('number of chunks:', chunks)
+
       stream.on('data', function (chunk) {
-        let chunkSize = 100 * 1024 * 1024
-        var chunks = stat.size / chunkSize
-        console.log('ProductID: ' + response.data.data.product.productId)
-        console.log('chunk:', chunk.length)
+        const formData = new FormData()
+
         console.log('current chunk..', i)
-        console.log('current chunkSize..', chunkSize)
+        console.log('length:', chunk.length)
+
         // console.log(file.slice(offset,offset+chunkSize));
         formData.append('product_id', response.data.data.product.productId)
-//        formData.append('binary_part', i)
-//        formData.append('binary_part_max', chunks)
+        if (chunks > 1) {
+          formData.append('binary_part', i + 1) // You're kidding, right?
+          formData.append('binary_part_max', chunks)
+          formData.append('binary_hash', md5)
+        }
         formData.append('major', '1.0')
         formData.append('version', '1.0')
         formData.append('languages', 'en')
 
-        console.log('Form-data appended.',formData)
+        let attachedName = shortName + (chunks > 1 ? '.' + (i + 1) : '')
+        // let attachedName = shortName + "."+(i+1)
+        formData.append('binary', chunk, { 'contentType': 'application/zip', 'filename': attachedName })
+        console.log('filename:' + attachedName)
 
-        formData.append('binary', chunk, {'contentType':'application/zip','filename':fileName})
-
-        console.log('Binary appended')
-
-        // push it to the server
-        axios({
-          url: `https://vfos-datahub.ascora.de/v1/products/${response.data.data.product.productId}/programversions`,
-          method: 'post',
-          data: formData,
-          headers: formData.getHeaders(),
-          maxContentLength: chunkSize * 1.2,
-          params: {
-            access_token: accessToken
-          },
-          onUploadProgress: (event) => {
-            console.log(event)
+        // push it to the server, except for the last chunk, that needs to be postponed until all others are done..... (Yes, really!)
+        if (chunks <= 1 || i === chunks - 1) {
+          lastRequest = formData
+        } else {
+          promises.push(axios({
+            url: `https://vfos-datahub.ascora.de/v1/products/${response.data.data.product.productId}/programversions`,
+            method: 'post',
+            data: formData,
+            // keepAlive pools and reuses TCP connections, so it's faster
+            httpAgent: new http.Agent({ keepAlive: true }),
+            httpsAgent: new https.Agent({ keepAlive: true }),
+            headers: formData.getHeaders(),
+            maxContentLength: chunkSize * 1.2,
+            params: {
+              access_token: accessToken
+            },
+            onUploadProgress: (event) => {
+              console.log(event)
+            }
+          }))
+        }
+        i++
+      })
+      stream.on('end', () => {
+        console.log('Waiting for all but the last chunk to be uploaded')
+        Promise.all(promises).then(function (responses) {
+          responses.map(function (response, index) {
+            console.log(index + ':' + 'chunk uploaded.')
+            if (response && response.data) {
+              console.log(JSON.stringify(response.data))
+            }
+          })
+          if (lastRequest && lastRequest !== null) {
+            console.log('Start uploading last chunk.')
+            axios({
+              url: `https://vfos-datahub.ascora.de/v1/products/${response.data.data.product.productId}/programversions`,
+              method: 'post',
+              data: lastRequest,
+              // keepAlive pools and reuses TCP connections, so it's faster
+              httpAgent: new http.Agent({ keepAlive: true }),
+              httpsAgent: new https.Agent({ keepAlive: true }),
+              headers: lastRequest.getHeaders(),
+              maxContentLength: chunkSize * 1.2,
+              params: {
+                access_token: accessToken
+              },
+              onUploadProgress: (event) => {
+                console.log(event)
+              }
+            }).then((response) => {
+              console.log('Last chunk, successfully uploaded.')
+              if (response && response.data) {
+                console.log(JSON.stringify(response.data))
+              }
+            })
+          }
+        }).catch(function (error) {
+          console.log(error)
+          if (error.response && error.response.data) {
+            console.log(JSON.stringify(error.response.data))
           }
         })
-          .then(function (response) {
-            console.log('successfully uploaded')
-          })
-          .catch(function (error) {
-            console.log(error,error.response.data)
-          })
-        i++
       })
     })
   })
