@@ -54,19 +54,23 @@ axios({
         console.log('current chunk..', i)
         console.log('current chunkSize..', chunkSize)
         // console.log(file.slice(offset,offset+chunkSize));
-        formData.append('binary', chunk)
         formData.append('product_id', response.data.data.product.productId)
-        formData.append('binary_part', i)
-        formData.append('binary_part_max', chunks)
+//        formData.append('binary_part', i)
+//        formData.append('binary_part_max', chunks)
         formData.append('major', '1.0')
         formData.append('version', '1.0')
         formData.append('languages', 'en')
 
-        console.log('Form-data appended.')
+        console.log('Form-data appended.',formData)
+
+        formData.append('binary', chunk, {'contentType':'application/zip','filename':fileName})
+
+        console.log('Binary appended')
+
         // push it to the server
         axios({
           url: `https://vfos-datahub.ascora.de/v1/products/${response.data.data.product.productId}/programversions`,
-          method: 'patch',
+          method: 'post',
           data: formData,
           headers: formData.getHeaders(),
           maxContentLength: chunkSize * 1.2,
@@ -81,7 +85,7 @@ axios({
             console.log('successfully uploaded')
           })
           .catch(function (error) {
-            console.log(error)
+            console.log(error,error.response.data)
           })
         i++
       })
