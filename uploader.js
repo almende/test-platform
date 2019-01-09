@@ -8,27 +8,23 @@ const md5File = require('md5-file')
 const axios = require('axios')
 const FormData = require('form-data')
 
-// console.log ("parameters: "+ process.argv.length)
-// for (let param in process.argv){
-//     console.log("param"+param+": " + process.argv[param]);
-// }
-// if (process.argv.length != 6) {
-//     console.log('Call this script as "npm run uploader <product_names_en-us> <price_info_eur> <zipfile> <access_token>"');
-//     console.log('Example "npm run vfos-upload opc_ua_driver 20.5 opc_ua.zip qSsY5N2RABd5lxoeGiYBsx4Xv5lzmKzqrplg1DghK9k"');
-//     process.exit(1);
-//   }
-
 const productName = process.argv[2]
 const priceInfo = process.argv[3]
-const fileName = process.argv[4]
-const shortName = fileName.replace(/^.*[\\\/]/, '')
-const accessToken = process.argv[5]
+const major = process.argv[4]
+const version = process.argv[5]
 
-if (accessToken === null) {
-  console.log('Call this script as "./uploader.js <product_names_en-us> <price_info_eur> <zipfile> <access_token>"')
-  console.log('Example "./uploader.js opc_ua_driver 20.5 opc_ua.zip qSsY5N2RABd5lxoeGiYBsx4Xv5lzmKzqrplg1DghK9k"')
+const fileName = process.argv[6]
+const accessToken = process.argv[7]
+
+const chunkMaxMB = isNaN(parseInt(process.argv[8])) ? 100 : parseInt(process.argv[8])
+
+if (!accessToken || accessToken === null) {
+  console.log('Call this script as "./uploader.js <product_names_en-us> <price_info_eur> <major> <verion> <zipfile> <access_token>"')
+  console.log('Example "./uploader.js opc_ua_driver 20.5 1.0 1.0 opc_ua.zip qSsY5N2RABd5lxoeGiYBsx4Xv5lzmKzqrplg1DghK9k"')
   process.exit(1)
 }
+const shortName = fileName.replace(/^.*[\\\/]/, '')
+
 axios({
   url: '/v1/products',
   method: 'post',
@@ -46,7 +42,7 @@ axios({
   .then(function (response) {
     fs.stat(fileName, function (error, stat) {
       if (error) { throw error }
-      let chunkSize = 10 * 1024 * 1024
+      let chunkSize = chunkMaxMB * 1024 * 1024
       let chunks = (Math.floor(stat.size / chunkSize) + 1)
 
       let md5 = md5File.sync(fileName)
@@ -71,8 +67,8 @@ axios({
           formData.append('binary_part_max', chunks)
           formData.append('binary_hash', md5)
         }
-        formData.append('major', '1.0')
-        formData.append('version', '1.0')
+        formData.append('major', major)
+        formData.append('version', version)
         formData.append('languages', 'en')
 
         let attachedName = shortName + (chunks > 1 ? '.' + (i + 1) : '')
@@ -104,7 +100,7 @@ axios({
         i++
       })
       stream.on('end', () => {
-        console.log('Waiting for all but the last chunk to be uploaded')
+        console.log('Waiting for all but the last chunk to be uploaded, ', promises.length, ' chunks')
         Promise.all(promises).then(function (responses) {
           responses.map(function (response, index) {
             console.log(index + ':' + 'chunk uploaded.')
