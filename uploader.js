@@ -15,15 +15,27 @@ const version = process.argv[5]
 
 const fileName = process.argv[6]
 const accessToken = process.argv[7]
-
 const chunkMaxMB = isNaN(parseInt(process.argv[8])) ? 100 : parseInt(process.argv[8])
 
 if (!accessToken || accessToken === null) {
-  console.log('Call this script as "./uploader.js <product_names_en-us> <price_info_eur> <major> <verion> <zipfile> <access_token>"')
+  console.log('Call this script as "./uploader.js <product_names_en-us> <price_info_eur> <major> <version> <zipfile> <access_token>"')
   console.log('Example "./uploader.js opc_ua_driver 20.5 1.0 1.0 opc_ua.zip qSsY5N2RABd5lxoeGiYBsx4Xv5lzmKzqrplg1DghK9k"')
   process.exit(1)
 }
 const shortName = fileName.replace(/^.*[\\\/]/, '')
+
+const params = {
+	"product_names_en-us":productName,
+        "price_info_eur":priceInfo,
+        "major":major,
+        "version":version,
+        "zipfile":fileName,
+        "access_token":accessToken,
+        "shortName":shortName,
+        "maxChunkSizeMB":chunkMaxMB
+}
+console.log("Starting with parameters:", params);
+
 
 axios({
   url: '/v1/products',
@@ -70,6 +82,8 @@ axios({
         formData.append('major', major)
         formData.append('version', version)
         formData.append('languages', 'en')
+
+	console.log('formData:',formData)
 
         let attachedName = shortName + (chunks > 1 ? '.' + (i + 1) : '')
         // let attachedName = shortName + "."+(i+1)
