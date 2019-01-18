@@ -9,13 +9,12 @@ let dockerImage = process.argv[2]
 let deleteArtifacts = process.argv[3] ? JSON.parse(process.argv[3]) : false
 let additionalImages = process.argv[4] ? process.argv[4] : ''
 
-let imageFile = dockerImage.replace(/.*\//gi, '').replace(/:.*/gi, '')
-
 if (!dockerImage) {
   console.log('Call this script as: ' + process.argv[1] + ' <dockerImage> <deleteArtifacts> ["<additionalImages>"]')
   process.exit(1)
 }
 
+let imageFile = dockerImage.replace(/.*\//gi, '').replace(/:.*/gi, '')
 let result = {
   'binaryFile': imageFile
 }
