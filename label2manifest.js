@@ -38,7 +38,7 @@ exec(saveCommand, (error, stdout, stderr) => {
       Object.keys(labels).map((key) => {
         result[key.replace('vf-OS.', '')] = labels[key]
       })
-      result['vf-OS.binaryFile'] = imageFile
+      result['binaryFile'] = imageFile
 
       console.log(labels, result, imageFile)
       fs.writeFileSync('manifest.json', JSON.stringify(result))

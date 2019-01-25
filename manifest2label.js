@@ -7,7 +7,7 @@ const extract = require('extract-zip')
 const tar = require('tar')
 const jsonDiff = require('json-diff')
 
-const zipFile = process.argv[2]
+let zipFile = process.argv[2]
 const deleteArtifacts = process.argv[3] ? JSON.parse(process.argv[3]) : false
 const pushToRepository = process.argv[4] ? JSON.parse(process.argv[4]) : false
 const registerHost = process.argv[5] ? process.argv[5] : 'localhost'
@@ -15,6 +15,10 @@ const registerHost = process.argv[5] ? process.argv[5] : 'localhost'
 if (!zipFile) {
   console.log('Call this script as: ' + process.argv[1] + ' <zipFile> [<deleteArtifacts>] [<push2Repos>] [<registryHost>]')
   process.exit(1)
+}
+
+if (!zipFile.startsWith('/')) {
+  zipFile = process.cwd() + '/' + zipFile
 }
 
 // Utility functions:
@@ -66,6 +70,7 @@ let load = function (binfile) {
   return new Promise((resolve, reject) => {
     exec('docker load < ' + binfile, (error, stdout, stderr) => {
       if (!error) {
+        console.log('Load into Docker done.')
         resolve(stdout)
       } else {
         reject(error, stderr)
@@ -171,21 +176,23 @@ let getFullImageName = function (imageFile, list) {
 let main = async function () {
   try {
     let manifest = await unpack(zipFile)
-    console.log('Read manifest:', manifest)
+    console.log('Read manifest from zipfile:\n', manifest)
     let list = await imageList(zipFile + '_unpacked/' + manifest.binaryFile)
-    console.log('Images:', list)
+    console.log('Images to read into Docker repository:\n', list)
     await load(zipFile + '_unpacked/' + manifest.binaryFile)
+
     let fullImageName = getFullImageName(manifest.binaryFile, list)
     let labels = await getLabels(fullImageName)
-    console.log('Labels from:' + fullImageName, labels)
 
     let newLabels = compareLabels(manifest, labels)
     let diff = jsonDiff.diff(labels, newLabels)
 
     if (diff) { // returns undefined on no changes
-      console.log('Changed labels, rebuilding image', jsonDiff.diffString(labels, newLabels))
+      console.log('Changed labels, rebuilding image:', jsonDiff.diffString(labels, newLabels))
       await createUpdatedImage(fullImageName, manifest.binaryFile, diff)
       fullImageName = manifest.binaryFile + ':extended'
+    } else {
+      console.log('No labels changed, using currently loaded image.')
     }
 
     if (pushToRepository) {
