@@ -18,7 +18,7 @@ fs.readdirSync(COMPOSE_FOLDER).forEach(file => {
   if (file.startsWith('3_')) {
     let filestr = fs.readFileSync(COMPOSE_FOLDER + file, { 'encoding': 'utf-8' })
     filestr.split('\n').forEach(line => {
-      if (line.match(/ [^{]*:/g)) {
+      if (line.match(/ [^{]*:$/g)) {
         services[line.trim().replace(':', '')] = { 'networks': ['asset-net-' + count] }
       }
     })
@@ -36,6 +36,7 @@ for (let i = 0; i < top; i++) {
 // apply network to config files?
 
 services['reverse-proxy'] = { 'networks': networks }
+services['rabbitmq'] = { 'networks': networks }
 let networkSection = {}
 networks.map((network) => {
   if (network !== 'default') {

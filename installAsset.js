@@ -112,6 +112,9 @@ new Promise((resolve, reject) => {
             if (asset['traefikOverride']) {
               result[index]['traefikOverride'] = asset['traefikOverride']
             }
+            if (asset['hostname']){
+              result[index]['hostname'] = asset['hostname']
+            }
           })
         }
       } catch (e) { console.log('Had trouble parsing the labels!', e) }
@@ -121,7 +124,7 @@ new Promise((resolve, reject) => {
         if (res['image']) {
           let id = res['id'] ? res['id'] : 'unnamed_asset_' + index
           if (!res['traefikOverride']) {
-            res['labels'] = ['traefik.frontend.rule=PathPrefixStrip:/' + id]
+            res['labels'] = ['traefik.frontend.rule=PathPrefix:/' + id + ';ReplacePathRegex: ^/' + id + '/(.*) /$$1']
           } else {
             res['labels'] = getOverrides(res['traefikOverride'])
           }
