@@ -70,7 +70,8 @@ new Promise((resolve, reject) => {
           Object.keys(labels['compose']).map((assetKey, index) => {
             let asset = labels['compose'][assetKey]
             if (!result[index]) result[index] = {}
-            // TODO: other fields
+            if (!result[index]['labels']) result[index]['labels'] = []
+
             if (index > 0) {
               if (asset['image']) result[index]['image'] = asset['image']
               if (asset['serviceName']) result[index]['id'] = asset['serviceName']
@@ -112,7 +113,10 @@ new Promise((resolve, reject) => {
             if (asset['traefikOverride']) {
               result[index]['traefikOverride'] = asset['traefikOverride']
             }
-            if (asset['hostname']){
+            if (asset['port']) {
+              result[index]['labels'].push('traefik.port=' + asset['port'])
+            }
+            if (asset['hostname']) {
               result[index]['hostname'] = asset['hostname']
             }
           })
@@ -124,9 +128,9 @@ new Promise((resolve, reject) => {
         if (res['image']) {
           let id = res['id'] ? res['id'] : 'unnamed_asset_' + index
           if (!res['traefikOverride']) {
-            res['labels'] = ['traefik.frontend.rule=PathPrefix:/' + id + ';ReplacePathRegex: ^/' + id + '/(.*) /$$1']
+            res['labels'].push('traefik.frontend.rule=PathPrefix:/' + id + ';ReplacePathRegex: ^/' + id + '/(.*) /$$1')
           } else {
-            res['labels'] = getOverrides(res['traefikOverride'])
+            res['labels'].concat(getOverrides(res['traefikOverride']))
           }
           delete res['traefikOverride']
           delete res['id']
