@@ -24,7 +24,7 @@ const getDeploymentRoutes = (app) => {
         let idx = downloads.length
         while (idx--) {
           if (downloads[idx] && downloads[idx].id === req.params.id) {
-            res.send(downloads[idx]) // TODO
+            res.send(downloads[idx])
             return
           }
         }

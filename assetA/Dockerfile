@@ -9,17 +9,17 @@ RUN npm install
 COPY . .
 
 EXPOSE 9001
+
 LABEL vf-OS=true
-LABEL vf-OS.depends=asset-b
-
-
 LABEL vf-OS.author="AuthorName"
 LABEL vf-OS.name="AssetA"
-LABEL vf-OS.securityEndpoints="securityStuffJSON"
+LABEL vf-OS.description="Description of Asset A"
+LABEL vf-OS.dependencies="[{\"productID\":142, \"major\":\"123\"}]"
+
 
 LABEL vf-OS.iconHDUri="img/small_icon.png"
-LABEL vf-OS.description="Description of Asset A"
-
+LABEL vf-OS.depends=asset-b
+LABEL vf-OS.securityEndpoints="{}"
 LABEL vf-OS.compose.0.socket="true"
 LABEL vf-OS.compose.0.volume.0="/temp"
 LABEL vf-OS.compose.0.volume.1="/temp2"

@@ -146,7 +146,7 @@ services:
     networks:
       - execution-manager-net
   che:
-    image: eclipse/che-server:nightly
+    image: hub.caixamagica.pt/vfos/studio:latest
     restart: "unless-stopped"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
