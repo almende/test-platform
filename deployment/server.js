@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const server = new express();
 
 // register JSON parser middlewear
-server.use(bodyParser.json());
+server.use(bodyParser.json())
 
 require('./routes/deploymentRoutes')(server);
 
