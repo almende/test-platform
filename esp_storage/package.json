@@ -1,7 +1,7 @@
 {
-  "name": "esp_storage",
+  "name": "esp_webdav_storage",
   "version": "1.0.0",
-  "description": "First example of external service access in vf-OS, aimed on accessing ownCloud's webdev",
+  "description": "First example of external service access in vf-OS, aimed on accessing ownCloud's webdav",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,7 +12,9 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "express-nunjucks": "^2.2.3",
     "node-persist": "^3.0.4",
+    "nunjucks": "^3.1.7",
     "webdav": "^2.5.0"
   }
 }

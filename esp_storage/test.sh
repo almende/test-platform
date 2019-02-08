@@ -1,2 +1,2 @@
-docker build . -t esp_storage
-docker run --rm -v `pwd`/persist/:/persist/ --network="host" --name esp_storage esp_storage
+docker build . -t esp_webdav_storage
+docker run --rm -v `pwd`/persist/:/persist/ --network="host" --name esp_webdav_storage esp_webdav_storage
