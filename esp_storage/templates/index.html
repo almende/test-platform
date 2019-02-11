@@ -5,11 +5,13 @@
 <h1>Configuration interface External Storage, Webdav client.</h1>
 
 <h3>Buttons:</h3>
+<form action="">
+    URL: <input id="webdavUrl" value="{{ webdavUrl }}"><br>
+    User: <input id="webdavUser" value="{{ webdavUser }}"><br>
+    Password: <input id="webdavPassword" value="{{ webdavPassword }}"><br><br>
 
-URL: {{ webdavUrl }}<br>
-User: {{ webdavUser }}<br>
-Password: {{ webdavPassword }}<br>
-<br>
-<a href="#" class="myButton" onClick="postConfig({})">test</a>
+    <a href="#" class="myButton" onClick="postConfig({webdavUrl:document.getElementById('webdavUrl').value,webdavUser:document.getElementById('webdavUser').value,webdavPassword:document.getElementById('webdavPassword').value})">Update</a><br>
+</form>
+
 
 {% endblock %}
