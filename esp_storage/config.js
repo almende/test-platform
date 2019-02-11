@@ -4,8 +4,8 @@ var EventEmitter = require('events').EventEmitter
 
 const config = {
   webdavUrl: 'https://owncloud.ascora.de/remote.php/webdav/',
-  webdavUser: 'ludo@almende.org',
-  webdavPassword: 'VHEMC-LBDZT-NPANF-KSWFX'
+  webdavUser: 'someone@example.com',
+  webdavPassword: 'BLA-BLA'
 }
 
 const Config = Object.assign(new EventEmitter(), {
