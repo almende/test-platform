@@ -7,13 +7,19 @@ const bodyParser = require('body-parser')
 const app = new Express()
 
 app.use(Express.static('static'))
-app.set('views', __dirname + 'templates')
+app.set('views', __dirname + '/templates')
 expressNunjucks(app, {
   watch: true,
   noCache: true
 })
+
+app.get('/', function (req, res) {
+  res.render('index', config.get())
+})
+
 app.use(bodyParser.json())
 config.registerAPI(app)
+require('./webdav.js').rest(app)
 
 app.listen(9000, '0.0.0.0', () => {
   /* eslint-disable */

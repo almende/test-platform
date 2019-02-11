@@ -1,38 +1,47 @@
 const Router = require('express')
 const storage = require('node-persist')
+var EventEmitter = require('events').EventEmitter
 
-let Config = {
+const config = {
   webdavUrl: 'https://owncloud.ascora.de/remote.php/webdav/',
   webdavUser: 'ludo@almende.org',
-  webdavPassword: 'VHEMC-LBDZT-NPANF-KSWFX',
+  webdavPassword: 'VHEMC-LBDZT-NPANF-KSWFX'
+}
+
+const Config = Object.assign(new EventEmitter(), {
   registerAPI: function (app) {
     const router = new Router()
     router.get('/', (req, res) => {
-      res.send(Config)
+      res.send(config)
     }).post('/', (req, res) => {
       const values = req.body
       for (let item in values) {
         if (values.hasOwnProperty(item)) {
-          Config[item] = values[item]
+          config[item] = values[item]
         }
       }
-      storage.setItem('values', Config)
-      res.send(Config)
+      storage.setItem('values', config)
+      Config.emit('change')
+      res.send(config)
     })
     app.use('/config', router)
-  }
-}
-storage.init({ 'dir': '/persist/config' }).then(async () => {
-  let values = await storage.getItem('values')
-  if (values == null) {
-    storage.setItem('values', Config)
-  } else {
-    for (let item in values) {
-      if (values.hasOwnProperty(item)) {
-        Config[item] = values[item]
-      }
-    }
+  },
+  get: function () {
+    return config
   }
 })
 
+storage.init({ 'dir': '/persist/config' }).then(async () => {
+  let values = await storage.getItem('values')
+  if (values == null) {
+    storage.setItem('values', config)
+  } else {
+    for (let item in values) {
+      if (values.hasOwnProperty(item)) {
+        config[item] = values[item]
+      }
+    }
+    Config.emit('change')
+  }
+})
 module.exports = Config

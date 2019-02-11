@@ -1,10 +1,15 @@
 {% set title = 'webdav config' %}
-{% extends '_layout.html' %}
+{% extends '_layout.njk' %}
 
 {% block content %}
 <h1>Configuration interface External Storage, Webdav client.</h1>
 
 <h3>Buttons:</h3>
+
+URL: {{ webdavUrl }}<br>
+User: {{ webdavUser }}<br>
+Password: {{ webdavPassword }}<br>
+<br>
 <a href="#" class="myButton" onClick="postConfig({})">test</a>
 
 {% endblock %}
