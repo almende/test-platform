@@ -60,6 +60,22 @@ docker build . -t vfos/aim
 docker tag vfos/aim localhost:5000/vfos/aim
 docker push localhost:5000/vfos/aim
 
-cd ../
+cd ../pubsub
+if [[ -d broker-auth-adapter ]]; then
+    cd broker-auth-adapter
+    git pull -qf
+else
+    git clone https://git-gris.uninova.pt/vfos/broker-auth-adapter.git/
+    cd broker-auth-adapter
+fi
+docker build . -t vfos/broker-auth-adapter
+docker tag vfos/broker-auth-adapter localhost:5000/vfos/broker-auth-adapter
+docker push localhost:5000/vfos/broker-auth-adapter
+cd ..
+
+docker build . -t vfos/messaging
+docker tag vfos/messaging localhost:5000/vfos/messaging
+docker push localhost:5000/vfos/messaging
+cd ..
 
 ./stop.sh
