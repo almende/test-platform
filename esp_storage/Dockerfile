@@ -14,5 +14,7 @@ LABEL vf-OS.name="vf-OS_external_webdav_service_client"
 LABEL vf-OS.configurationUri="/config/"
 LABEL vf-OS.restUri="/webdav/
 
+LABEL vf-OS.compose.0.volume.0="/persist"
+
 CMD ["npm", "start"]
 

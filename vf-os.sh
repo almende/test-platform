@@ -145,6 +145,15 @@ services:
       - $CURRENT_DIR/testImages:/usr/src/app/static
     networks:
       - execution-manager-net
+  packager:
+    image: localhost:5000/vfos/packaging
+    restart: "unless-stopped"
+    labels:
+      - "traefik.frontend.rule=PathPrefixStrip:/packaging"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - execution-manager-net
   che:
     image: hub.caixamagica.pt/vfos/studio:latest
     restart: "unless-stopped"
