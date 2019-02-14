@@ -45,6 +45,12 @@ docker build . -t vfos/deploy
 docker tag vfos/deploy localhost:5000/vfos/deploy
 docker push localhost:5000/vfos/deploy
 
+cd ../packaging
+cp ../label2manifest.js ./
+docker build . -t vfos/packaging
+docker tag vfos/packaging localhost:5000/vfos/packaging
+docker push localhost:5000/vfos/packaging
+
 cd ../portal
 docker build . -t vfos/portal
 docker tag vfos/portal localhost:5000/vfos/portal
@@ -78,4 +84,5 @@ docker tag vfos/messaging localhost:5000/vfos/messaging
 docker push localhost:5000/vfos/messaging
 cd ..
 
+./installAsset.js localhost:5000/vfos/messaging false
 ./stop.sh
