@@ -18,6 +18,7 @@ LABEL vf-OS=true
 LABEL vf-OS.name="Packaging service"
 LABEL vf-OS.restUri="/rest/"
 
+
 LABEL vf-OS.compose.0.socket=true
 
 CMD ["npm", "start"]

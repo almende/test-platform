@@ -1,7 +1,7 @@
 function postConfig (config) {
   var xhr = new XMLHttpRequest()
 
-  xhr.open('POST', '/config/')
+  xhr.open('POST', 'config/')
   xhr.setRequestHeader('Content-Type', 'application/json')
   xhr.onload = function () {
     if (xhr.status === 200) {
