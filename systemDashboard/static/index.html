@@ -24,6 +24,10 @@
     <script src="vendor/highlight/highlight.pack.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
 
+    <!--
+     Icons are based from this website:
+     https://github.com/danklammer/bytesize-icons
+    -->
 
     <link rel="icon"
           type="image/png"
@@ -50,8 +54,6 @@
                 $("#login").hide();
                 document.getElementById('username').innerHTML = keycloak.idTokenParsed.preferred_username;
                 $("#userMenu").show();
-
-
 
                 // Show containers info
                 $("#runningVAssets, #notRunningVAssets, #otherContainers").show();
@@ -106,6 +108,11 @@
                     <!-- Dropdown -->
                     <li id="userMenu" class="nav-item dropdown" style="display: none;">
                         <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                            <span>
+                                <svg id="i-user" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
+                                    <path d="M22 11 C22 16 19 20 16 20 13 20 10 16 10 11 10 6 12 3 16 3 20 3 22 6 22 11 Z M4 30 L28 30 C28 21 22 20 16 20 10 20 4 21 4 30 Z"></path>
+                                </svg>
+                            </span>
                             <span id="username"></span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
@@ -131,10 +138,14 @@
 
                             <div id="runningVAssets" class="border shadow p-2 mb-2 bg-white" style="display: none;">
 
-                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_runningVAssets" role="button" aria-expanded="true" aria-controls="wrapperCollapse_runningContainers" onclick="collapseChangeIcon(this)">
+                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_runningVAssets" role="button" aria-expanded="true" aria-controls="wrapperCollapse_runningContainers" style="text-decoration:none" onclick="collapseChangeIcon(this)">
                                     <div class="btn btn-info btn-block text-left mb-1">
-                                        <span class="collapseIcon">-</span>
-                                        <span> Running vAssets</span>
+                                        <span>
+                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+                                                <path class="collapseIconPath" d="M30 12 L16 24 2 12" />
+                                            </svg>
+                                        </span>
+                                        <span> vApps</span>
                                     </div>
                                 </a>
 
@@ -185,10 +196,14 @@
 
                             <div id="notRunningVAssets" class="border shadow p-2 mb-2 bg-white" style="display: none;">
 
-                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_notRunningVAssets" role="button" aria-expanded="true" aria-controls="wrapperCollapse_notRunningVAssets" onclick="collapseChangeIcon(this)">
+                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_notRunningVAssets" role="button" aria-expanded="true" aria-controls="wrapperCollapse_notRunningVAssets" style="text-decoration:none" onclick="collapseChangeIcon(this)">
                                     <div class="btn btn-info btn-block text-left mb-1">
-                                        <span class="collapseIcon">-</span>
-                                        <span> Not running vAssets</span>
+                                        <span>
+                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+                                                <path class="collapseIconPath" d="M30 12 L16 24 2 12" />
+                                            </svg>
+                                        </span>
+                                        <span> Supported vAssets</span>
                                     </div>
                                 </a>
 
@@ -212,9 +227,13 @@
                             <div id="otherContainers" class="border shadow p-2 mb-2 bg-white" style="display: none;">
 
 
-                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_otherContainers" role="button" aria-expanded="true" aria-controls="wrapperCollapse_otherContainers" onclick="collapseChangeIcon(this)">
+                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_otherContainers" role="button" aria-expanded="true" aria-controls="wrapperCollapse_otherContainers" style="text-decoration:none" onclick="collapseChangeIcon(this)">
                                     <div class="btn btn-info btn-block text-left mb-1">
-                                        <span class="collapseIcon">-</span>
+                                        <span>
+                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+                                                <path class="collapseIconPath" d="M30 12 L16 24 2 12" />
+                                            </svg>
+                                        </span>
                                         <span> Other Containers</span>
                                     </div>
                                 </a>
@@ -267,16 +286,40 @@
                             <!-- Nav pills -->
                             <ul class="nav nav-tabs" role="tablist">
                                 <li class="nav-item">
-                                    <a id="linkToDetails_app" class="nav-link active" data-toggle="tab" href="#containerDetails_app">App</a>
+                                    <a id="linkToDetails_app" class="nav-link active" data-toggle="tab" href="#containerDetails_app">
+                                        <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                            <circle cx="17" cy="15" r="1"></circle>
+                                            <circle cx="16" cy="16" r="6"></circle>
+                                            <path d="M2 16 C2 16 7 6 16 6 25 6 30 16 30 16 30 16 25 26 16 26 7 26 2 16 2 16 Z"></path>
+                                        </svg>
+                                        App
+                                    </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a id="linkToDetails_stats" class="nav-link" data-toggle="tab" href="#containerDetails_stats">Stats</a>
+                                    <a id="linkToDetails_stats" class="nav-link" data-toggle="tab" href="#containerDetails_stats">
+
+                                        <svg id="i-activity" viewBox="0 0 32 32" width="13" height="13" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                            <path d="M4 16 L11 16 14 29 18 3 21 16 28 16"></path>
+                                        </svg>
+                                        Stats
+                                    </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a id="linkToDetails_logs" class="nav-link" data-toggle="tab" href="#containerDetails_logs">Logs</a>
+                                    <a id="linkToDetails_logs" class="nav-link" data-toggle="tab" href="#containerDetails_logs">
+                                        <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                            <path d="M12 2 L12 6 20 6 20 2 12 2 Z M11 4 L6 4 6 30 26 30 26 4 21 4"></path>
+                                        </svg>
+                                        Logs
+                                    </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a id="linkToDetails_settings" class="nav-link" data-toggle="tab" href="#containerDetails_settings">Settings</a>
+                                    <a id="linkToDetails_settings" class="nav-link" data-toggle="tab" href="#containerDetails_settings">
+                                        <svg id="i-settings" viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                            <path d="M13 2 L13 6 11 7 8 4 4 8 7 11 6 13 2 13 2 19 6 19 7 21 4 24 8 28 11 25 13 26 13 30 19 30 19 26 21 25 24 28 28 24 25 21 26 19 30 19 30 13 26 13 25 11 28 8 24 4 21 7 19 6 19 2 Z"></path>
+                                            <circle cx="16" cy="16" r="4"></circle>
+                                        </svg>
+                                        Settings
+                                    </a>
                                 </li>
                             </ul>
                         </div>
@@ -285,7 +328,7 @@
                         <div class="tab-content">
                             <!-- Tab containerDetails_app -->
                             <div id="containerDetails_app" class="tab-pane active">
-                                <iframe id="app_iframe" src="apps/appRadar/index.html">
+                                <iframe id="app_iframe" src="">
                                     <p>Your browser does not support iframes.</p>
                                 </iframe>
                             </div>
@@ -368,7 +411,11 @@
                             </div>
 
                             <!-- Tab containerDetails_settings -->
-                            <div id="containerDetails_settings" class="tab-pane fade"></div>
+                            <div id="containerDetails_settings" class="tab-pane fade">
+                                <iframe id="settings_iframe" src="">
+                                    <p>Your browser does not support iframes.</p>
+                                </iframe>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -425,16 +472,19 @@
 
         function collapseChangeIcon(thisElem){
 
-            var icon = $(thisElem).find(".collapseIcon");
-            var iconText = $(icon).text();
+            var dRight = "M12 30 L24 16 12 2",
+                dBottom = "M30 12 L16 24 2 12";
 
-            if(iconText === "-"){
-                $(icon).text("+");
+            var icon = $(thisElem).find(".collapseIconPath");
+            var iconText = $(icon).attr("d");
+
+            if(iconText === dRight){
+                $(icon).attr("d", dBottom);
+
             }else{
-                $(icon).text("-");
+                $(icon).attr("d", dRight);
             }
         }
-
 
     </script>
     
@@ -442,6 +492,7 @@
 
     <script src="js/containerDetails_stats.js"></script>
     <script src="js/containerDetails_logs.js"></script>
+    <script src="js/containerDetails_settings.js"></script>
 
 
     <script src="js/loadModules.js"></script>

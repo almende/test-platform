@@ -51,7 +51,9 @@ body{
 .collapseMenuBar{
   text-decoration:none;
 }
+style="text-decoration:none"
 */
+
 /* Creates a small space between nav-bar and body */
 .boxBody .rowBody.contentBody .container-fluid {
   margin-top: 10px;
@@ -86,9 +88,14 @@ body{
 table tbody tr td button{
   width: 100%;
 }
+#containerDetails_app,
+#containerDetails_settings{
+  min-height: 450px;
+}
 
-/*Style iframe of app navigation in details view*/
-#app_iframe{
+/*Style iframe of app and settings navigation in details view*/
+#app_iframe,
+#settings_iframe{
   border:none;
   width: 100%;
   overflow: hidden;
@@ -97,4 +104,3 @@ table tbody tr td button{
 #logWindow{
   max-height: 800px;
 }
-
