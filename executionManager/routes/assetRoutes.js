@@ -49,6 +49,21 @@ const getAssetRoutes = (app) => {
           }
         )
       })
+      .get('/full', (req, res) => {
+        let dumpcmd = '/usr/src/app/dump_info.sh'
+        exec(dumpcmd, (error, stdout, stderr) => {
+          if (!error) {
+            res.setHeader('Content-Type', 'application/json')
+            res.send(stdout)
+          } else {
+            res.setHeader('Content-Type', 'application/json')
+            // res.status(500).send({'error': error, 'stderr': stderr});
+            res.send({
+              'error': error, 'stderr': stderr
+            })
+          }
+        })
+      })
       .get('/stats', (req, res) => {
         // We want to execute this command line:
         //      docker stats --no-stream --format "{\"containerID\":\"{{ .Container }}\", \"name\":\"{{ .Name }}\", \"cpu\":\"{{ .CPUPerc }}\", \"mem\":\"{{ .MemUsage }}\", \"memPerc\":\"{{ .MemPerc }}\", \"netIO\":\"{{ .NetIO }}\", \"blockIO\":\"{{ .BlockIO }}\", \"pids\":\"{{ .PIDs }}\"}"

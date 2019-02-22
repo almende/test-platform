@@ -9,6 +9,6 @@ exec(labelCommand, (error, stdout, stderr) => {
   if (error) {
     console.log(error, stderr)
   } else {
-    console.log(JSON.parse(stdout)[0].Config.Labels)
+    console.log(JSON.stringify(JSON.parse(stdout)[0].Config.Labels))
   }
 })
