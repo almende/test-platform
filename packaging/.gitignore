@@ -1,2 +1,5 @@
 node_modules
 persist
+uploader.js
+label2manifest.js
+dumpLabels.js

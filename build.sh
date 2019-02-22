@@ -47,6 +47,8 @@ docker push localhost:5000/vfos/deploy
 
 cd ../packaging
 cp ../label2manifest.js ./
+cp ../uploader.js ./
+cp ../dumpLabels.js ./
 docker build . -t vfos/packaging
 docker tag vfos/packaging localhost:5000/vfos/packaging
 docker push localhost:5000/vfos/packaging

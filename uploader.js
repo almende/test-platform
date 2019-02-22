@@ -8,152 +8,156 @@ const md5File = require('md5-file')
 const axios = require('axios')
 const FormData = require('form-data')
 
-const productName = process.argv[2]
-const priceInfo = process.argv[3]
-const major = process.argv[4]
-const version = process.argv[5]
+let parameters = {}
+if (process.argv[2]) {
+  parameters = JSON.parse(process.argv[2])
+}
+const defaults = {
+  'price_info_eur': 0.1,
+  'major': '1.0',
+  'version': 1.0,
+  'category': 2,
+  'maxChunkSizeMB': 80
+}
 
-const fileName = process.argv[6]
-const accessToken = process.argv[7]
-const chunkMaxMB = isNaN(parseInt(process.argv[8])) ? 80 : parseInt(process.argv[8])
-
-if (!accessToken || accessToken === null) {
-  console.log('Call this script as "./uploader.js <product_names_en-us> <price_info_eur> <major> <version> <zipfile> <access_token>"')
-  console.log('Example "./uploader.js opc_ua_driver 20.5 1.0 1.0 opc_ua.zip qSsY5N2RABd5lxoeGiYBsx4Xv5lzmKzqrplg1DghK9k"')
+let params = Object.assign(defaults, parameters)
+if (!params.shortName && params['zipfile']) {
+  params['shortName'] = params.zipfile.replace(/^.*[\\\/]/, '')
+}
+if (!params.zipfile || !params.access_token) {
+  console.log('Call this script as ./uploader.js \'{"product_id":142,"zipfile":"opc_ua.zip","major":"1.0","version":20.5,"product_names_en-us":"opc_ua_driver","access_token":"qSsY5N2RABd5lxoeGiYBsx4Xv5lzmKzqrplg1DghK9k"}\'')
+  console.log('with zipfile and access_token manditory. If product_id is given, the product creation is skipped, ignoring pricing and product_names_en-us, etc.')
   process.exit(1)
 }
-const shortName = fileName.replace(/^.*[\\\/]/, '')
+console.log('Starting with parameters:', JSON.stringify(params))
 
-const params = {
-  'product_names_en-us': productName,
-  'price_info_eur': priceInfo,
-  'major': major,
-  'version': version,
-  'zipfile': fileName,
-  'access_token': accessToken,
-  'shortName': shortName,
-  'maxChunkSizeMB': chunkMaxMB
+let productCreated = Promise.resolve(params.product_id)
+if (!params.product_id) {
+  productCreated = new Promise((resolve, reject) => {
+    axios({
+      url: '/v1/products',
+      method: 'post',
+      baseURL: 'https://vfos-datahub.ascora.de/',
+      params: {
+        access_token: params.access_token
+      },
+      data: {
+        'product_names_en-us': params['product_names_en-us'],
+        'price_info_eur': params.price_info_eur,
+        'physical_product': false,
+        'category_id': params.category
+      }
+    }).then((response) => {
+      resolve(response.data.data.product.productId)
+    }).catch((err) => { reject(err) })
+  })
 }
-console.log('Starting with parameters:', params)
+productCreated.then(function (productId) {
+  fs.stat(params.zipfile, function (error, stat) {
+    if (error) { throw error }
+    let chunkSize = params.maxChunkSizeMB * 1024 * 1024
+    let chunks = (Math.floor(stat.size / chunkSize) + 1)
 
-axios({
-  url: '/v1/products',
-  method: 'post',
-  baseURL: 'https://vfos-datahub.ascora.de/',
-  params: {
-    access_token: accessToken
-  },
-  data: {
-    'product_names_en-us': productName,
-    'price_info_eur': priceInfo,
-    'physical_product': false,
-    'category_id': 2
-  }
-})
-  .then(function (response) {
-    fs.stat(fileName, function (error, stat) {
-      if (error) { throw error }
-      let chunkSize = chunkMaxMB * 1024 * 1024
-      let chunks = (Math.floor(stat.size / chunkSize) + 1)
+    let md5 = md5File.sync(params.zipfile)
+    var stream = fs.createReadStream(params.zipfile, { highWaterMark: chunkSize })
+    let i = 0
+    let promises = []
+    let lastRequest = null
 
-      let md5 = md5File.sync(fileName)
-      var stream = fs.createReadStream(fileName, { highWaterMark: chunkSize })
-      let i = 0
-      let promises = []
-      let lastRequest = null
-      console.log('ProductID: ' + response.data.data.product.productId)
-      console.log('current chunkSize..', chunkSize)
-      console.log('number of chunks:', chunks)
+    console.log('current chunkSize..', chunkSize)
+    console.log('number of chunks:', chunks)
 
-      stream.on('data', function (chunk) {
-        const formData = new FormData()
+    stream.on('data', function (chunk) {
+      const formData = new FormData()
 
-        console.log('current chunk..', i)
-        console.log('length:', chunk.length)
+      console.log('current chunk..', i)
+      console.log('length:', chunk.length)
 
-        // console.log(file.slice(offset,offset+chunkSize));
-        formData.append('product_id', response.data.data.product.productId)
-        if (chunks > 1) {
-          formData.append('binary_part', i + 1) // You're kidding, right?
-          formData.append('binary_part_max', chunks)
-          formData.append('binary_hash', md5)
-        }
-        formData.append('major', major)
-        formData.append('version', version)
-        formData.append('languages', 'en')
+      // console.log(file.slice(offset,offset+chunkSize));
+      formData.append('product_id', productId)
+      if (chunks > 1) {
+        formData.append('binary_part', i + 1) // You're kidding, right?
+        formData.append('binary_part_max', chunks)
+        formData.append('binary_hash', md5)
+      }
+      formData.append('major', params.major)
+      formData.append('version', params.version)
+      formData.append('languages', 'en')
 
-        console.log('formData:', formData)
+      let attachedName = params.shortName + (chunks > 1 ? '.' + (i + 1) : '')
+      // let attachedName = shortName + "."+(i+1)
+      formData.append('binary', chunk, { 'contentType': 'application/zip', 'filename': attachedName })
+      console.log('filename:' + attachedName)
 
-        let attachedName = shortName + (chunks > 1 ? '.' + (i + 1) : '')
-        // let attachedName = shortName + "."+(i+1)
-        formData.append('binary', chunk, { 'contentType': 'application/zip', 'filename': attachedName })
-        console.log('filename:' + attachedName)
-
-        // push it to the server, except for the last chunk, that needs to be postponed until all others are done..... (Yes, really!)
-        if (chunks <= 1 || i === chunks - 1) {
-          lastRequest = formData
-        } else {
-          promises.push(axios({
-            url: `https://vfos-datahub.ascora.de/v1/products/${response.data.data.product.productId}/programversions`,
+      // push it to the server, except for the last chunk, that needs to be postponed until all others are done..... (Yes, really!)
+      if (chunks <= 1 || i === chunks - 1) {
+        lastRequest = formData
+      } else {
+        promises.push(axios({
+          url: 'https://vfos-datahub.ascora.de/v1/products/' + productId + '/programversions',
+          method: 'post',
+          data: formData,
+          // keepAlive pools and reuses TCP connections, so it's faster
+          httpAgent: new http.Agent({ keepAlive: true }),
+          httpsAgent: new https.Agent({ keepAlive: true }),
+          headers: formData.getHeaders(),
+          maxContentLength: chunkSize * 1.2,
+          params: {
+            access_token: params.access_token
+          },
+          onUploadProgress: (event) => {
+            console.log(event)
+          }
+        }))
+      }
+      i++
+    })
+    stream.on('end', () => {
+      console.log('Waiting for all but the last chunk to be uploaded, ', promises.length, ' chunks')
+      Promise.all(promises).then(function (responses) {
+        responses.map(function (response, index) {
+          console.log(index + ':' + 'chunk uploaded.')
+          if (response && response.data) {
+            console.log(JSON.stringify(response.data))
+          }
+        })
+        if (lastRequest && lastRequest !== null) {
+          console.log('Start uploading last chunk.')
+          axios({
+            url: 'https://vfos-datahub.ascora.de/v1/products/' + productId + '/programversions',
             method: 'post',
-            data: formData,
+            data: lastRequest,
             // keepAlive pools and reuses TCP connections, so it's faster
             httpAgent: new http.Agent({ keepAlive: true }),
             httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: formData.getHeaders(),
+            headers: lastRequest.getHeaders(),
             maxContentLength: chunkSize * 1.2,
             params: {
-              access_token: accessToken
+              access_token: params.access_token
             },
             onUploadProgress: (event) => {
               console.log(event)
             }
-          }))
-        }
-        i++
-      })
-      stream.on('end', () => {
-        console.log('Waiting for all but the last chunk to be uploaded, ', promises.length, ' chunks')
-        Promise.all(promises).then(function (responses) {
-          responses.map(function (response, index) {
-            console.log(index + ':' + 'chunk uploaded.')
+          }).then((response) => {
+            console.log('Last chunk, successfully uploaded.')
             if (response && response.data) {
               console.log(JSON.stringify(response.data))
             }
+          }).catch((error) => {
+            console.log(error)
+            if (error.response && error.response.data) {
+              console.log(JSON.stringify(error.response.data))
+            }
           })
-          if (lastRequest && lastRequest !== null) {
-            console.log('Start uploading last chunk.')
-            axios({
-              url: `https://vfos-datahub.ascora.de/v1/products/${response.data.data.product.productId}/programversions`,
-              method: 'post',
-              data: lastRequest,
-              // keepAlive pools and reuses TCP connections, so it's faster
-              httpAgent: new http.Agent({ keepAlive: true }),
-              httpsAgent: new https.Agent({ keepAlive: true }),
-              headers: lastRequest.getHeaders(),
-              maxContentLength: chunkSize * 1.2,
-              params: {
-                access_token: accessToken
-              },
-              onUploadProgress: (event) => {
-                console.log(event)
-              }
-            }).then((response) => {
-              console.log('Last chunk, successfully uploaded.')
-              if (response && response.data) {
-                console.log(JSON.stringify(response.data))
-              }
-            })
-          }
-        }).catch(function (error) {
-          console.log(error)
-          if (error.response && error.response.data) {
-            console.log(JSON.stringify(error.response.data))
-          }
-        })
+        }
+      }).catch(function (error) {
+        console.log(error)
+        if (error.response && error.response.data) {
+          console.log(JSON.stringify(error.response.data))
+        }
       })
     })
   })
-  .catch(function (error) {
-    console.log(error)
-  })
+}).catch(function (error) {
+  console.log(error)
+})
