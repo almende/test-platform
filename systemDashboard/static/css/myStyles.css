@@ -72,7 +72,7 @@ style="text-decoration:none"
 }
 
 #wrapperCollapse_runningVAssets,
-#wrapperCollapse_notRunningVAssetst,
+#wrapperCollapse_notRunningVAssets,
 #wrapperCollapse_otherContainers{
   max-height: 100vh;
   overflow: auto;

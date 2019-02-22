@@ -212,8 +212,15 @@
                                         <table id="notRunningVAssetsTable" class="table table-hover table-light table-sm">
                                             <thead class="thead-light">
                                             <tr>
-                                                <th class="w-75 align-middle">ASSET NAME</th>
-                                                <th class="align-middle">TASK</th>
+                                                <th class="align-middle">ASSET NAME</th>
+                                                <th class="align-middle">CONTAINER ID</th>
+                                                <th class="align-middle">CONTAINER NAME</th>
+                                                <th class="align-middle">CPU %</th>
+                                                <th class="align-middle">MEM USAGE / LIMIT</th>
+                                                <th class="align-middle">MEM %</th>
+                                                <th class="align-middle">NET I/O</th>
+                                                <th class="align-middle">BLOCK I/O</th>
+                                                <th class="align-middle">PIDS</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -225,7 +232,6 @@
 
 
                             <div id="otherContainers" class="border shadow p-2 mb-2 bg-white" style="display: none;">
-
 
                                 <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_otherContainers" role="button" aria-expanded="true" aria-controls="wrapperCollapse_otherContainers" style="text-decoration:none" onclick="collapseChangeIcon(this)">
                                     <div class="btn btn-info btn-block text-left mb-1">
@@ -488,6 +494,7 @@
     
     <script src="js/updateStatsHistory.js"></script>
 
+    <script src="js/containerDetails_app.js"></script>
     <script src="js/containerDetails_stats.js"></script>
     <script src="js/containerDetails_logs.js"></script>
     <script src="js/containerDetails_settings.js"></script>

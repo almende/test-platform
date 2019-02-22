@@ -142,6 +142,64 @@ we want:
  */
 function mergeData(){
 
+
+    // if vf-OS.lab
+    var tempStatsArray = tempStats.stdout;  // array with the stats info
+
+    for(let i = 0; i < assetsData.length; i++){
+        var entryAsset = tempAssets[i];
+
+        for(let k = 0; k < tempStatsArray.length; k++){
+            var entryStats = tempStatsArray[k];
+
+            // if there is a correspondence between Assets list and Stats list
+            if(entryAsset.name === entryStats.name){
+
+
+                // if asset has a "vf-OS" label and marked as "true"
+                if( (typeof entryAsset.labels["vf-OS"] != "undefined") &&
+                    (entryAsset.labels["vf-OS"] === "true") ){
+
+                    // if it has a front url
+                    if((typeof entryAsset.labels["frontendUri"] != "undefined") &&
+                        (entryAsset.labels["frontendUri"] !== "")){
+                        // It is a vApp
+
+                        // put stats data in historyDB
+                        var newStats = {timestamp:tempStats.timestamp, stdout: [entryStats]};
+                        var locRef = {obj: historyDB, objName:"runningVAssets"};
+                        addStatsToHistory(locRef, newStats);
+
+                        // add Asset Info To History
+                        historyDB.runningVAssets[entryStats.name].assetDetails = tempAssets[k];
+
+                    } else {
+                        // if it does not have a url put it in "Supporting Library Containers" table
+                        // put stats data in historyDB
+                        var newStats = {timestamp:tempStats.timestamp, stdout: [entryStats]};
+                        var locRef = {obj: historyDB, objName:"notRunningVAssets"};
+                        addStatsToHistory(locRef, newStats);
+
+                        // add Asset Info To History
+                        historyDB.notRunningVAssets[entryStats.name].assetDetails = tempAssets[k];
+                    }
+
+                } else {
+                    // put it in Others Containers tables
+
+                    // put stats data in historyDB
+                    var newStats = {timestamp:tempStats.timestamp, stdout: [entryStats]};
+                    var locRef = {obj: historyDB, objName:"otherContainers"};
+                    addStatsToHistory(locRef, newStats);
+
+                    // add Asset Info To History
+                    historyDB.otherContainers[entryStats.name].assetDetails = tempAssets[k];
+
+                }
+            }
+        }
+    }
+/*
     // ----- NOT RUNNING VASSETS TABLE ----
 
     // clean all entries
@@ -241,7 +299,7 @@ function mergeData(){
         }
     }
     // ---------------------------------------
-
+*/
     // remove all data from all sets
     removeOldData();
 
@@ -380,7 +438,7 @@ function getStringValueInBytes(str, pattern){
 
 function removeOldData(){
 
-    var allObjectsData = [historyDB.runningVAssets, historyDB.otherContainers];
+    var allObjectsData = [historyDB.runningVAssets, historyDB.notRunningVAssets, historyDB.otherContainers];
 
     for(let i = 0; i < allObjectsData.length; i++){
         var group = allObjectsData[i];
@@ -544,7 +602,7 @@ function formatNewDataToSameUnits(objLocation, name, stdoutElem){
 
 function changeDataScales(){
 
-    var allObjectsData = [historyDB.runningVAssets, historyDB.otherContainers];
+    var allObjectsData = [historyDB.runningVAssets, historyDB.notRunningVAssets, historyDB.otherContainers];
 
     for(let i = 0; i < allObjectsData.length; i++) {
         var group = allObjectsData[i];
@@ -709,6 +767,21 @@ function getPowerScaleToUnitsString(power, type){
 // are both set to "true"
 function updateTables(){
 
+    // (For the new table ordering)
+
+    // Don't update tables if container details is open
+    if(!DETAILS_CONTAINER_OPENED_FLAG){
+        // Empty all tables
+        $("#runningVAssetsTable tbody").empty();
+        $("#notRunningVAssetsTable tbody").empty();
+        $("#otherContainers tbody").empty();
+
+        addRowsToTable(historyDB.runningVAssets, "runningVAssetsTable");
+        addRowsToTable(historyDB.notRunningVAssets, "notRunningVAssetsTable");
+        addRowsToTable(historyDB.otherContainers, "otherContainersTable");
+    }
+
+/*
     // ------ update runningVAssets table ------
     // Don't update tables if container details is open
     if(!DETAILS_CONTAINER_OPENED_FLAG){
@@ -744,6 +817,7 @@ function updateTables(){
         $("#otherContainersTable tbody").empty();
         addRowsToTable(historyDB.otherContainers, "otherContainersTable");
     }
+*/
 }
 
 function updateTable(){
@@ -888,7 +962,7 @@ function viewDetails(thisElem) {
     // Change data of details view;
     changeDetailsView(DETAILS_CONTAINERNAME);
 
-    // Resize App iframe
+    // Resize iframes
     resizeIFrameToFitContent($("#app_iframe"));
     resizeIFrameToFitContent($("#settings_iframe"));
 
