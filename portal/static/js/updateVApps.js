@@ -115,6 +115,7 @@ function updateInstalledVApps () {
           }
         }
 
+        // If vAsset is not on the list then create it
         if(idFlag==false){
           // add new template
           newTemplates+=createNewCardTemplate(data[i]);
@@ -124,7 +125,7 @@ function updateInstalledVApps () {
 
       // add new templates to cardsHolder
       $('#cardsHolder').append(newTemplates);
-      
+
       //--------------------------------------------------------------
 
 

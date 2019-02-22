@@ -21,6 +21,7 @@ var historyDB = {
     otherContainers:{}
 };
 
+var assetsData = []; // holds data of assets when requested from executionservices/assets
 var tempStats,  // variable to hold the data that come from the request of /stats
     tempAssets; // variable to hold the data that come from the request of /assets
 
@@ -116,6 +117,7 @@ function updateStatsHistory(){
       if(!("error" in data)){
         // store data globaly to be treated later
         tempAssets = data;
+        assetsData = data;
 
         // flags up that we have the stats data ready (Triggers the event)
         updateTablesChecker.assetsUpdated_bool = true;
@@ -877,6 +879,7 @@ function viewDetails(thisElem) {
 
     // Resize App iframe
     resizeIFrameToFitContent($("#app_iframe"));
+    resizeIFrameToFitContent($("#settings_iframe"));
 
 }
 
