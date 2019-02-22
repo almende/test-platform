@@ -11,8 +11,8 @@ COPY . .
 EXPOSE 9000
 LABEL vf-OS=true
 LABEL vf-OS.name="vf-OS_external_webdav_service_client"
-LABEL vf-OS.configurationUri="/"
-LABEL vf-OS.restUri="/webdav/"
+LABEL vf-OS.configurationUri="/vf-OS_external_webdav_service_client/"
+LABEL vf-OS.restUri="/vf-OS_external_webdav_service_client/webdav/"
 
 LABEL vf-OS.compose.0.volume.0="/persist"
 
