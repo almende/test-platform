@@ -63,7 +63,7 @@ function showBackgroundError(image){
 function updateInstalledVApps () {
 
   // Make the correlation between ContainerName and AssetName
-  var urlAssets = '/executionservices/assets'; // Request data to executionManager (executionservices)
+  var urlAssets = '/executionservices/assets/'; // Request data to executionManager (executionservices)
   $.get(urlAssets, function (data, status) {
 
     if(!("error" in data)){

@@ -267,11 +267,11 @@ function loadIframe(containerName, iFrame_id, label_uri, notFound_url){
 
     // Find asset info
     for(let i = 0; i < assetsData.length; i++){
-        // if asset is found
-        if(assetsData[i].id === containerName){
-            if(typeof assetsData[i].labels[label_uri] != "undefined"){ // If label exist
-                iFrame_default = assetsData[i].labels[label_uri];          // get backend uri
-            }
+        // if asset is found and If label exist
+        if( (assetsData[i].name === containerName) &&
+            (typeof assetsData[i].labels[label_uri] != "undefined")){
+                iFrame_default = assetsData[i].labels[label_uri];       // get backend uri
+            break;
         }
     }
 

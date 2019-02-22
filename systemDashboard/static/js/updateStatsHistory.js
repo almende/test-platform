@@ -22,8 +22,8 @@ var historyDB = {
 };
 
 var assetsData = []; // holds data of assets when requested from executionservices/assets
-var tempStats,  // variable to hold the data that come from the request of /stats
-    tempAssets; // variable to hold the data that come from the request of /assets
+var tempStats,  // variable to hold the data that come from the request of /stats to be used for processing
+    tempAssets; // variable to hold the data that come from the request of /assets to be used for processing
 
 
 //-----------------------------------------------
@@ -111,12 +111,17 @@ function updateStatsHistory(){
     });
 
     // Make the correlation between ContainerName and AssetName
-    var urlAssets = '/executionservices/assets'; // Request data to executionManager (executionservices)
+    var urlAssets = '/executionservices/assets/full'; // Request data to executionManager (executionservices)
     $.get(urlAssets, function (data, status) {
 
       if(!("error" in data)){
-        // store data globaly to be treated later
-        tempAssets = data;
+
+        // clean up data
+        for(let i = 0 ; i < data.length; i++){
+          data[i].name = (data[i].name).slice(1); // removes de "/" from name
+        }
+
+        tempAssets = data; // store data globaly to be treated later
         assetsData = data;
 
         // flags up that we have the stats data ready (Triggers the event)
@@ -129,6 +134,12 @@ function updateStatsHistory(){
 }
 
 
+/*
+we want:
+- Assets with NO "vf-OS.labels" in Other containers
+- Assets with vf-OS.labels and frontUrl in vApps
+- Assets with vf-OS.labels and NO frontUrl in Supporting Library Containers
+ */
 function mergeData(){
 
     // ----- NOT RUNNING VASSETS TABLE ----
@@ -153,7 +164,7 @@ function mergeData(){
 
     // ---------------------------------------
 
-    // ----- NOT RUNNING VASSETS TABLE ----
+    // ----- RUNNING VASSETS TABLE ----
 
     // Define all containerID undefined
     // (It will help to know which container entries should be removed because they were stopped of running.
