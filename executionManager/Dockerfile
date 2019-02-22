@@ -20,3 +20,4 @@ CMD ["npm", "start"]
 
 LABEL vf-OS=true
 LABEL vf-OS-platform=true
+LABEL vf-OS.restUri="/executionManager/assets/"

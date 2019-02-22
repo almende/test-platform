@@ -169,6 +169,9 @@ services:
       - CHE_DOCKER_IP_EXTERNAL=127.0.0.1
       - CHE_PORT=8081
       - CHE_REGISTRY_HOST=localhost
+    labels:
+      - vf-OS=true
+      - vf-OS.frontendUri=localhost:8081/
 EOF
 
 #Setup basic network configuration

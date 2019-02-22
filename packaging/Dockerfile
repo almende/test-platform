@@ -14,7 +14,7 @@ RUN npm install
 EXPOSE 9000
 LABEL vf-OS=true
 LABEL vf-OS.name="Packaging service"
-LABEL vf-OS.restUri="/rest/"
+LABEL vf-OS.restUri="/packaging/rest/"
 
 
 LABEL vf-OS.compose.0.socket=true

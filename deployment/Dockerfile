@@ -20,3 +20,4 @@ CMD ["/usr/src/app/entrypoint.sh"]
 
 LABEL vf-OS=true
 LABEL vf-OS-platform=true
+LABEL vf-OS.restUri="/deployment/downloads/"

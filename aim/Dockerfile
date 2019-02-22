@@ -10,3 +10,4 @@ COPY vf-OS-realm.json .
 
 LABEL vf-OS=true
 LABEL vf-OS-platform=true
+LABEL vf-OS.backendUri="/aim/auth/"
