@@ -93,7 +93,13 @@ new Promise((resolve, reject) => {
               Object.keys(asset['volume']).map((key, volumeIndx) => {
                 if (key === 'shared') {
                   Object.keys(asset['volume']['shared']).map((innerKey) => {
-                    result[index]['volumes'].push(volumeFolder + 'shared_' + innerKey + '_persist:' + asset['volume']['shared'][innerKey])
+                    if (typeof asset['volume']['shared'][innerKey] === 'object') {
+                      Object.keys(asset['volume']['shared'][innerKey]).map((deeperKey) => {
+                        result[index]['volumes'].push(volumeFolder + 'shared_' + innerKey + '_persist/' + deeperKey + ':' + asset['volume']['shared'][innerKey][deeperKey])
+                      })
+                    } else {
+                      result[index]['volumes'].push(volumeFolder + 'shared_' + innerKey + '_persist:' + asset['volume']['shared'][innerKey])
+                    }
                   })
                 } else {
                   result[index]['volumes'].push(volumeFolder + imageFile + '_' + index + '_' + volumeIndx + '_persist:' + asset['volume'][key])
