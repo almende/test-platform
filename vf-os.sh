@@ -96,6 +96,8 @@ services:
       - PROXY_ADDRESS_FORWARDING=true
     networks:
       - execution-manager-net
+    volumes:
+      - $CURRENT_DIR/.persist/aim_persist:/opt/jboss/keycloak/standalone/data
     labels:
       - "traefik.frontend.rule=PathPrefix:/aim"
       - "traefik.frontend.priority=-1"

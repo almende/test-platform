@@ -28,7 +28,7 @@ const label2manifest = (imagename, additionalImages = '') => {
 }
 const uploader = (options) => {
   return new Promise((resolve, reject) => {
-    exec('/usr/src/app/uploader.js ' + JSON.stringify(options), (error, stdout, stderr) => {
+    exec('/usr/src/app/uploader.js \'' + JSON.stringify(options) + '\'', (error, stdout, stderr) => {
       if (!error) {
         resolve(stdout)
       } else {
@@ -92,9 +92,9 @@ const getPackagingRoutes = (app) => {
                   options['product_names_en-us'] = labels['vf-OS.name']
                 }
                 options['access_token'] = req.query.access_token
-                uploader(options).then((res) => {
+                uploader(options).then((result) => {
                   status = 'done'
-                  res.send(res)
+                  res.send(result)
                 }).catch((err) => {
                   next(err)
                 })
