@@ -161,7 +161,7 @@ function mergeData(){
                     (entryAsset.labels["vf-OS"] === "true") ){
 
                     // if it has a front url
-                    if((typeof entryAsset.labels["frontendUri"] != "undefined") &&
+                    if((typeof entryAsset.labels["vf-OS.frontendUri"] != "undefined") &&
                         (entryAsset.labels["frontendUri"] !== "")){
                         // It is a vApp
 
