@@ -221,7 +221,6 @@ function changeDetailsView(containerName) {
         return;
     }
 
-
     // ---- App nav ----
     var iFrame_id = "app_iframe",
         label_uri = "vf-OS.backendUri",
@@ -257,6 +256,9 @@ function changeDetailsView(containerName) {
         notFound_url = "apps/containerSettings/containerSettingsNotFound.html";
 
     loadIframe(containerName, iFrame_id, label_uri, notFound_url);
+
+    // ---- Labels nav ----
+    updateLabels(containerName);
 
     // --------------------
 }

@@ -767,8 +767,6 @@ function getPowerScaleToUnitsString(power, type){
 // are both set to "true"
 function updateTables(){
 
-    // (For the new table ordering)
-
     // Don't update tables if container details is open
     if(!DETAILS_CONTAINER_OPENED_FLAG){
         // Empty all tables
@@ -972,10 +970,10 @@ function viewDetails(thisElem) {
 // Used on the viewDetails() function and on the close button of the details view window
 function toggleTableContent() {
 
-    // Toggle content in Running Container tables
+    // Toggle content in tables
     var tableContentCollumns = [2, 3, 4, 5, 6, 7, 8, 9]; // collum number to toggle visibility (I do not like this way yet)
     for(let i=0; i<tableContentCollumns.length; i++){
-        $('td:nth-child(' + tableContentCollumns[i] + '), th:nth-child(' + tableContentCollumns[i] + ')').toggle();
+        $('.dashboardTables td:nth-child(' + tableContentCollumns[i] + '), .dashboardTables th:nth-child(' + tableContentCollumns[i] + ')').toggle();
     }
 
     // Define sizes

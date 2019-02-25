@@ -151,7 +151,7 @@
 
                                 <div id="wrapperCollapse_runningVAssets" class="collapse show">
                                     <div class="table-responsive-xl">
-                                        <table id="runningVAssetsTable" class="table table-hover table-light table-sm">
+                                        <table id="runningVAssetsTable" class="dashboardTables table table-hover table-light table-sm">
                                             <thead class="thead-light">
                                             <tr>
                                                 <th class="align-middle">ASSET NAME</th>
@@ -209,7 +209,7 @@
 
                                 <div id="wrapperCollapse_notRunningVAssets" class="collapse show">
                                     <div class="table-responsive-xl">
-                                        <table id="notRunningVAssetsTable" class="table table-hover table-light table-sm">
+                                        <table id="notRunningVAssetsTable" class="dashboardTables table table-hover table-light table-sm">
                                             <thead class="thead-light">
                                             <tr>
                                                 <th class="align-middle">ASSET NAME</th>
@@ -246,7 +246,7 @@
 
                                 <div id="wrapperCollapse_otherContainers" class="collapse show">
                                     <div class="table-responsive-xl">
-                                        <table id="otherContainersTable" class="table table-hover table-light table-sm">
+                                        <table id="otherContainersTable" class="dashboardTables table table-hover table-light table-sm">
                                             <thead class="thead-light">
                                             <tr>
                                                 <th class="align-middle">ASSET NAME</th>
@@ -324,6 +324,16 @@
                                             <circle cx="16" cy="16" r="4"></circle>
                                         </svg>
                                         Settings
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a id="linkToDetails_labels" class="nav-link" data-toggle="tab" href="#containerDetails_labels">
+                                        <svg id="i-settings" viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                            <circle cx="24" cy="8" r="2" />
+                                            <path d="M2 18 L18 2 30 2 30 14 14 30 Z" />
+                                        </svg>
+                                        Labels
                                     </a>
                                 </li>
                             </ul>
@@ -421,6 +431,28 @@
                                     <p>Your browser does not support iframes.</p>
                                 </iframe>
                             </div>
+
+                            <!-- Tab containerDetails_labels -->
+                            <div id="containerDetails_labels" class="tab-pane fade">
+                                <div class="table-responsive-xl">
+                                    <table id="detailsLabelsTable" class="table table-hover table-light table-sm">
+                                        <thead class="thead-light">
+                                        <tr>
+                                            <th class="align-middle">LABEL NAME</th>
+                                            <th class="align-middle">LABEL</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            <tr>
+                                                <td>vf-OS</td>
+                                                <td>"true"</td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -498,6 +530,7 @@
     <script src="js/containerDetails_stats.js"></script>
     <script src="js/containerDetails_logs.js"></script>
     <script src="js/containerDetails_settings.js"></script>
+    <script src="js/containerDetails_labels.js"></script>
 
 
     <script src="js/loadModules.js"></script>
