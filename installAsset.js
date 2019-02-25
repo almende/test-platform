@@ -133,6 +133,9 @@ new Promise((resolve, reject) => {
       result.map((res, index) => {
         if (res['image']) {
           let id = res['id'] ? res['id'] : 'unnamed_asset_' + index
+          if (!res['labels']) {
+            res['labels'] = []
+          }
           if (!res['traefikOverride']) {
             res['labels'].push('traefik.frontend.rule=PathPrefix:/' + id + ';ReplacePathRegex: ^/' + id + '/(.*) /$$1')
           } else {

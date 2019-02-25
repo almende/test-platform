@@ -28,7 +28,17 @@ docker image rm localhost:5000/asset-b
 docker image rm asset-c
 docker image rm localhost:5000/asset-c
 
-cd ../esp_storage
+cd ../testImages
+../manifest2label.js asset-a.zip true true
+../manifest2label.js asset-b.zip true true
+../manifest2label.js asset-c.zip true true
+
+cd ../
+./installAsset.js localhost:5000/asset-b false
+./installAsset.js localhost:5000/asset-a false
+./installAsset.js localhost:5000/asset-c false
+
+cd esp_storage
 docker build . -t esp_webdav_storage
 cd ../
 ./installAsset.js esp_webdav_storage false

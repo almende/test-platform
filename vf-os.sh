@@ -152,6 +152,7 @@ services:
       - "traefik.frontend.rule=PathPrefixStrip:/packaging"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - $CURRENT_DIR/.persist/che_data:/data
     networks:
       - execution-manager-net
   che:
