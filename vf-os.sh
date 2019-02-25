@@ -41,6 +41,8 @@ cd ../
 
 mkdir -p .compose
 mkdir -p .persist
+mkdir -p .persist/aim_persist
+chown -R 1000:1000 ./.persist/aim_persist
 
 cat << EOF > .compose/$INITIAL_COMPOSE_FILE
 version: '3'
@@ -96,6 +98,8 @@ services:
       - PROXY_ADDRESS_FORWARDING=true
     networks:
       - execution-manager-net
+    volumes:
+      - $CURRENT_DIR/.persist/aim_persist:/opt/jboss/keycloak/standalone/data
     labels:
       - "traefik.frontend.rule=PathPrefix:/aim"
       - "traefik.frontend.priority=-1"
