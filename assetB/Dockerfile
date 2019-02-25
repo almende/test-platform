@@ -10,8 +10,8 @@ COPY . .
 
 EXPOSE 9000
 LABEL vf-OS=true
-
-LABEL vf-OS.icon=img/2.png
+LABEL vf-OS.name="AssetB"
+LABEL vf-OS.testUri="/AssetB/"
 
 CMD ["npm", "start"]
 
