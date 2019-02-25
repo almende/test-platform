@@ -924,9 +924,9 @@ function addRowsToTable(objLocation, idTable){
 
         rowTemplate +=
             '<tr> ' +
-            '<td class="align-middle">' + assetName + '</td> ' +
-            '<td class="align-middle">' + containerID + '</td> ' +
             '<td class="align-middle" onclick="viewDetails(this)">' + '<button type="button" class="btn btn-light">' + key + '</button></td> ' +
+            '<td class="align-middle">' + containerID + '</td> ' +
+            '<td class="align-middle">' + assetName + '</td> ' +
             '<td class="align-middle">' + cpuVal.toFixed(2) + "%" + '</td> ' +
             '<td class="align-middle">' + memUsageVal.toFixed(2) + memUsageUnits_string + " / " + memLimitVal.toFixed(2) + memLimitUnits_string + '</td>' +
             '<td class="align-middle">' + memPerc.toFixed(2) + "%" + '</td> ' +
@@ -973,7 +973,7 @@ function viewDetails(thisElem) {
 function toggleTableContent() {
 
     // Toggle content in Running Container tables
-    var tableContentCollumns = [4, 5, 6, 7, 8, 9]; // collum number to toggle visibility (I do not like this way yet)
+    var tableContentCollumns = [2, 3, 4, 5, 6, 7, 8, 9]; // collum number to toggle visibility (I do not like this way yet)
     for(let i=0; i<tableContentCollumns.length; i++){
         $('td:nth-child(' + tableContentCollumns[i] + '), th:nth-child(' + tableContentCollumns[i] + ')').toggle();
     }
