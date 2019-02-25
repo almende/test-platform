@@ -41,6 +41,8 @@ cd ../
 
 mkdir -p .compose
 mkdir -p .persist
+mkdir -p .persist/aim_persist
+chown -R 1000:1000 ./.persist/aim_persist
 
 cat << EOF > .compose/$INITIAL_COMPOSE_FILE
 version: '3'
