@@ -39,10 +39,10 @@ function updateLogs(){
     // Request data to executionManager (executionservices)
     var urlLogs = '/executionservices/assets' + '/logs';
 
-    if (DETAILS_CONTAINERNAME !== 'NO_CONTAINER_NAME') {
+    if (DETAILS_CONTAINER_NAME !== 'NO_CONTAINER_NAME') {
 
         var dataSend = {
-            "containerName": DETAILS_CONTAINERNAME,
+            "containerName": DETAILS_CONTAINER_NAME,
             "numOfLines" : 50
         };
 
@@ -59,13 +59,13 @@ function updateLogs(){
                 $('pre code').each(function(i, block) {
                     hljs.highlightBlock(block);
                 });
-                previousLogContainerName = DETAILS_CONTAINERNAME;
+                previousLogContainerName = DETAILS_CONTAINER_NAME;
             } else {
                 // TODO: WHAT TO DO? A LOADING ICON WHILE PREVIOUS INFO IS STILL SHOWN?
                 $("#logWindow").addClass("border border-danger");
                 $("#logErrorMessage").show();
 
-                if(previousLogContainerName !== DETAILS_CONTAINERNAME){
+                if(previousLogContainerName !== DETAILS_CONTAINER_NAME){
                     $("#logWindow").text("");
                 }
             }
@@ -73,7 +73,7 @@ function updateLogs(){
         });
 
     } else{
-        console.log("updateLogs(): DETAILS_CONTAINERNAME = NO_CONTAINER_NAME")
+        console.log("updateLogs(): DETAILS_CONTAINER_NAME = NO_CONTAINER_NAME")
     }
 
 }

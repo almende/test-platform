@@ -523,11 +523,11 @@ function changeDataScales(){
 
         }
 
-        if(detailsContainerName in group){
+        if(DETAILS_CONTAINER_NAME in group){
             // update scales on graphs
-            updateGraphScaleAxis(group[detailsContainerName].mem.memUsage, graph2dMemUsage, "binary");
-            updateGraphScaleAxis(group[detailsContainerName].netIO, graph2dNetIO);
-            updateGraphScaleAxis(group[detailsContainerName].blockIO, graph2dBlockIO);
+            updateGraphScaleAxis(group[DETAILS_CONTAINER_NAME].mem.memUsage, graph2dMemUsage, "binary");
+            updateGraphScaleAxis(group[DETAILS_CONTAINER_NAME].netIO, graph2dNetIO);
+            updateGraphScaleAxis(group[DETAILS_CONTAINER_NAME].blockIO, graph2dBlockIO);
         }
     }
 

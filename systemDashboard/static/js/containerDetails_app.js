@@ -7,7 +7,8 @@ $(document).ready(function() {
 
         console.log("I DID OPEN #containerDetails_app");
         // Resize iframe
-        resizeIFrameToFitContent($("#app_iframe"));
+        var iframe_id = "app_iframe";
+        resizeIFrameToFitContent(iframe_id);
     });
 
     //$('.nav-tabs a[href="#containerDetails_app"]').on('hide.bs.tab', function(event){ });

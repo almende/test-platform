@@ -3,8 +3,7 @@
  */
 // ----- GLOBAL VARIABLES -----
 var DETAILS_CONTAINER_OPENED_FLAG = false; // True - details view opened | false - details view not opened
-var DETAILS_CONTAINERNAME = "NO_CONTAINER_NAME"; // defines a container name opened on the details view, otherwise NO_CONTAINER_NAME
-var detailsContainerName;   // name of the container that is currently open for details view. Updated onClick event.
+var DETAILS_CONTAINER_NAME = "NO_CONTAINER_NAME"; // defines a container name opened on the details view, otherwise NO_CONTAINER_NAME
 
 //-----------------------------------------------
 
@@ -60,20 +59,80 @@ function viewDetails(thisElem) {
     $(thisElem).parentsUntil("tbody").addClass("table-info");
 
     // Put in the global variable the Container Name
-    DETAILS_CONTAINERNAME = $(thisElem).text();
+    DETAILS_CONTAINER_NAME = $(thisElem).text();
 
     // If details view is closed than open it
     if(!DETAILS_CONTAINER_OPENED_FLAG){
         toggleTableContent();
     }
 
-    // Change data of details view according with DETAILS_CONTAINERNAME;
-    changeDetailsView(DETAILS_CONTAINERNAME);
+    // Change data of details view according with DETAILS_CONTAINER_NAME;
+    changeDetailsView();
 
     // Resize iframes
-    resizeIFrameToFitContent($("#app_iframe"));
-    resizeIFrameToFitContent($("#settings_iframe"));
+    //setTimeout(resizeIFrameToFitContent, 1000, "app_iframe");
+    //setTimeout(resizeIFrameToFitContent, 1000, "settings_iframe");
 
+}
+
+// Called from viewDetails
+function changeDetailsView() {
+
+    // where is DETAILS_CONTAINER_NAME
+    var location;
+    if (historyDB.runningVAssets.hasOwnProperty(DETAILS_CONTAINER_NAME)) {
+        location = historyDB.runningVAssets;
+    } else if (historyDB.notRunningVAssets.hasOwnProperty(DETAILS_CONTAINER_NAME)) {
+        location = historyDB.notRunningVAssets;
+    } else if (historyDB.otherContainers.hasOwnProperty(DETAILS_CONTAINER_NAME)){
+        location = historyDB.otherContainers;
+    } else {
+        console.log("ERROR: DETAILS_CONTAINER_NAME not found!")
+        return;
+    }
+
+    // ---- App nav ----
+    var iFrame_id = "app_iframe",
+        label_uri = "vf-OS.backendUri",
+        notFound_url = "apps/containerApp/containerAppNotFound.html";
+
+    loadIframe(DETAILS_CONTAINER_NAME, iFrame_id, label_uri, notFound_url);
+    //if($("#linkToDetails_app").hasClass("active") && $("#linkToDetails_app").hasClass("show")){
+    //    setTimeout(resizeIFrameToFitContent($("#app_iframe"), 1000));
+    //}
+
+    // ---- Stats nav ----
+    // Change datasets
+    graph2dCpu.setItems(location[DETAILS_CONTAINER_NAME].cpu);
+    graph2dMemPerc.setItems(location[DETAILS_CONTAINER_NAME].mem.memPerc);
+
+    graph2dMemUsage.setItems(location[DETAILS_CONTAINER_NAME].mem.memUsage.dataset);
+
+    graph2dNetIO.setItems(location[DETAILS_CONTAINER_NAME].netIO.dataset);
+    graph2dBlockIO.setItems(location[DETAILS_CONTAINER_NAME].blockIO.dataset);
+
+    // ---- Logs nav ----
+    // If log view is opened update it
+    if($("#linkToDetails_logs").hasClass("active") && $("#linkToDetails_logs").hasClass("show")){
+        updateLogs();
+
+        setTimeout(function(){
+            var objDiv = document.getElementById("logWindow");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }, 100);
+    }
+
+    // ---- Config nav ----
+    iFrame_id = "settings_iframe";
+    label_uri = "vf-OS.configurationUri";
+    notFound_url = "apps/containerSettings/containerSettingsNotFound.html";
+
+    loadIframe(DETAILS_CONTAINER_NAME, iFrame_id, label_uri, notFound_url);
+
+    // ---- Labels nav ----
+    updateLabels(DETAILS_CONTAINER_NAME);
+
+    // --------------------
 }
 
 // show / hide details view
@@ -110,7 +169,7 @@ function toggleTableContent() {
         DETAILS_CONTAINER_OPENED_FLAG = false;          // puts flag off
 
         // stops logs messaging
-        DETAILS_CONTAINERNAME = "NO_CONTAINER_NAME";    // replaces container name "resets it"
+        DETAILS_CONTAINER_NAME = "NO_CONTAINER_NAME";    // replaces container name "resets it"
         clearInterval(updateLogs_timer); // stop messaging to update logs view
     }else{                          // we are gonna open details
         $("#allTables").removeClass(tableBigSize);
@@ -126,64 +185,6 @@ function toggleTableContent() {
     }
 }
 
-// Called from viewDetails
-function changeDetailsView(containerName) {
-
-    // where is containerName
-    var location;
-    if (historyDB.runningVAssets.hasOwnProperty(containerName)) {
-        location = historyDB.runningVAssets;
-    } else if (historyDB.notRunningVAssets.hasOwnProperty(containerName)) {
-        location = historyDB.notRunningVAssets;
-    } else if (historyDB.otherContainers.hasOwnProperty(containerName)){
-        location = historyDB.otherContainers;
-    } else {
-        console.log("ERROR: containerName not found!")
-        return;
-    }
-
-    // ---- App nav ----
-    var iFrame_id = "app_iframe",
-        label_uri = "vf-OS.backendUri",
-        notFound_url = "apps/containerApp/containerAppNotFound.html";
-
-    loadIframe(containerName, iFrame_id, label_uri, notFound_url);
-
-    // ---- Stats nav ----
-    // Change datasets
-    detailsContainerName = containerName; // write the name of the container
-    graph2dCpu.setItems(location[containerName].cpu);
-    graph2dMemPerc.setItems(location[containerName].mem.memPerc);
-
-    graph2dMemUsage.setItems(location[containerName].mem.memUsage.dataset);
-
-    graph2dNetIO.setItems(location[containerName].netIO.dataset);
-    graph2dBlockIO.setItems(location[containerName].blockIO.dataset);
-
-    // ---- Logs nav ----
-    // If log view is opened update it
-    if($("#linkToDetails_logs").hasClass("active") && $("#linkToDetails_logs").hasClass("show")){
-        updateLogs();
-
-        setTimeout(function(){
-            var objDiv = document.getElementById("logWindow");
-            objDiv.scrollTop = objDiv.scrollHeight;
-        }, 100);
-    }
-
-    // ---- Config nav ----
-    var iFrame_id = "settings_iframe",
-        label_uri = "vf-OS.configurationUri",
-        notFound_url = "apps/containerSettings/containerSettingsNotFound.html";
-
-    loadIframe(containerName, iFrame_id, label_uri, notFound_url);
-
-    // ---- Labels nav ----
-    updateLabels(containerName);
-
-    // --------------------
-}
-
 function loadIframe(containerName, iFrame_id, label_uri, notFound_url){
 
     var iFrame_default = notFound_url;
@@ -192,7 +193,7 @@ function loadIframe(containerName, iFrame_id, label_uri, notFound_url){
     for(let i = 0; i < assetsData.length; i++){
         // if asset is found and If label exist
         if( (assetsData[i].name === containerName) &&
-            (typeof assetsData[i].labels[label_uri] != "undefined")){
+            (label_uri in assetsData[i].labels)){
             iFrame_default = assetsData[i].labels[label_uri];       // get backend uri
             break;
         }
@@ -201,12 +202,11 @@ function loadIframe(containerName, iFrame_id, label_uri, notFound_url){
     // Change iframe url
     $("#" + iFrame_id).attr("src", iFrame_default);
 
-    // Resize iframe
-    var iFrame = $("#" + iFrame_id);
-    resizeIFrameToFitContent(iFrame);
+    // Resize iframe (it needs a time)
+    setTimeout(resizeIFrameToFitContent, 100, iFrame_id);
 }
 
-function resizeIFrameToFitContent( elemt ) {
-    var iFrame = $(elemt);
+function resizeIFrameToFitContent( elemt_id ) {
+    var iFrame = $("#" + elemt_id);
     iFrame.height(iFrame.contents().height());  // Maybe I should define a minimum value
 }
