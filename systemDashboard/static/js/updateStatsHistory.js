@@ -8,10 +8,7 @@ var pattBinaryUnits = /(KiB|MiB|GiB|TiB|PiB|EiB|ZiB|YiB)/i,
     pattDecimalUnits = /(kB|MB|GB|TB|PB|EB|ZB|YB|B)/i;
 
 var UPDATE_STATSHITORY_TIME = 3000;      // Update tables every x milliseconds
-var DETAILS_CONTAINER_OPENED_FLAG = false; // True - details view opened | false - details view not opened
 var MAX_DATA_TIME_TO_SHOW = 120; // (Seconds). Data is stored in this interval. After it gets removed!
-
-var DETAILS_CONTAINERNAME = "NO_CONTAINER_NAME"; // defines a container name opened on the details view, otherwise NO_CONTAINER_NAME
 
 var updateStatsHistory_timer;
 
@@ -133,173 +130,73 @@ function updateStatsHistory(){
 
 }
 
-
 /*
 we want:
-- Assets with NO "vf-OS.labels" in Other containers
-- Assets with vf-OS.labels and frontUrl in vApps
-- Assets with vf-OS.labels and NO frontUrl in Supporting Library Containers
+- Assets without "vf-OS" label as "true" in Other containers
+- Assets with "vf-OS" label as "true" and "vf-OS.frontendUri" labels defined in vApps
+- Assets with "vf-OS" label as "true" and NO "vf-OS.frontendUri" labels in vAppsSupporting Library Containers
  */
 function mergeData(){
 
-
-    // if vf-OS.lab
+    var locRef={};
     var tempStatsArray = tempStats.stdout;  // array with the stats info
+    var entryAsset, entryStats; // variables to hold entries assets and stats
+    var newStats = {}; // obj containing the new stats
 
     for(let i = 0; i < assetsData.length; i++){
-        var entryAsset = tempAssets[i];
+
+        entryAsset = tempAssets[i]; // get Asset
 
         for(let k = 0; k < tempStatsArray.length; k++){
-            var entryStats = tempStatsArray[k];
 
-            // if there is a correspondence between Assets list and Stats list
+            entryStats = tempStatsArray[k]; // get stats
+
+            // If there is a correspondence between Assets list and Stats list
             if(entryAsset.name === entryStats.name){
 
+                // Create new stats object
+                newStats = {timestamp:tempStats.timestamp, stdout: [entryStats]};
 
-                // if asset has a "vf-OS" label and marked as "true"
-                if( (typeof entryAsset.labels["vf-OS"] != "undefined") &&
+                // If asset has a "vf-OS" label and marked as "true"
+                if( ("vf-OS" in entryAsset.labels) &&
                     (entryAsset.labels["vf-OS"] === "true") ){
 
-                    // if it has a front url
-                    if((typeof entryAsset.labels["vf-OS.frontendUri"] != "undefined") &&
-                        (entryAsset.labels["frontendUri"] !== "")){
-                        // It is a vApp
+                    // If it has a front url
+                    if(("vf-OS.frontendUri" in entryAsset.labels) &&
+                        (entryAsset.labels["frontendUri"] !== "")){ // It is a vApp
 
-                        // put stats data in historyDB
-                        var newStats = {timestamp:tempStats.timestamp, stdout: [entryStats]};
-                        var locRef = {obj: historyDB, objName:"runningVAssets"};
+                        // Put stats data in historyDB
+                        locRef = {obj: historyDB, objName:"runningVAssets"};
                         addStatsToHistory(locRef, newStats);
 
-                        // add Asset Info To History
+                        // Add Asset Info To History
                         historyDB.runningVAssets[entryStats.name].assetDetails = tempAssets[k];
 
-                    } else {
-                        // if it does not have a url put it in "Supporting Library Containers" table
-                        // put stats data in historyDB
-                        var newStats = {timestamp:tempStats.timestamp, stdout: [entryStats]};
-                        var locRef = {obj: historyDB, objName:"notRunningVAssets"};
+                    } else { // If it does not have a url put it in "Supporting Library Containers" table
+
+                        // Put stats data in historyDB
+                        locRef = {obj: historyDB, objName:"notRunningVAssets"};
                         addStatsToHistory(locRef, newStats);
 
                         // add Asset Info To History
                         historyDB.notRunningVAssets[entryStats.name].assetDetails = tempAssets[k];
                     }
 
-                } else {
-                    // put it in Others Containers tables
+                } else { // Put it in Others Containers tables
 
-                    // put stats data in historyDB
-                    var newStats = {timestamp:tempStats.timestamp, stdout: [entryStats]};
-                    var locRef = {obj: historyDB, objName:"otherContainers"};
+                    // Put stats data in historyDB
+                    locRef = {obj: historyDB, objName:"otherContainers"};
                     addStatsToHistory(locRef, newStats);
 
-                    // add Asset Info To History
+                    // Add Asset Info To History
                     historyDB.otherContainers[entryStats.name].assetDetails = tempAssets[k];
-
                 }
-            }
-        }
-    }
-/*
-    // ----- NOT RUNNING VASSETS TABLE ----
 
-    // clean all entries
-    historyDB.notRunningVAssets = [];
-
-    // for all elements in Assets list
-    for(let i=0; i < tempAssets.length; i++){
-        var entry = tempAssets[i];
-        // if containerName is unknown then it means this vAsset is not running, so,
-        if(entry.containerName === "Unknown"){
-            (historyDB.notRunningVAssets).push(entry); // store in notRunningVAssets
-            tempAssets[i] = "REMOVED"; // Mark element as removed
-        }
-    }
-
-    // remove "removed" elements from tempAssets array
-    tempAssets = tempAssets.filter(function (currentValue, index, arr) {
-        return (currentValue !== "REMOVED");
-    });
-
-    // ---------------------------------------
-
-    // ----- RUNNING VASSETS TABLE ----
-
-    // Define all containerID undefined
-    // (It will help to know which container entries should be removed because they were stopped of running.
-    // After rewritting the new information the ones who were not updated should be removed)
-    for(var containerName in historyDB.runningVAssets){
-        historyDB.runningVAssets[containerName].containerID = undefined;
-    }
-
-    var tempStatsArray = tempStats.stdout;  // array with the stats info
-
-    for(var i=0; i < tempStatsArray.length; i++){
-        for(var k=0; k<tempAssets.length;k++){
-
-            // If it finds the match in both arrays
-            if(tempStatsArray[i].name === tempAssets[k].containerName){
-
-                // put stats data in historyDB
-                var newStats = {timestamp:tempStats.timestamp, stdout: [tempStatsArray[i]]};
-                var locRef = {obj: historyDB, objName:"runningVAssets"};
-                addStatsToHistory(locRef, newStats);
-
-                // add Asset Info To History
-                historyDB.runningVAssets[tempStatsArray[i].name].assetDetails = tempAssets[k];
-
-                // mark element as removed from stats list
-                tempStatsArray[i] = "REMOVED";
-
-                continue; // continues to next stats element
+                break; // Go to next asset
             }
         }
     }
 
-    // remove "removed" elements from tempStatsArray array
-    tempStats.stdout = tempStatsArray.filter(function (currentValue, index, arr) {
-        return (currentValue !== "REMOVED");
-    });
-
-
-    // removed stopped containers by looking on containerID's not updated
-    for(var containerName in historyDB.runningVAssets){
-        if(historyDB.runningVAssets[containerName].containerID === undefined){
-         delete historyDB.runningVAssets[containerName]; // delete stopped vAsset from runningVAssets
-        }
-    }
-
-
-    // ---------------------------------------
-
-    // ----- OTHER CONTAINERS TABLE ----
-
-    // Define all containerID undefined
-    // (It will help to know which container entries should be removed because they were stopped of running.
-    // After rewritting the new information the ones who were not updated should be removed)
-    for(var containerName in historyDB.otherContainers){
-        historyDB.otherContainers[containerName].containerID = undefined;
-    }
-
-
-    var tempStatsArray = tempStats.stdout;  // array with the stats info
-
-    for(var i=0; i < tempStatsArray.length; i++){
-        // put stats data in historyDB
-        var newStats = {timestamp:tempStats.timestamp, stdout: [tempStatsArray[i]]};
-        var locRef = {obj: historyDB, objName:"otherContainers"};
-        addStatsToHistory(locRef, newStats);
-    }
-
-
-
-    // removed stopped containers by looking on containerID's not updated
-    for(var containerName in historyDB.otherContainers){
-        if(historyDB.otherContainers[containerName].containerID === undefined){
-            delete historyDB.otherContainers[containerName]; // delete stopped vAsset from runningVAssets
-        }
-    }
-    // ---------------------------------------
-*/
     // remove all data from all sets
     removeOldData();
 
@@ -599,7 +496,6 @@ function formatNewDataToSameUnits(objLocation, name, stdoutElem){
 
 }
 
-
 function changeDataScales(){
 
     var allObjectsData = [historyDB.runningVAssets, historyDB.notRunningVAssets, historyDB.otherContainers];
@@ -779,54 +675,6 @@ function updateTables(){
         addRowsToTable(historyDB.otherContainers, "otherContainersTable");
     }
 
-/*
-    // ------ update runningVAssets table ------
-    // Don't update tables if container details is open
-    if(!DETAILS_CONTAINER_OPENED_FLAG){
-        // Empty all tables
-        $("#runningVAssetsTable tbody").empty();
-
-        addRowsToTable(historyDB.runningVAssets, "runningVAssetsTable");
-    }
-
-    // ------ update notRunningVAssets table ------
-    // Empty table
-    $("#notRunningVAssetsTable tbody").empty();
-
-    var rowTemplate='';
-    var noRunningArray = historyDB.notRunningVAssets;
-    for(let i = 0; i < noRunningArray.length; i++){
-
-        var assetName = noRunningArray[i].id;
-        rowTemplate +=
-            '<tr> ' +
-            '<td class="align-middle">' + assetName + '</td> ' +
-            '<td class="align-middle" onclick="">' + '<button type="button" class="btn btn-success">RUN</button></td> '+
-            '</tr>';
-    }
-
-    // Append row in the last table position
-    $('#notRunningVAssetsTable > tbody:last-child').append(rowTemplate);
-
-    // ------ update otherContainers table ------
-    // Don't update tables if container details is open
-    if(!DETAILS_CONTAINER_OPENED_FLAG) {
-        // Empty table
-        $("#otherContainersTable tbody").empty();
-        addRowsToTable(historyDB.otherContainers, "otherContainersTable");
-    }
-*/
-}
-
-function updateTable(){
-
-    // Don't update tables if container details is open
-    if(!DETAILS_CONTAINER_OPENED_FLAG){
-        // Empty tables
-        $("table tbody").empty();
-
-        addRows();
-    }
 }
 
 function addRowsToTable(objLocation, idTable){
@@ -936,84 +784,6 @@ function addRowsToTable(objLocation, idTable){
 
     // Append row in the last table position
     $('#'+idTable+' > tbody:last-child').append(rowTemplate);
-}
-
-
-
-// This function is called when user clicks on one of the container names
-function viewDetails(thisElem) {
-
-    // Deselect any previous highlighted row (if exists)
-    deselectRow();
-
-    // Highlight the selected row
-    $(thisElem).parentsUntil("tbody").addClass("table-info");
-
-    // Put in the global variable the Container Name
-    DETAILS_CONTAINERNAME = $(thisElem).text();
-
-    // If details view is closed than open it
-    if(!DETAILS_CONTAINER_OPENED_FLAG){
-        toggleTableContent();
-    }
-
-    // Change data of details view;
-    changeDetailsView(DETAILS_CONTAINERNAME);
-
-    // Resize iframes
-    resizeIFrameToFitContent($("#app_iframe"));
-    resizeIFrameToFitContent($("#settings_iframe"));
-
-}
-
-// show / hide details view
-// Used on the viewDetails() function and on the close button of the details view window
-function toggleTableContent() {
-
-    // Toggle content in tables
-    var tableContentCollumns = [2, 3, 4, 5, 6, 7, 8, 9]; // collum number to toggle visibility (I do not like this way yet)
-    for(let i=0; i<tableContentCollumns.length; i++){
-        $('.dashboardTables td:nth-child(' + tableContentCollumns[i] + '), .dashboardTables th:nth-child(' + tableContentCollumns[i] + ')').toggle();
-    }
-
-    // Define sizes
-    var tableSmallSize      = "col-sm-3",
-        tableBigSize        = "col-sm-12",
-        detailsSmallSize    = "col-sm-0",
-        detailsbigSize      = "col-sm-9";
-
-    // Toggle details and table
-    if(DETAILS_CONTAINER_OPENED_FLAG){     // we are gonna close details view
-        $("#allTables").removeClass(tableSmallSize);
-        $("#allTables").addClass(tableBigSize);   // expande table
-
-        $("#detailsDiv").removeClass(detailsbigSize);
-        $("#detailsDiv").addClass(detailsSmallSize);    // Shrink details view
-
-        // Deselect any previous highlighted row (if exists)
-        deselectRow();
-
-        //$("#runningVAssets").removeClass("sticky-top");
-
-        // closes details view window
-        $("#detailsDiv").hide();
-        DETAILS_CONTAINER_OPENED_FLAG = false;          // puts flag off
-
-        // stops logs messaging
-        DETAILS_CONTAINERNAME = "NO_CONTAINER_NAME";    // replaces container name "resets it"
-        clearInterval(updateLogs_timer); // stop messaging to update logs view
-    }else{                          // we are gonna open details
-        $("#allTables").removeClass(tableBigSize);
-        $("#allTables").addClass(tableSmallSize);    // Shrink table
-
-        $("#detailsDiv").removeClass(detailsSmallSize);
-        $("#detailsDiv").addClass(detailsbigSize);  // expande details view
-
-        //$("#runningVAssets").addClass("sticky-top"); // makes the table stick to the top when scrolling down
-
-        $("#detailsDiv").show("slow");
-        DETAILS_CONTAINER_OPENED_FLAG = true;
-    }
 }
 
 function deselectRow(){

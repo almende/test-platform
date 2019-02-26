@@ -468,7 +468,6 @@
 
 
     <script>
-
         $(document).ready(function(){
 
             if(keycloak.authenticated){
@@ -478,51 +477,9 @@
             }
 
         });
-
-        function loadingBar(){
-            var $progressBar = $('#progressBar');
-
-            var progress = 0;      // initial value of your progress bar
-            var timeout = 200;      // number of milliseconds between each frame
-            var increment = 10;    // increment for each frame
-            var maxprogress = 110; // when to leave stop running the animation
-
-            function animate() {
-                setTimeout(function () {
-
-                    if($("#progressBar").length !== 0){
-                        progress += increment;
-                        if(progress < maxprogress) {
-                            //$progressBar.attr('value', progress);
-                            $progressBar.attr('aria-valuenow', progress);
-                            $progressBar.width(progress + "%");
-                            //$progressBar.text(progress + "%");
-                            animate();
-                        }
-                    }
-
-                }, timeout);
-            }
-            animate();
-        }
-
-        function collapseChangeIcon(thisElem){
-
-            var dRight = "M12 30 L24 16 12 2",
-                dBottom = "M30 12 L16 24 2 12";
-
-            var icon = $(thisElem).find(".collapseIconPath");
-            var iconText = $(icon).attr("d");
-
-            if(iconText === dRight){
-                $(icon).attr("d", dBottom);
-            }else{
-                $(icon).attr("d", dRight);
-            }
-        }
-
     </script>
-    
+
+    <script src="js/views.js"></script>
     <script src="js/updateStatsHistory.js"></script>
 
     <script src="js/containerDetails_app.js"></script>
@@ -530,9 +487,6 @@
     <script src="js/containerDetails_logs.js"></script>
     <script src="js/containerDetails_settings.js"></script>
     <script src="js/containerDetails_labels.js"></script>
-
-
-    <script src="js/loadModules.js"></script>
 
 
 </body>
