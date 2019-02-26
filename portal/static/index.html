@@ -138,13 +138,47 @@
                         </div>
                     </div>
                 </div>
-                
+
+                <!-- Modal for installations -->
+                <!-- Modal for vApps descriptions -->
+                <div class="modal fade" id="installationModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" >Installation</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="">
+                                    <div class="form-group">
+                                        <label for="urlForm">URL:</label>
+                                        <input type="url" class="form-control" id="urlForm">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tokenForm">Token:</label>
+                                        <input type="text" class="form-control" id="tokenForm">
+                                    </div>
+                                    <!-- <button type="submit" class="btn btn-primary">Submit</button> -->
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close Window</button>
+                                <a id="installButton" href="#" type="button" class="btn btn-primary" target="">Install</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
                 <!-- Running vApss list -->
                 <div class="row">
                     <div id="InstalledVApps" class="col-sm-12" >
 
                         <div class="border shadow p-2 mb-2 bg-white">
                             <h2>vApps</h2>
+                            <button type="button" class="btn btn-light" data-toggle="modal" data-target="#installationModal">Install</button>
                             <div id="cardsHolder"class="d-flex flex-wrap">
 
                             </div>
