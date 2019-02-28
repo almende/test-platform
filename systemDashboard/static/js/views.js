@@ -122,7 +122,7 @@ function changeDetailsView() {
         }, 100);
     }
 
-    // ---- Config nav ----
+    // ---- Settings nav ----
     iFrame_id = "settings_iframe";
     label_uri = "vf-OS.configurationUri";
     notFound_url = "apps/containerSettings/containerSettingsNotFound.html";

@@ -137,6 +137,28 @@
 
                 <div id="allBodyContent" class="row" style="display: none;">
 
+                    <!-- Modal for Operations -->
+                    <div class="modal fade" id="operationsModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" >Operation</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Are you sure you want to continue with this operation?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <a id="installButton" href="#" type="button" class="btn btn-primary" target="">Continue</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <div id="operations" class="col-sm-12">
 
                         <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_operations" role="button" aria-expanded="true" aria-controls="wrapperCollapse_operations" style="text-decoration:none" onclick="collapseChangeIcon(this)">
@@ -186,25 +208,28 @@
                                                 <label for="tokenForm">Token:</label>
                                                 <input type="text" class="form-control" id="tokenForm">
                                             </div>
-                                            <button type="submit" class="btn btn-primary">Install</button>
+                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#operationsModal">Install</button>
                                         </form>
                                     </div>
 
                                     <!-- Tab uninstallations -->
                                     <div id="uninstallations" class="tab-pane fade">
-                                        Container list to be removed:
 
-                                        <div>
-                                            <div class="clearfix">
-                                                <button type="button" class="btn btn-secondary float-left btn-sm">Select all</button>
-                                                <button type="button" class="btn btn-outline-primary float-left btn-sm">
-                                                    <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                                        <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2" />
-                                                    </svg>
-                                                </button>
+
+
+                                        <div class="d-flex align-items-center clearfix">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" id="checkboxAllRemove" name="example">
+                                                <label class="custom-control-label" for="checkboxAllRemove">All</label>
                                             </div>
+                                            <button type="button" class="btn btn-outline-primary float-left btn-sm ml-2">
+                                                <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                    <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2" />
+                                                </svg>
+                                            </button>
                                         </div>
 
+                                        List of containers to be removed:
                                         <form id="uninstallationForm" action="">
 
                                             <div id="uninstallList" class="border p-2">
@@ -225,39 +250,38 @@
 
                                                 <div class="custom-control custom-switch">
                                                     <input type="checkbox" class="custom-control-input" id="switch4" name="example">
-                                                    <label class="custom-control-label" for="switch4">vfos_AssetA_1</label>
+                                                    <label class="custom-control-label" for="switch4">vfos_deployment_1</label>
                                                 </div>
 
                                                 <div class="custom-control custom-switch">
                                                     <input type="checkbox" class="custom-control-input" id="switch5" name="example">
-                                                    <label class="custom-control-label" for="switch5">vfos_AssetC_1</label>
+                                                    <label class="custom-control-label" for="switch5">vfos_testserver_1</label>
                                                 </div>
 
                                                 <div class="custom-control custom-switch">
                                                     <input type="checkbox" class="custom-control-input" id="switch6" name="example">
-                                                    <label class="custom-control-label" for="switch6">vfos_che_1</label>
+                                                    <label class="custom-control-label" for="switch6">vfos_execution-manager_1</label>
                                                 </div>
 
                                                 <div class="custom-control custom-switch">
                                                     <input type="checkbox" class="custom-control-input" id="switch7" name="example">
-                                                    <label class="custom-control-label" for="switch7">vfos_AssetA_1</label>
+                                                    <label class="custom-control-label" for="switch7">vfos_aim_1</label>
                                                 </div>
 
                                                 <div class="custom-control custom-switch">
                                                     <input type="checkbox" class="custom-control-input" id="switch8" name="example">
-                                                    <label class="custom-control-label" for="switch8">vfos_AssetC_1</label>
+                                                    <label class="custom-control-label" for="switch8">vfos_portal_1</label>
                                                 </div>
 
                                                 <div class="custom-control custom-switch">
                                                     <input type="checkbox" class="custom-control-input" id="switch9" name="example">
-                                                    <label class="custom-control-label" for="switch9">vfos_che_1</label>
+                                                    <label class="custom-control-label" for="switch9">vfos_	dashboard_1</label>
                                                 </div>
 
                                             </div>
                                             <p>2 Containers selected.</p>
 
-                                            <button type="submit" class="btn btn-primary">Remove</button>
-
+                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#operationsModal">Remove</button>
                                         </form>
 
                                     </div>
