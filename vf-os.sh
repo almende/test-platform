@@ -177,6 +177,43 @@ services:
     labels:
       - vf-OS=true
       - vf-OS.frontendUri=localhost:8081/
+      - "traefik.enable=true"
+      - "traefik.frontend.entryPoints=che"
+  frontend_editor:
+    image: gklasen/vfos_frontend_editor:v1
+    restart: "unless-stopped"
+    labels:
+      - "traefik.main.frontend.rule=PathPrefixStrip:/frontend_editor"
+      - "traefik.main.port=8082"
+      - "traefik.iframe.frontend.rule=PathPrefixStrip:/frontend_iframe"
+      - "traefik.iframe.port=4200"
+    networks:
+      - execution-manager-net
+  processapi:
+    image: informationcatalyst/vfos-process-api
+    hostname: processapi
+    labels:
+      - vf-OS=true
+      - "traefik.frontend.rule=PathPrefixStrip:/processapi"
+    environment:
+      RUN_TYPE: "processapi"
+      CorsOrigins: "*"
+      StorageType: "remote"
+      RemoteStorageSettings__Address: "https://icemain2.hopto.org:7080"
+      MarketplaceSettings__Address: "https://vfos-datahub.ascora.de/v1"
+      StudioSettings__Address: "http://172.17.0.1:8081/"
+  processdesigner:
+    image: informationcatalyst/vfos-process-designer
+    hostname: processdesigner
+    labels:
+      - vf-OS=true
+      - "traefik.frontend.rule=PathPrefixStrip:/processdesigner"
+    environment:
+      RUN_TYPE: "processdesigner"
+      API_END_POINT: "http://localhost/processapi/"
+    depends_on:
+      - processapi
+
 EOF
 
 #Setup basic network configuration

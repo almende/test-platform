@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Building tools for the platform",
   "author": "Luis F.M. <luis@almende.org>",
+  "license": "Apache 2.0",
   "dependencies": {
     "axios": "^0.18.0",
     "buffer-crc32": "^0.2.13",
