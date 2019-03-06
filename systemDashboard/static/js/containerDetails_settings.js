@@ -1,16 +1,16 @@
 /**
  * Created by luis.
  */
+$(document).ready(function () {
 
-$(document).ready(function() {
+    $('.nav-tabs a[href="#containerDetails_settings"]').on('shown.bs.tab', function (event) {
 
-  $('.nav-tabs a[href="#containerDetails_settings"]').on('shown.bs.tab', function(event){
+        console.log('I DID OPEN #containerDetails_settings')
+        // Resize iframe
+        var iframe_id = 'settings_iframe'
+        resizeIFrameToFitContent(iframe_id)
+    })
 
-    console.log("I DID OPEN #containerDetails_settings");
-    // Resize iframe
-    resizeIFrameToFitContent($("#settings_iframe"));
-  });
+    //$('.nav-tabs a[href="#containerDetails_settings"]').on('hide.bs.tab', function(event){ });
 
-  //$('.nav-tabs a[href="#containerDetails_settings"]').on('hide.bs.tab', function(event){ });
-
-});
+})

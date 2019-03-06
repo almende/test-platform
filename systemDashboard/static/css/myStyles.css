@@ -45,18 +45,15 @@ body{
   width: 120px;
 }
 
-/*Removes underline on links
-!!Not working yet!!
-
-.collapseMenuBar{
-  text-decoration:none;
-}
-style="text-decoration:none"
-*/
-
 /* Creates a small space between nav-bar and body */
 .boxBody .rowBody.contentBody .container-fluid {
   margin-top: 10px;
+}
+
+#uninstallList{
+  max-height: 250px;
+  overflow: hidden;
+  overflow-y: scroll;
 }
 
 #progressBar{

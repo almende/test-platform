@@ -56,7 +56,9 @@
                 $("#userMenu").show();
 
                 // Show containers info
-                $("#runningVAssets, #notRunningVAssets, #otherContainers").show();
+                //$("#runningVAssets, #notRunningVAssets, #otherContainers").show();
+                $("#allBodyContent").show();
+
                 loadingBar();
 
                 // Start timer to update containers info
@@ -70,9 +72,10 @@
                 document.getElementById('username').innerHTML = "";
                 $("#login").show();
 
-
+                //style="display: none;"
                 // Hide containers info
-                $("#runningVAssets, #notRunningVAssets, #otherContainers").hide();
+                //$("#runningVAssets, #notRunningVAssets, #otherContainers").hide();
+                $("#allBodyContent").hide();
                 clearInterval(updateStatsHistory_timer);
             }
 
@@ -132,11 +135,169 @@
         <div class="rowBody contentBody">
             <div class="container-fluid">
 
-                <div class="row" >
+                <div id="allBodyContent" class="row" style="display: none;">
+
+                    <!-- Modal for Operations -->
+                    <div class="modal fade" id="operationsModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" >Operation</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Are you sure you want to continue with this operation?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <a id="installButton" href="#" type="button" class="btn btn-primary" target="">Continue</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div id="operations" class="col-sm-12">
+
+                        <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_operations" role="button" aria-expanded="true" aria-controls="wrapperCollapse_operations" style="text-decoration:none" onclick="collapseChangeIcon(this)">
+                            <div class="btn btn-light btn-block text-left mb-1">
+                                        <span>
+                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+                                                <path class="collapseIconPath" d="M12 30 L24 16 12 2" />
+                                            </svg>
+                                        </span>
+                                <span> Operations</span>
+                            </div>
+                        </a>
+
+                        <div id="wrapperCollapse_operations" class="collapse">
+                            <div id="" class="border shadow p-2 mb-2 bg-white">
+
+                                <!-- Nav pills -->
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a id="linkTo_installations" class="nav-link active" data-toggle="tab" href="#installations">
+                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                <path d="M28 22 L28 30 4 30 4 22 M16 4 L16 24 M8 16 L16 24 24 16" />
+                                            </svg>
+                                            Install
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a id="linkTo_uninstallations" class="nav-link" data-toggle="tab" href="#uninstallations">
+                                            <svg id="i-activity" viewBox="0 0 32 32" width="13" height="13" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                <path d="M28 6 L6 6 8 30 24 30 26 6 4 6 M16 12 L16 24 M21 12 L20 24 M11 12 L12 24 M12 6 L13 2 19 2 20 6" />
+                                            </svg>
+                                            Remove
+                                        </a>
+                                    </li>
+                                </ul>
+
+                                <!-- Tab panes -->
+                                <div class="tab-content">
+                                    <!-- Tab installations -->
+                                    <div id="installations" class="tab-pane active">
+                                        <form action="">
+                                            <div class="form-group">
+                                                <label for="urlForm">URL:</label>
+                                                <input type="url" class="form-control" id="urlForm">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="tokenForm">Token:</label>
+                                                <input type="text" class="form-control" id="tokenForm">
+                                            </div>
+                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#operationsModal">Install</button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Tab uninstallations -->
+                                    <div id="uninstallations" class="tab-pane fade">
+
+
+
+                                        <div class="d-flex align-items-center clearfix">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" id="checkboxAllRemove" name="example">
+                                                <label class="custom-control-label" for="checkboxAllRemove">All</label>
+                                            </div>
+                                            <button type="button" class="btn btn-outline-primary float-left btn-sm ml-2">
+                                                <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                                    <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        List of containers to be removed:
+                                        <form id="uninstallationForm" action="">
+
+                                            <div id="uninstallList" class="border p-2">
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="switch1" name="example">
+                                                    <label class="custom-control-label" for="switch1">vfos_AssetA_1</label>
+                                                </div>
+
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="switch2" name="example">
+                                                    <label class="custom-control-label" for="switch2">vfos_AssetC_1</label>
+                                                </div>
+
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="switch3" name="example">
+                                                    <label class="custom-control-label" for="switch3">vfos_che_1</label>
+                                                </div>
+
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="switch4" name="example">
+                                                    <label class="custom-control-label" for="switch4">vfos_deployment_1</label>
+                                                </div>
+
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="switch5" name="example">
+                                                    <label class="custom-control-label" for="switch5">vfos_testserver_1</label>
+                                                </div>
+
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="switch6" name="example">
+                                                    <label class="custom-control-label" for="switch6">vfos_execution-manager_1</label>
+                                                </div>
+
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="switch7" name="example">
+                                                    <label class="custom-control-label" for="switch7">vfos_aim_1</label>
+                                                </div>
+
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="switch8" name="example">
+                                                    <label class="custom-control-label" for="switch8">vfos_portal_1</label>
+                                                </div>
+
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="switch9" name="example">
+                                                    <label class="custom-control-label" for="switch9">vfos_	dashboard_1</label>
+                                                </div>
+
+                                            </div>
+                                            <p>2 Containers selected.</p>
+
+                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#operationsModal">Remove</button>
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
+                    </div>
 
                     <div id="allTables" class="col-sm-12">
 
-                            <div id="runningVAssets" class="border shadow p-2 mb-2 bg-white" style="display: none;">
+                            <div id="runningVAssets" class="border shadow p-2 mb-2 bg-white" >
 
                                 <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_runningVAssets" role="button" aria-expanded="true" aria-controls="wrapperCollapse_runningContainers" style="text-decoration:none" onclick="collapseChangeIcon(this)">
                                     <div class="btn btn-info btn-block text-left mb-1">
@@ -193,8 +354,7 @@
 
                             </div>
 
-
-                            <div id="notRunningVAssets" class="border shadow p-2 mb-2 bg-white" style="display: none;">
+                            <div id="notRunningVAssets" class="border shadow p-2 mb-2 bg-white">
 
                                 <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_notRunningVAssets" role="button" aria-expanded="true" aria-controls="wrapperCollapse_notRunningVAssets" style="text-decoration:none" onclick="collapseChangeIcon(this)">
                                     <div class="btn btn-info btn-block text-left mb-1">
@@ -230,8 +390,7 @@
                                 </div>
                             </div>
 
-
-                            <div id="otherContainers" class="border shadow p-2 mb-2 bg-white" style="display: none;">
+                            <div id="otherContainers" class="border shadow p-2 mb-2 bg-white">
 
                                 <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_otherContainers" role="button" aria-expanded="true" aria-controls="wrapperCollapse_otherContainers" style="text-decoration:none" onclick="collapseChangeIcon(this)">
                                     <div class="btn btn-info btn-block text-left mb-1">
@@ -326,7 +485,6 @@
                                         Settings
                                     </a>
                                 </li>
-
                                 <li class="nav-item">
                                     <a id="linkToDetails_labels" class="nav-link" data-toggle="tab" href="#containerDetails_labels">
                                         <svg id="i-settings" viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
@@ -454,6 +612,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -469,7 +628,6 @@
 
 
     <script>
-
         $(document).ready(function(){
 
             if(keycloak.authenticated){
@@ -479,51 +637,9 @@
             }
 
         });
-
-        function loadingBar(){
-            var $progressBar = $('#progressBar');
-
-            var progress = 0;      // initial value of your progress bar
-            var timeout = 200;      // number of milliseconds between each frame
-            var increment = 10;    // increment for each frame
-            var maxprogress = 110; // when to leave stop running the animation
-
-            function animate() {
-                setTimeout(function () {
-
-                    if($("#progressBar").length !== 0){
-                        progress += increment;
-                        if(progress < maxprogress) {
-                            //$progressBar.attr('value', progress);
-                            $progressBar.attr('aria-valuenow', progress);
-                            $progressBar.width(progress + "%");
-                            //$progressBar.text(progress + "%");
-                            animate();
-                        }
-                    }
-
-                }, timeout);
-            }
-            animate();
-        }
-
-        function collapseChangeIcon(thisElem){
-
-            var dRight = "M12 30 L24 16 12 2",
-                dBottom = "M30 12 L16 24 2 12";
-
-            var icon = $(thisElem).find(".collapseIconPath");
-            var iconText = $(icon).attr("d");
-
-            if(iconText === dRight){
-                $(icon).attr("d", dBottom);
-            }else{
-                $(icon).attr("d", dRight);
-            }
-        }
-
     </script>
-    
+
+    <script src="js/views.js"></script>
     <script src="js/updateStatsHistory.js"></script>
 
     <script src="js/containerDetails_app.js"></script>
@@ -531,9 +647,6 @@
     <script src="js/containerDetails_logs.js"></script>
     <script src="js/containerDetails_settings.js"></script>
     <script src="js/containerDetails_labels.js"></script>
-
-
-    <script src="js/loadModules.js"></script>
 
 
 </body>

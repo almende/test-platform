@@ -2,8 +2,6 @@
  * Created by luis on 17-7-18.
  */
 
-var detailsContainerName;   // name of the container that is currently open for details view. Updated onClick event.
-
 // Define all graph2ds
 var graph2dCpu,
     graph2dMemPerc,
@@ -206,90 +204,6 @@ $(document).ready(function(){
 
 });
 
-function changeDetailsView(containerName) {
-
-    // where is containerName
-    var location;
-    if (historyDB.runningVAssets.hasOwnProperty(containerName)) {
-        location = historyDB.runningVAssets;
-    } else if (historyDB.notRunningVAssets.hasOwnProperty(containerName)) {
-        location = historyDB.notRunningVAssets;
-    } else if (historyDB.otherContainers.hasOwnProperty(containerName)){
-        location = historyDB.otherContainers;
-    } else {
-        console.log("ERROR: containerName not found!")
-        return;
-    }
-
-    // ---- App nav ----
-    var iFrame_id = "app_iframe",
-        label_uri = "vf-OS.backendUri",
-        notFound_url = "apps/containerApp/containerAppNotFound.html";
-
-    loadIframe(containerName, iFrame_id, label_uri, notFound_url);
-
-    // ---- Stats nav ----
-    // Change datasets
-    detailsContainerName = containerName; // write the name of the container
-    graph2dCpu.setItems(location[containerName].cpu);
-    graph2dMemPerc.setItems(location[containerName].mem.memPerc);
-
-    graph2dMemUsage.setItems(location[containerName].mem.memUsage.dataset);
-
-    graph2dNetIO.setItems(location[containerName].netIO.dataset);
-    graph2dBlockIO.setItems(location[containerName].blockIO.dataset);
-
-    // ---- Logs nav ----
-    // If log view is opened update it
-    if($("#linkToDetails_logs").hasClass("active") && $("#linkToDetails_logs").hasClass("show")){
-        updateLogs();
-
-        setTimeout(function(){
-            var objDiv = document.getElementById("logWindow");
-            objDiv.scrollTop = objDiv.scrollHeight;
-        }, 100);
-    }
-
-    // ---- Config nav ----
-    var iFrame_id = "settings_iframe",
-        label_uri = "vf-OS.configurationUri",
-        notFound_url = "apps/containerSettings/containerSettingsNotFound.html";
-
-    loadIframe(containerName, iFrame_id, label_uri, notFound_url);
-
-    // ---- Labels nav ----
-    updateLabels(containerName);
-
-    // --------------------
-}
-
-function loadIframe(containerName, iFrame_id, label_uri, notFound_url){
-
-    var iFrame_default = notFound_url;
-
-    // Find asset info
-    for(let i = 0; i < assetsData.length; i++){
-        // if asset is found and If label exist
-        if( (assetsData[i].name === containerName) &&
-            (typeof assetsData[i].labels[label_uri] != "undefined")){
-                iFrame_default = assetsData[i].labels[label_uri];       // get backend uri
-            break;
-        }
-    }
-
-    // Change iframe url
-    $("#" + iFrame_id).attr("src", iFrame_default);
-
-    // Resize iframe
-    var iFrame = $("#" + iFrame_id);
-    resizeIFrameToFitContent(iFrame);
-}
-
-function resizeIFrameToFitContent( elemt ) {
-    var iFrame = $(elemt);
-    iFrame.height(iFrame.contents().height());  // Maybe I should define a minimum value
-}
-
 function renderStep(graph, strategy, DELAY) {
 
     // move the window (you can think of different strategies).
@@ -311,3 +225,5 @@ function renderStep(graph, strategy, DELAY) {
             break;
     }
 }
+
+
