@@ -183,10 +183,10 @@ services:
     image: gklasen/vfos_frontend_editor:v1
     restart: "unless-stopped"
     labels:
-      - "traefik.main.frontend.rule=PathPrefixStrip:/frontend_editor"
-      - "traefik.main.port=8082"
-      - "traefik.iframe.frontend.rule=PathPrefixStrip:/frontend_iframe"
-      - "traefik.iframe.port=4200"
+      - "traefik.main.frontend.rule=PathPrefix:/frontend_editor"
+      - "traefik.main.port=80"
+      - "traefik.iframe.frontend.rule=PathPrefix:/frontend_iframe"
+      - "traefik.iframe.port=80"
     networks:
       - execution-manager-net
   processapi:
@@ -247,6 +247,7 @@ EOF
 chmod +x .compose/$DOCKER_COMPOSE_ALIAS
 COMPOSE_OPTIONS="$COMPOSE_OPTIONS -e PATH=.:/compose:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 VOLUMES="-v $CURRENT_DIR/.compose:/compose"
+
 docker run --detach --name vf_os_platform_exec_control --rm $DOCKER_RUN_OPTIONS $DOCKER_ADDR $COMPOSE_OPTIONS $VOLUMES vfos/control &
 
 until `docker ps | grep -q "vf_os_platform_exec_control"` && [ "`docker inspect -f {{.State.Running}} vf_os_platform_exec_control`"=="true" ]; do
