@@ -160,7 +160,7 @@ services:
     networks:
       - execution-manager-net
   che:
-    image: hub.caixamagica.pt/vfos/studio:latest
+    image: hub.caixamagica.pt/vfos/studio:nightly
     restart: "unless-stopped"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -186,7 +186,7 @@ services:
       - "traefik.main.frontend.rule=PathPrefix:/frontend_editor"
       - "traefik.main.port=80"
       - "traefik.iframe.frontend.rule=PathPrefix:/frontend_iframe"
-      - "traefik.iframe.port=80"
+      - "traefik.iframe.port=4201"
     networks:
       - execution-manager-net
   processapi:
@@ -195,13 +195,14 @@ services:
     labels:
       - vf-OS=true
       - "traefik.frontend.rule=PathPrefixStrip:/processapi"
+      - "traefik.main.port=5000"
     environment:
-      RUN_TYPE: "processapi"
-      CorsOrigins: "*"
-      StorageType: "remote"
-      RemoteStorageSettings__Address: "https://icemain2.hopto.org:7080"
-      MarketplaceSettings__Address: "https://vfos-datahub.ascora.de/v1"
-      StudioSettings__Address: "http://172.17.0.1:8081/"
+      - RUN_TYPE=processapi
+      - CorsOrigins=*
+      - StorageType=remote
+      - RemoteStorageSettings__Address=https://icemain2.hopto.org:7080
+      - MarketplaceSettings__Address=https://vfos-datahub.ascora.de/v1
+      - StudioSettings__Address=http://172.17.0.1:8081/
   processdesigner:
     image: informationcatalyst/vfos-process-designer
     hostname: processdesigner
@@ -209,8 +210,8 @@ services:
       - vf-OS=true
       - "traefik.frontend.rule=PathPrefixStrip:/processdesigner"
     environment:
-      RUN_TYPE: "processdesigner"
-      API_END_POINT: "http://localhost/processapi/"
+      - "RUN_TYPE=processdesigner"
+      - "API_END_POINT=http://localhost/processapi"
     depends_on:
       - processapi
 
