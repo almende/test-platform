@@ -70,23 +70,29 @@ const getPackagingRoutes = (app) => {
                 let labels = JSON.parse(stdout)
                 let shortName = assetName.replace(/^.*[\\\/]/, '')
                 let options = { 'zipfile': shortName + '.zip' }
-                if (labels['vf-OS.product_id']) {
-                  options['product_id'] = labels['vf-OS.product_id']
+                if (labels['vf-OS.market.product']) {
+                  options['product_id'] = labels['vf-OS.market.product']
                 }
-                if (labels['vf-OS.major']) {
-                  options['major'] = labels['vf-OS.major']
+                if (labels['vf-OS.version.product']) {
+                  options['product_id'] = labels['vf-OS.version.product']
                 }
-                if (labels['vf-OS.version']) {
-                  options['version'] = labels['vf-OS.version']
+                if (labels['vf-OS.version.major']) {
+                  options['major'] = labels['vf-OS.version.major']
                 }
-                if (labels['vf-OS.category']) {
-                  options['category'] = labels['vf-OS.category']
+                if (labels['vf-OS.version.version']) {
+                  options['version'] = labels['vf-OS.version.version']
                 }
-                if (labels['vf-OS.price_info_eur']) {
-                  options['price_info_eur'] = labels['vf-OS.price_info_eur']
+                if (labels['vf-OS.market.category']) {
+                  options['category'] = labels['vf-OS.market.category']
                 }
-                if (labels['vf-OS.maxChunkSizeMB']) {
-                  options['maxChunkSizeMB'] = labels['vf-OS.maxChunkSizeMB']
+                if (labels['vf-OS.market.price']) {
+                  options['price_info_eur'] = labels['vf-OS.market.price']
+                }
+                if (labels['vf-OS.version.price']) {
+                  options['price_info_eur'] = labels['vf-OS.version.price']
+                }
+                if (labels['vf-OS.market.maxChunkSizeMB']) {
+                  options['maxChunkSizeMB'] = labels['vf-OS.market.maxChunkSizeMB']
                 }
                 if (labels['vf-OS.name']) {
                   options['product_names_en-us'] = labels['vf-OS.name']
