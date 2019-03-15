@@ -38,13 +38,14 @@ const uploader = (options) => {
   })
 }
 let status = 'idle'
+let productId = 0
 
 const getPackagingRoutes = (app) => {
   const router = new Router()
 
   router
     .get('/', (req, res) => {
-      res.send('status:' + status)
+      res.send({ status: status, product_id: productId })
     })
     .post('/*', (req, res, next) => {
       let path = req.params[0]
@@ -76,6 +77,7 @@ const getPackagingRoutes = (app) => {
                 if (labels['vf-OS.version.product']) {
                   options['product_id'] = labels['vf-OS.version.product']
                 }
+                productId = options['product_id']
                 if (labels['vf-OS.version.major']) {
                   options['major'] = labels['vf-OS.version.major']
                 }
@@ -98,9 +100,15 @@ const getPackagingRoutes = (app) => {
                   options['product_names_en-us'] = labels['vf-OS.name']
                 }
                 options['access_token'] = req.query.access_token
+                status = 'uploading, config:' + JSON.stringify(options)
                 uploader(options).then((result) => {
                   status = 'done'
-                  res.send(result)
+                  let reply = {
+                    'result': result,
+                    'product_id': productId,
+                    'options': options
+                  }
+                  res.send(reply)
                 }).catch((err) => {
                   next(err)
                 })
