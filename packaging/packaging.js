@@ -2,6 +2,7 @@
 
 const Router = require('express')
 const exec = require('child_process').exec
+const uuidv1 = require('uuid/v1')
 
 const dockerBuild = (path, imageName) => {
   return new Promise((resolve, reject) => {
@@ -37,15 +38,97 @@ const uploader = (options) => {
     })
   })
 }
-let status = 'idle'
-let productId = 0
+let active = {}
+let finished = []
+
+function handleRun (run, accessToken) {
+  dockerBuild(run.path, run.assetName).then((result) => {
+    run.status = 'packaging'
+    label2manifest(run.assetName, run.additionalImages).then((result) => {
+      run.status = 'uploading'
+      // Pull labels from image
+      exec('/usr/src/app/dumpLabels.js ' + run.assetName, (error, stdout, stderr) => {
+        if (error) {
+          console.log(error)
+          run['error'] = JSON.stringify(error)
+        } else {
+          // Use labels to generate config
+          let labels = JSON.parse(stdout)
+          let shortName = run.assetName.replace(/^.*[\\\/]/, '')
+          let options = { 'zipfile': shortName + '.zip' }
+          if (labels['vf-OS.market.product']) {
+            options['product_id'] = labels['vf-OS.market.product']
+          }
+          if (labels['vf-OS.version.product']) {
+            options['product_id'] = labels['vf-OS.version.product']
+          }
+          run['productId'] = options['product_id']
+          if (labels['vf-OS.version.major']) {
+            options['major'] = labels['vf-OS.version.major']
+          }
+          if (labels['vf-OS.version.version']) {
+            options['version'] = labels['vf-OS.version.version']
+          }
+          if (labels['vf-OS.market.category']) {
+            options['category'] = labels['vf-OS.market.category']
+          }
+          if (labels['vf-OS.market.price']) {
+            options['price_info_eur'] = labels['vf-OS.market.price']
+          }
+          if (labels['vf-OS.version.price']) {
+            options['price_info_eur'] = labels['vf-OS.version.price']
+          }
+          if (labels['vf-OS.market.maxChunkSizeMB']) {
+            options['maxChunkSizeMB'] = labels['vf-OS.market.maxChunkSizeMB']
+          }
+          if (labels['vf-OS.name']) {
+            options['product_names_en-us'] = labels['vf-OS.name']
+          }
+          options['access_token'] = accessToken
+          run['config'] = JSON.stringify(options)
+          run.status = 'uploading'
+          uploader(options).then((result) => {
+            run.status = 'done'
+            delete active[run.uuid]
+            finished.push(run)
+            if (finished.length > 5) {
+              finished.shift()
+            }
+          }).catch((err) => {
+            console.log(err)
+            run['error'] = JSON.stringify(err)
+          })
+        }
+      })
+    }).catch((err) => {
+      console.log(err)
+      run['error'] = JSON.stringify(err)
+    })
+  }).catch((err) => {
+    console.log(err)
+    run['error'] = JSON.stringify(err)
+  })
+}
 
 const getPackagingRoutes = (app) => {
   const router = new Router()
 
   router
     .get('/', (req, res) => {
-      res.send({ status: status, product_id: productId })
+      res.send({ active: active, finished: finished })
+    })
+    .get('/:id', (req, res) => {
+      let result = {}
+      if (active[req.params.id]) {
+        result = active[req.params.id]
+      } else {
+        finished.map((item) => {
+          if (item.uuid === req.params.id) {
+            result = item
+          }
+        })
+      }
+      res.send(result)
     })
     .post('/*', (req, res, next) => {
       let path = req.params[0]
@@ -57,69 +140,17 @@ const getPackagingRoutes = (app) => {
         if (!assetName) {
           assetName = path
         }
-        status = 'building'
-        dockerBuild(path, assetName).then((result) => {
-          status = 'packaging'
-          label2manifest(assetName, req.query.additionalImages).then((result) => {
-            status = 'uploading'
-            // Pull labels from image
-            exec('/usr/src/app/dumpLabels.js ' + assetName, (error, stdout, stderr) => {
-              if (error) {
-                next(error)
-              } else {
-                // Use labels to generate config
-                let labels = JSON.parse(stdout)
-                let shortName = assetName.replace(/^.*[\\\/]/, '')
-                let options = { 'zipfile': shortName + '.zip' }
-                if (labels['vf-OS.market.product']) {
-                  options['product_id'] = labels['vf-OS.market.product']
-                }
-                if (labels['vf-OS.version.product']) {
-                  options['product_id'] = labels['vf-OS.version.product']
-                }
-                productId = options['product_id']
-                if (labels['vf-OS.version.major']) {
-                  options['major'] = labels['vf-OS.version.major']
-                }
-                if (labels['vf-OS.version.version']) {
-                  options['version'] = labels['vf-OS.version.version']
-                }
-                if (labels['vf-OS.market.category']) {
-                  options['category'] = labels['vf-OS.market.category']
-                }
-                if (labels['vf-OS.market.price']) {
-                  options['price_info_eur'] = labels['vf-OS.market.price']
-                }
-                if (labels['vf-OS.version.price']) {
-                  options['price_info_eur'] = labels['vf-OS.version.price']
-                }
-                if (labels['vf-OS.market.maxChunkSizeMB']) {
-                  options['maxChunkSizeMB'] = labels['vf-OS.market.maxChunkSizeMB']
-                }
-                if (labels['vf-OS.name']) {
-                  options['product_names_en-us'] = labels['vf-OS.name']
-                }
-                options['access_token'] = req.query.access_token
-                status = 'uploading, config:' + JSON.stringify(options)
-                uploader(options).then((result) => {
-                  status = 'done'
-                  let reply = {
-                    'result': result,
-                    'product_id': productId,
-                    'options': options
-                  }
-                  res.send(reply)
-                }).catch((err) => {
-                  next(err)
-                })
-              }
-            })
-          }).catch((err) => {
-            next(err)
-          })
-        }).catch((err) => {
-          next(err)
-        })
+
+        let run = {
+          status: 'building',
+          uuid: uuidv1(),
+          assetName: assetName,
+          path: path,
+          additionalImages: req.query.additionalImages
+        }
+        active[run.uuid] = run
+        res.send(run)
+        setTimeout(handleRun.bind(this, run, req.query.access_token), 0)
       }
     })
   app.use('/rest', router)
