@@ -180,7 +180,7 @@ services:
       - "traefik.enable=true"
       - "traefik.frontend.entryPoints=che"
   frontend_editor:
-    image: gklasen/vfos_frontend_editor:v1
+    image: gklasen/vfos_frontend_editor:latest
     restart: "unless-stopped"
     labels:
       - "traefik.main.frontend.rule=PathPrefix:/frontend_editor"
