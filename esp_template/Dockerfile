@@ -16,4 +16,5 @@ LABEL vf-OS.restUri="/vf-OS_external_service_template_client/rest/"
 
 LABEL vf-OS.compose.0.volume.0="/persist"
 
+
 CMD ["npm", "start"]
