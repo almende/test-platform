@@ -4,6 +4,7 @@ const downloader = require('download')
 const fs = require('fs-extra')
 const exec = require('child_process').exec
 const http = require('http')
+const axios = require('axios')
 
 class Download {
   constructor (id, url) {
@@ -13,7 +14,7 @@ class Download {
     this.progress = {}
 
     this.updateStatus()
-    setInterval(this.proceed.bind(this), 2000)
+    setInterval(this.proceed.bind(this), 5000)
   };
 
   proceed () {
@@ -21,6 +22,9 @@ class Download {
     switch (this.status) {
       case 'Initial':
         setTimeout(this.download.bind(this), 0)
+        break
+      case 'ToQuarantine':
+        setTimeout(this.quarantine.bind(this), 0)
         break
       case 'Installable':
         setTimeout(this.install.bind(this), 0)
@@ -46,9 +50,9 @@ class Download {
     }
     try {
       if (await this.testRegistry()) {
-        this.status = 'Done'
-      } else {
         this.status = 'Installable'
+      } else {
+        this.status = 'ToQuarantine'
       }
     } catch (err) { console.error('failed to check registry', err) }
 
@@ -84,19 +88,35 @@ class Download {
     } catch (error) {}
   }
 
-  install () {
+  quarantine () {
     let me = this
-    me.status = 'Installing'
+    me.status = 'Push2quarantine'
     // Upload image to Registry: tag with registry:5000/assetName
     return new Promise((resolve, reject) => {
       exec('/usr/src/app/manifest2label.js /usr/src/app/downloads/' + me.id + '.download.zip false true registry', (error, stdout, stderr) => {
         if (!error) {
-          me.status = 'Done'
+          me.status = 'Installable'
           resolve(stdout)
         } else {
           reject(error, stderr)
         }
       })
+    })
+  }
+
+  install () {
+    let me = this
+    axios({
+      url: 'http://reverse-proxy/executionservices/assets/',
+      method: 'put',
+      data: { 'id': me.id, 'imageId': 'localhost:5000/' + me.id }
+    }).then((response) => {
+      me.status = 'Done'
+    }).catch((error) => {
+      console.log(error)
+      if (error.response && error.response.data) {
+        console.log(JSON.stringify(error.response.data))
+      }
     })
   }
 }

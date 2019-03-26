@@ -110,6 +110,7 @@ services:
     restart: "unless-stopped"
     depends_on:
       - registry
+      - execution-manager
     privileged: true
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/deployment"
@@ -161,6 +162,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - $CURRENT_DIR/.compose:/var/run/compose
       - $CURRENT_DIR/.persist/che_data:/data
+    depends_on:
+      - registry
+      - execution-manager
     networks:
       - execution-manager-net
   che:
