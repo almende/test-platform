@@ -8,13 +8,16 @@ const uuidv1 = require('uuid/v1')
 const getDeploymentRoutes = (app) => {
   const router = new Router()
   storage.init({ 'dir': '/persist/deploymentRoutes' }).then(async () => {
+    let save = async function () {
+      await storage.setItem('downloads', downloads)
+    }
     let downloads = await storage.getItem('downloads')
     if (downloads == null) {
       downloads = []
       await storage.setItem('downloads', downloads)
     } else {
       downloads = downloads.map((entry) => {
-        return Download.reconstruct(entry)
+        return Download.reconstruct(entry, save)
       })
     }
     router
@@ -36,7 +39,7 @@ const getDeploymentRoutes = (app) => {
         // Create download, start
         let data = req.body
         try {
-          let download = new Download(uuidv1(), data.id, data.url)
+          let download = new Download(uuidv1(), data.id, data.url, save)
           downloads.push(download)
           res.send(JSON.stringify(download))
           await storage.setItem('downloads', downloads)

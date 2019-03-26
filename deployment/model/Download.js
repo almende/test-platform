@@ -7,14 +7,17 @@ const http = require('http')
 const axios = require('axios')
 
 class Download {
-  constructor (uuid, id, url) {
+  constructor (uuid, id, url, save) {
     this.uuid = uuid
     this.id = id
     this.url = url
     this.status = 'Initial'
     this.progress = {}
 
+    this.save = save
+
     this.updateStatus()
+    this.save()
     setInterval(this.proceed.bind(this), 5000)
   };
 
@@ -88,7 +91,9 @@ class Download {
               if (manifest.binaryFile) {
                 me.id = manifest.binaryFile
               }
-              me.status = 'Installable'
+              me.status = 'ToQuarantine'
+              me.save()
+              console.log(me, me.save)
             } else {
               console.log(error, stderr)
             }
@@ -112,7 +117,10 @@ class Download {
     return new Promise((resolve, reject) => {
       exec('/usr/src/app/manifest2label.js /usr/src/app/downloads/' + me.uuid + '.download.zip false true registry', (error, stdout, stderr) => {
         if (!error) {
+          // TODO: introduce recursive dependencies: Get dependencies and create new downloads with the productIds
+          // Check config
           me.status = 'Installable'
+          me.save()
           resolve(stdout)
         } else {
           reject(error, stderr)
@@ -130,6 +138,7 @@ class Download {
       data: { 'id': me.id, 'imageId': 'localhost:5000/' + me.id }
     }).then((response) => {
       me.status = 'Done'
+      me.save()
     }).catch((error) => {
       console.log(error)
       if (error.response && error.response.data) {
@@ -139,8 +148,8 @@ class Download {
   }
 }
 
-Download.reconstruct = function (obj) {
-  return new Download(obj.uuid, obj.id, obj.url)
+Download.reconstruct = function (obj, save) {
+  return new Download(obj.uuid, obj.id, obj.url, save)
 }
 
 module.exports = Download
