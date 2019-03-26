@@ -154,8 +154,12 @@ services:
     restart: "unless-stopped"
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/packaging"
+    environment:
+      - DOCKER_COMPOSE_PATH=/var/run/compose
+      - HOST_PWD=$CURRENT_DIR
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - $CURRENT_DIR/.compose:/var/run/compose
       - $CURRENT_DIR/.persist/che_data:/data
     networks:
       - execution-manager-net
@@ -214,6 +218,22 @@ services:
       - "API_END_POINT=http://localhost/processapi"
     depends_on:
       - processapi
+  idm:
+    image: vfos/idm
+    hostname: idm
+    environment:
+      - IDM_DB_HOST=security_mysql
+    depends_on:
+      - security_mysql
+    networks:
+      - execution-manager-net
+  security_mysql:
+    image: mysql:5.7.23
+    hostname: security_mysql
+    volumes:
+      - $CURRENT_DIR/security/mysql/data:/var/lib/mysql
+    networks:
+      - execution-manager-net
 
 EOF
 

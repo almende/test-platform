@@ -60,7 +60,20 @@ cd ..
 docker build . -t vfos/messaging
 docker tag vfos/messaging localhost:5000/vfos/messaging
 docker push localhost:5000/vfos/messaging
+
+
+cd ../security
+cd pap
+docker build . -t vfos/idm
+docker tag vfos/idm localhost:5000/vfos/idm
+docker push localhost:5000/vfos/idm
+
+cd ../pep
+docker build . -t vfos/pep
+docker tag vfos/pep localhost:5000/vfos/pep
+docker push localhost:5000/vfos/pep
 cd ..
 
+cd ..
 ./installAsset.js localhost:5000/vfos/messaging false
 ./stop.sh
