@@ -7,7 +7,8 @@ const http = require('http')
 const axios = require('axios')
 
 class Download {
-  constructor (id, url) {
+  constructor (uuid, id, url) {
+    this.uuid = uuid
     this.id = id
     this.url = url
     this.status = 'Initial'
@@ -45,17 +46,18 @@ class Download {
 
   async updateStatus () {
     // Check status of files on fs and in register
-    if (fs.existsSync('/usr/src/app/downloads/' + this.id + '.download.zip')) {
+    if (fs.existsSync('/usr/src/app/downloads/' + this.uuid + '.download.zip')) {
       this.status = 'Downloaded'
     }
-    try {
-      if (await this.testRegistry()) {
-        this.status = 'Installable'
-      } else {
-        this.status = 'ToQuarantine'
-      }
-    } catch (err) { console.error('failed to check registry', err) }
-
+    if (this.id) {
+      try {
+        if (await this.testRegistry()) {
+          this.status = 'Installable'
+        } else {
+          this.status = 'ToQuarantine'
+        }
+      } catch (err) { console.error('failed to check registry', err) }
+    }
     setTimeout(this.proceed.bind(this), 0)
   }
 
@@ -66,7 +68,7 @@ class Download {
       me.status = 'Error'
       me.errorReport = { error: 'url undefined' }
     } else {
-      downloader(me.url, 'downloads', { 'filename': me.id + '.download.zip' })
+      downloader(me.url, 'downloads', { 'filename': me.uuid + '.download.zip' })
         .on('downloadProgress', progress => {
           me.progress = progress
         })
@@ -75,7 +77,22 @@ class Download {
           me.errorReport = { error: error, body: body, response: response }
         })
         .then(() => {
-          me.status = 'Installable'
+          // check the manifest file for the ID
+          exec('unzip -p downloads/' + me.uuid + '.download.zip manifest.json', (error, stdout, stderr) => {
+            if (!error) {
+              let manifest = JSON.parse(stdout)
+              if (manifest.name) {
+                me.id = manifest.name
+              }
+              // BinaryFile overrides:
+              if (manifest.binaryFile) {
+                me.id = manifest.binaryFile
+              }
+              me.status = 'Installable'
+            } else {
+              console.log(error, stderr)
+            }
+          })
         })
     }
   }
@@ -83,8 +100,8 @@ class Download {
   deleteLocal () {
     this.status = 'Deleted'
     try {
-      fs.removeSync('downloads/' + this.id + '.download.zip')
-      fs.removeSync('downloads/' + this.id + '.download.zip_unpacked')
+      fs.removeSync('downloads/' + this.uuid + '.download.zip')
+      fs.removeSync('downloads/' + this.uuid + '.download.zip_unpacked')
     } catch (error) {}
   }
 
@@ -93,7 +110,7 @@ class Download {
     me.status = 'Push2quarantine'
     // Upload image to Registry: tag with registry:5000/assetName
     return new Promise((resolve, reject) => {
-      exec('/usr/src/app/manifest2label.js /usr/src/app/downloads/' + me.id + '.download.zip false true registry', (error, stdout, stderr) => {
+      exec('/usr/src/app/manifest2label.js /usr/src/app/downloads/' + me.uuid + '.download.zip false true registry', (error, stdout, stderr) => {
         if (!error) {
           me.status = 'Installable'
           resolve(stdout)
@@ -106,6 +123,7 @@ class Download {
 
   install () {
     let me = this
+    // Note: this call depends on the zipfile having the same name as the assetName within.
     axios({
       url: 'http://reverse-proxy/executionservices/assets/',
       method: 'put',
@@ -122,7 +140,7 @@ class Download {
 }
 
 Download.reconstruct = function (obj) {
-  return new Download(obj.id, obj.url)
+  return new Download(obj.uuid, obj.id, obj.url)
 }
 
 module.exports = Download
