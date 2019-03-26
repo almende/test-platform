@@ -155,15 +155,15 @@ const getPackagingRoutes = (app) => {
     .post('/*', (req, res, next) => {
       let path = req.params[0]
       if (path) {
-        if (!req.query.access_token) {
-          next('query param: access_token missing: /path?access_token=ABCDEFG&assetName=someName&upload=true|false')
-        }
         let upload = true
         if (req.query.upload) {
           upload = Boolean.valueOf(req.query.upload)
           if (req.query.upload === 'false') {
             upload = false
           }
+        }
+        if (upload && !req.query.access_token) {
+          next('query param: access_token missing: /path?access_token=ABCDEFG&assetName=someName&upload=true|false')
         }
         let assetName = req.query.assetName
         if (!assetName) {
