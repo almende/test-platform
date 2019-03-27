@@ -26,6 +26,23 @@ function getOverrides (label) {
   return ''
 }
 
+function stringToBoolean (string) {
+  if (!string) return false
+  switch (string.toLowerCase().trim()) {
+    case 'true':
+    case 'yes':
+    case '1':
+      return true
+    case 'false':
+    case 'no':
+    case '0':
+    case null:
+      return false
+    default:
+      return Boolean(string)
+  }
+}
+
 new Promise((resolve, reject) => {
   if (dockerImage.includes(':')) {
     let pullCommand = 'docker pull ' + dockerImage
@@ -119,9 +136,6 @@ new Promise((resolve, reject) => {
             if (asset['traefikOverride']) {
               result[index]['traefikOverride'] = asset['traefikOverride']
             }
-            if (asset['urlprefixReplace']) {
-              result[index]['urlprefixReplace'] = asset['urlprefixReplace']
-            }
             if (asset['port']) {
               result[index]['labels'].push('traefik.port=' + asset['port'])
             }
@@ -140,7 +154,7 @@ new Promise((resolve, reject) => {
             res['labels'] = []
           }
           if (!res['traefikOverride']) {
-            if (!res['urlprefixReplace'] || res['urlprefixReplace']) {
+            if (!labels['urlprefixReplace'] || stringToBoolean(labels['urlprefixReplace'])) {
               res['labels'].push('traefik.frontend.rule=PathPrefix:/' + id + ';ReplacePathRegex: ^/' + id + '/(.*) /$$1')
             } else {
               res['labels'].push('traefik.frontend.rule=PathPrefix:/' + id)
