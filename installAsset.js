@@ -137,7 +137,11 @@ new Promise((resolve, reject) => {
             res['labels'] = []
           }
           if (!res['traefikOverride']) {
-            res['labels'].push('traefik.frontend.rule=PathPrefix:/' + id + ';ReplacePathRegex: ^/' + id + '/(.*) /$$1')
+            if (!res['urlprefixReplace'] || res['urlprefixReplace']) {
+              res['labels'].push('traefik.frontend.rule=PathPrefix:/' + id + ';ReplacePathRegex: ^/' + id + '/(.*) /$$1')
+            } else {
+              res['labels'].push('traefik.frontend.rule=PathPrefix:/' + id)
+            }
           } else {
             res['labels'].concat(getOverrides(res['traefikOverride']))
           }
