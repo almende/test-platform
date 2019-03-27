@@ -119,6 +119,9 @@ new Promise((resolve, reject) => {
             if (asset['traefikOverride']) {
               result[index]['traefikOverride'] = asset['traefikOverride']
             }
+            if (asset['urlprefixReplace']) {
+              result[index]['urlprefixReplace'] = asset['urlprefixReplace']
+            }
             if (asset['port']) {
               result[index]['labels'].push('traefik.port=' + asset['port'])
             }
