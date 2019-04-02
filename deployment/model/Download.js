@@ -3,7 +3,6 @@
 const downloader = require('download')
 const fs = require('fs-extra')
 const exec = require('child_process').exec
-const http = require('http')
 const axios = require('axios')
 
 class Download {
@@ -11,6 +10,7 @@ class Download {
     this.uuid = uuid
     this.id = id
     this.url = url
+    this.dependencies = null
     this.status = 'Initial'
     this.progress = {}
 
@@ -30,6 +30,9 @@ class Download {
       case 'ToQuarantine':
         setTimeout(this.quarantine.bind(this), 0)
         break
+      case 'CheckDeps':
+        setTimeout(this.handleDependencies.bind(this), 0)
+        break
       case 'Installable':
         setTimeout(this.install.bind(this), 0)
         break
@@ -40,27 +43,33 @@ class Download {
 
   testRegistry () {
     let me = this
-    return new Promise((resolve, reject) => {
-      http.request('http://registry:5000/v2/' + me.id + '/manifests/latest', { method: 'HEAD' }, (res) => {
-        resolve(res.statusCode === 200)
-      }).on('error', (e) => { reject(e) })
+    return axios({
+      url: 'http://registry:5000/v2/' + me.id + '/manifests/latest',
+      method: 'head'
     })
   }
 
   async updateStatus () {
     // Check status of files on fs and in register
+    console.log('UpdateStatus', this.status)
     if (fs.existsSync('/usr/src/app/downloads/' + this.uuid + '.download.zip')) {
       this.status = 'Downloaded'
     }
     if (this.id) {
+      console.log('Id known')
       try {
         if (await this.testRegistry()) {
-          this.status = 'Installable'
+          if (this.dependencies) {
+            this.status = 'Installable'
+          } else {
+            this.status = 'CheckDeps'
+          }
         } else {
           this.status = 'ToQuarantine'
         }
       } catch (err) { console.error('failed to check registry', err) }
     }
+    console.log('UpdateStatus done:', this.status)
     setTimeout(this.proceed.bind(this), 0)
   }
 
@@ -80,24 +89,30 @@ class Download {
           me.errorReport = { error: error, body: body, response: response }
         })
         .then(() => {
-          // check the manifest file for the ID
-          exec('unzip -p downloads/' + me.uuid + '.download.zip manifest.json', (error, stdout, stderr) => {
-            if (!error) {
-              let manifest = JSON.parse(stdout)
-              if (manifest.name) {
-                me.id = manifest.name
+          if (fs.existsSync('/usr/src/app/downloads/' + me.uuid + '.download.zip')) {
+            // check the manifest file for the ID
+            exec('unzip -p downloads/' + me.uuid + '.download.zip manifest.json', (error, stdout, stderr) => {
+              if (!error) {
+                let manifest = JSON.parse(stdout)
+                if (manifest.name) {
+                  me.id = manifest.name
+                }
+                // BinaryFile overrides:
+                if (manifest.binaryFile) {
+                  me.id = manifest.binaryFile
+                }
+                if (manifest.dependencies) {
+                  me.dependencies = typeof manifest['dependencies'] === 'string' ? JSON.parse(manifest['dependencies']) : manifest['dependencies']
+                }
+                me.status = 'ToQuarantine'
+                me.save()
+              } else {
+                console.log(error, stderr)
               }
-              // BinaryFile overrides:
-              if (manifest.binaryFile) {
-                me.id = manifest.binaryFile
-              }
-              me.status = 'ToQuarantine'
-              me.save()
-              console.log(me, me.save)
-            } else {
-              console.log(error, stderr)
-            }
-          })
+            })
+          } else {
+            me.status = 'Initial'
+          }
         })
     }
   }
@@ -117,15 +132,40 @@ class Download {
     return new Promise((resolve, reject) => {
       exec('/usr/src/app/manifest2label.js /usr/src/app/downloads/' + me.uuid + '.download.zip false true registry', (error, stdout, stderr) => {
         if (!error) {
-          // TODO: introduce recursive dependencies: Get dependencies and create new downloads with the productIds
-          // Check config
-          me.status = 'Installable'
+          if (!me.dependencies) {
+            me.status = 'CheckDeps'
+          } else {
+            me.status = 'Installable'
+          }
           me.save()
           resolve(stdout)
         } else {
           reject(error, stderr)
         }
       })
+    })
+  }
+
+  handleDependencies () {
+    let me = this
+    me.status = 'CheckingDeps'
+    let labelCommand = 'docker image inspect ' + me.id
+    console.log(me.status, 'checking:', labelCommand)
+    // TODO: introduce recursive dependencies: Get dependencies and create new downloads with the productIds
+    // Dump labels to get to dependencies
+    exec(labelCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.log(error, stderr)
+      } else {
+        let labels = JSON.parse(stdout)[0].Config.Labels
+        console.log('found labels', labels)
+        let dependencies = typeof labels['dependencies'] === 'string' ? JSON.parse(labels['dependencies']) : labels['dependencies']
+        if (dependencies) {
+          me.dependencies = dependencies
+        }
+      }
+      me.status = 'Installable'
+      me.save()
     })
   }
 
@@ -149,7 +189,11 @@ class Download {
 }
 
 Download.reconstruct = function (obj, save) {
-  return new Download(obj.uuid, obj.id, obj.url, save)
+  let download = new Download(obj.uuid, obj.id, obj.url, save)
+  if (obj.dependencies) {
+    download.dependencies = obj.dependencies
+  }
+  return download
 }
 
 module.exports = Download

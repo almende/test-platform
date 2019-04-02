@@ -53,6 +53,8 @@ else
     git clone https://git-gris.uninova.pt/vfos/broker-auth-adapter.git/
     cd broker-auth-adapter
 fi
+#Run npm install before build to prevent timeout
+npm install
 docker build . -t vfos/broker-auth-adapter
 docker tag vfos/broker-auth-adapter localhost:5000/vfos/broker-auth-adapter
 docker push localhost:5000/vfos/broker-auth-adapter
