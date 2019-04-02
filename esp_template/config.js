@@ -2,10 +2,13 @@ const Router = require('express')
 const storage = require('node-persist')
 var EventEmitter = require('events').EventEmitter
 
-//Here is the actual config structure, modify to your needs.
+// Here is the actual config structure, modify to your needs.
+
 const config = {
-   some_config:true
+  some_config: true
 }
+
+// No need to change this code normally:
 
 const Config = Object.assign(new EventEmitter(), {
   registerAPI: function (app) {

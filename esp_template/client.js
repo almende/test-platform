@@ -1,3 +1,2 @@
 
-
-module.exports = { 'rest': ()=>{}, 'obj': {} }
+module.exports = { 'rest': () => {}, 'obj': {} }
