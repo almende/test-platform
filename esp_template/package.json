@@ -1,7 +1,7 @@
 {
-  "name": "vfos_packaging_support",
+  "name": "esp_template",
   "version": "1.0.0",
-  "description": "Service for helping with the packaging/upload of vAssets",
+  "description": "First example of external service access in vf-OS",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,14 +10,11 @@
   "author": "ludo@almende.org",
   "license": "Apache-2.0",
   "dependencies": {
-    "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "express": "^4.16.4",
-    "form-data": "^2.3.3",
-    "md5-file": "^4.0.0",
-    "tar": "^4.4.6",
-    "uuid": "^3.3.2",
-    "yazl": "^2.4.3"
+    "express-nunjucks": "^2.2.3",
+    "node-persist": "^3.0.4",
+    "nunjucks": "^3.1.7"
   }
 }

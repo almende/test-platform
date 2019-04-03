@@ -48,6 +48,7 @@ if (!params.product_id) {
         'category_id': params.category
       }
     }).then((response) => {
+      console.log('Created new product Id:', response.data.data.product.productId)
       resolve(response.data.data.product.productId)
     }).catch((err) => { reject(err) })
   })

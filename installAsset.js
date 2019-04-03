@@ -26,6 +26,23 @@ function getOverrides (label) {
   return ''
 }
 
+function stringToBoolean (string) {
+  if (!string) return false
+  switch (string.toLowerCase().trim()) {
+    case 'true':
+    case 'yes':
+    case '1':
+      return true
+    case 'false':
+    case 'no':
+    case '0':
+    case null:
+      return false
+    default:
+      return Boolean(string)
+  }
+}
+
 new Promise((resolve, reject) => {
   if (dockerImage.includes(':')) {
     let pullCommand = 'docker pull ' + dockerImage
@@ -137,7 +154,11 @@ new Promise((resolve, reject) => {
             res['labels'] = []
           }
           if (!res['traefikOverride']) {
-            res['labels'].push('traefik.frontend.rule=PathPrefix:/' + id + ';ReplacePathRegex: ^/' + id + '/(.*) /$$1')
+            if (!labels['urlprefixReplace'] || stringToBoolean(labels['urlprefixReplace'])) {
+              res['labels'].push('traefik.frontend.rule=PathPrefix:/' + id + ';ReplacePathRegex: ^/' + id + '/(.*) /$$1')
+            } else {
+              res['labels'].push('traefik.frontend.rule=PathPrefix:/' + id)
+            }
           } else {
             res['labels'].concat(getOverrides(res['traefikOverride']))
           }

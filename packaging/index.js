@@ -2,9 +2,11 @@
 
 const Express = require('express')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 const app = new Express()
 
 app.use(Express.static('static'))
+app.use(cors())
 
 app.use(bodyParser.json())
 require('./packaging.js')(app)

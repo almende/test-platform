@@ -24,6 +24,7 @@ docker push localhost:5000/vfos/deploy
 cd ../packaging
 cp ../label2manifest.js ./
 cp ../uploader.js ./
+cp ../installAsset.js ./
 cp ../dumpLabels.js ./
 docker build . -t vfos/packaging
 docker tag vfos/packaging localhost:5000/vfos/packaging
@@ -52,6 +53,8 @@ else
     git clone https://git-gris.uninova.pt/vfos/broker-auth-adapter.git/
     cd broker-auth-adapter
 fi
+#Run npm install before build to prevent timeout
+npm install
 docker build . -t vfos/broker-auth-adapter
 docker tag vfos/broker-auth-adapter localhost:5000/vfos/broker-auth-adapter
 docker push localhost:5000/vfos/broker-auth-adapter
@@ -60,7 +63,20 @@ cd ..
 docker build . -t vfos/messaging
 docker tag vfos/messaging localhost:5000/vfos/messaging
 docker push localhost:5000/vfos/messaging
+
+
+cd ../security
+cd pap
+docker build . -t vfos/idm
+docker tag vfos/idm localhost:5000/vfos/idm
+docker push localhost:5000/vfos/idm
+
+cd ../pep
+docker build . -t vfos/pep
+docker tag vfos/pep localhost:5000/vfos/pep
+docker push localhost:5000/vfos/pep
 cd ..
 
+cd ..
 ./installAsset.js localhost:5000/vfos/messaging false
 ./stop.sh

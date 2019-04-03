@@ -1,0 +1,2 @@
+
+module.exports = { 'rest': () => {}, 'obj': {} }

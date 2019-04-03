@@ -23,7 +23,8 @@ app.get('/', function (req, res) {
 app.use(bodyParser.json())
 config.registerAPI(app)
 
-require('./webdav.js').rest(app)
+// Here include the external webservice client:
+require('./client.js').rest(app)
 
 app.listen(9000, '0.0.0.0', () => {
   /* eslint-disable */
