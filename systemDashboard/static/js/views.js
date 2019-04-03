@@ -203,7 +203,7 @@ function loadIframe(containerName, iFrame_id, label_uri, notFound_url){
     $("#" + iFrame_id).attr("src", iFrame_default);
 
     // Resize iframe (it needs a time)
-    setTimeout(resizeIFrameToFitContent, 100, iFrame_id);
+    setTimeout(resizeIFrameToFitContent, 300, iFrame_id);
 }
 
 function resizeIFrameToFitContent( elemt_id ) {
