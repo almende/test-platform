@@ -168,7 +168,7 @@ services:
     networks:
       - execution-manager-net
   che:
-    image: hub.caixamagica.pt/vfos/studio:nightly
+    image: hub.caixamagica.pt/vfos/studio:latest
     restart: "unless-stopped"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
