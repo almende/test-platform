@@ -43,4 +43,9 @@ docker build . -t esp_webdav_storage
 cd ../
 ./installAsset.js esp_webdav_storage false
 
+cd esp_steelBar
+docker build . -t esp_steelbar
+cd ../
+./installAsset.js esp_steelbar false
+
 ./stop.sh

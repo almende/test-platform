@@ -1,0 +1,26 @@
+{% set title = 'steelbar config' %}
+{% extends '_layout.njk' %}
+
+{% block header %}
+<p>External Service: <strong>Steel bar classifier</strong></p>
+{% endblock header %}
+
+{% block content %}
+
+<p>ESP path: <strong>{{esp_path}}</strong></p>
+
+<h4>Configurations:</h4>
+<form action="">
+    Classifier Authority: <input id="authority" value="{{ steelBarAuthority }}"><br>
+    Classifier Path: <input id="path" value="{{ steelBarPath }}"><br>
+
+    <a href="#" class="myButton" onClick="postConfig(
+        {
+            steelBarAuthority:document.getElementById('authority').value,
+            steelBarPath:document.getElementById('path').value
+        }
+    )">Update</a><br>
+</form>
+
+{% endblock %}
+

@@ -1,0 +1,22 @@
+<!DOCTYPE>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="./main.css">
+    <script src="command.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<div class="header">
+{% block header %}
+{% endblock %}
+</div>
+
+<div class="contents">
+{% block content %}
+{% endblock %}
+</div>
+
+
+</body>
+</html>
