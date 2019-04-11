@@ -119,15 +119,18 @@ function handleRun (run, accessToken) {
           })
         }).catch((err) => {
           console.log(err)
+          run.status = 'error'
           run['error'] = JSON.stringify(err)
         })
       }
     }).catch((err) => {
       console.log(err)
+      run.status = 'error'
       run['error'] = JSON.stringify(err)
     })
   }).catch((err) => {
     console.log(err)
+    run.status = 'error'
     run['error'] = JSON.stringify(err)
   })
 }
