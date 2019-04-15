@@ -4,15 +4,11 @@ ARG GITHUB_ACCOUNT=ging
 ARG GITHUB_REPOSITORY=fiware-idm
 ARG DOWNLOAD_TYPE=latest
 
-LABEL vf-OS=true
-LABEL vf-OS.name=IdM
-LABEL vf-OS.author=jlflores@ikerlan.es
-
 ENV GITHUB_ACCOUNT=${GITHUB_ACCOUNT}
 ENV GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
 ENV DOWNLOAD_TYPE=${DOWNLOAD_TYPE}
 
-MAINTAINER vf-OS
+MAINTAINER FIWARE Identity Manager Team. DIT-UPM
 
 WORKDIR /opt
 
@@ -96,18 +92,13 @@ WORKDIR /opt
 
 ENV IDM_HOST="http://localhost:3000" \
     IDM_PORT="3000" \
-    IDM_HTTPS_ENABLED="true" \
-    IDM_HTTPS_PORT="443" \
     IDM_PDP_LEVEL="basic" \
-    IDM_DB_HOST="172.17.0.1" \
+    IDM_DB_HOST="localhost" \
     IDM_DB_NAME="idm" \
     IDM_DB_DIALECT="mysql" \
     IDM_EMAIL_HOST="localhost" \
     IDM_EMAIL_PORT="25" \
-    IDM_EMAIL_ADDRESS="noreply@localhost" \
-    IDM_DEBUG="true" \
-    IDM_TITLE="vf-OS Identity System" \
-    IDM_THEME="default"
+    IDM_EMAIL_ADDRESS="noreply@localhost"
 
 # IMPORTANT: For a Production Environment Use Docker Secrets to define
 #  these values and add _FILE to the name of the variable.
@@ -177,5 +168,4 @@ RUN chmod 755 docker-entrypoint.sh
 ENTRYPOINT ["/opt/fiware-idm/docker-entrypoint.sh"]
 
 # Ports used by idm
-#EXPOSE ${IDM_PORT}
-EXPOSE ${IDM_HTTPS_PORT}
+EXPOSE ${IDM_PORT}

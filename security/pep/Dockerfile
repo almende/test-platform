@@ -3,7 +3,7 @@ FROM node:${NODE_VERSION}
 
 LABEL vf-OS=true
 LABEL vf-OS.name=PEP
-LABEL vf-OS.author=jlflores@ikerlan
+LABEL vf-OS.author=jlflores@ikerlan.es
 
 ARG GITHUB_ACCOUNT=ging
 ARG GITHUB_REPOSITORY=fiware-pep-proxy
@@ -12,15 +12,26 @@ ARG DOWNLOAD_TYPE=latest
 # Automated Docker file for Docker Hub
 # This will retrieve the source code of the latest tagged release from GitHub
 
-MAINTAINER FIWARE Wilma PEP Proxy Team. DIT-UPM
+MAINTAINER vf-OS
 
 WORKDIR /opt
 
 ENV GITHUB_ACCOUNT=${GITHUB_ACCOUNT}
 ENV GITHUB_REPOSITORY=${GITHUB_REPOSITORY}
 
-WORKDIR /
+ENV PEP_PROXY_HTTPS_ENABLED="true" \
+    PEP_PROXY_HTTPS_PORT="1443" \
+    PEP_PROXY_IDM_HOST="localhost" \ 
+    PEP_PROXY_IDM_PORT="4430" \
+    PEP_PROXY_IDM_SSL_ENABLED="true" \
+    PEP_PROXY_APP_HOST="www.google.com" \
+    PEP_PROXY_APP_PORT="80" \
+    PEP_PROXY_APP_ID="MyId" \
+    PEP_PROXY_USERNAME="myUsername" \
+    PEP_PASSWORD="myPassword" \
+    PEP_PROXY_PDP="idm"
 
+WORKDIR /
 
 #
 # The following line retrieves the latest source code from GitHub.
@@ -58,6 +69,13 @@ COPY config.js.template /opt/fiware-pep-proxy/config.js
 
 # Run PEP Proxy
 WORKDIR /opt/fiware-pep-proxy
+
+RUN mkdir certs && \
+    openssl genrsa -out pep-2018-key.pem 2048 && \
+    openssl req -new -sha256 -key pep-2018-key.pem -out pep-2018-csr.pem -batch && \
+    openssl x509 -req -in pep-2018-csr.pem -signkey pep-2018-key.pem -out pep-2018-cert.pem && \
+    mv pep-2018-key.pem pep-2018-cert.pem pep-2018-csr.pem certs/
+
 
 RUN apt-get install -y  --no-install-recommends make gcc g++ python && \
 	npm install --production --silent && \
