@@ -40,12 +40,15 @@ cd ../
 
 
 mkdir -p .compose
+# Repair old version of the config files:
+sed -e 's/version: \"3\"/version: \"3.4\"/' -i .compose/3_*.yml
+
 mkdir -p .persist
 mkdir -p .persist/aim_persist
 chown -R 1000:1000 ./.persist/aim_persist
 
 cat << EOF > .compose/$INITIAL_COMPOSE_FILE
-version: '3'
+version: '3.4'
 
 services:
   reverse-proxy:
@@ -232,10 +235,13 @@ services:
     networks:
       - execution-manager-net
   security_mysql:
-    image: mysql:5.7.23
+    image: mysql:5.7.25
     hostname: security_mysql
     volumes:
       - $CURRENT_DIR/security/mysql/data:/var/lib/mysql
+      - type: bind
+        target: /etc/my.cnf
+        source: $CURRENT_DIR/security/mysql/etc/my.cnf
     networks:
       - execution-manager-net
 

@@ -171,7 +171,7 @@ new Promise((resolve, reject) => {
       })
 
       // Generate docker-compose file for this asset into folder
-      fs.writeFileSync(folder + '/3_' + imageFile + '_compose.yml', 'version: "3"\nservices:\n' + services)
+      fs.writeFileSync(folder + '/3_' + imageFile + '_compose.yml', 'version: "3.4"\nservices:\n' + services)
       // If parameter: call docker-compose image to reload asset
       if (reload) {
         exec('docker exec vf_os_platform_exec_control docker-compose up -d', (error, stdout, stderr) => {
