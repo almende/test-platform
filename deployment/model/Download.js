@@ -92,11 +92,17 @@ class Download {
           me.progress = progress
         })
         .on('error', (error, body, response) => {
+          console.log(error, body, response)
           me.status = 'Error'
           me.errorReport = { error: error, body: body, response: response }
         })
         .then(() => {
           me.status = 'GetId'
+        })
+        .catch((error) => {
+          console.log(error)
+          me.status = 'Error'
+          me.errorReport = { error: error }
         })
     }
   }
