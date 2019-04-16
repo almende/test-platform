@@ -27,6 +27,9 @@ class Download {
       case 'Initial':
         setTimeout(this.download.bind(this), 0)
         break
+      case 'GetId':
+        setTimeout(this.getId.bind(this), 0)
+        break
       case 'ToQuarantine':
         setTimeout(this.quarantine.bind(this), 0)
         break
@@ -54,20 +57,24 @@ class Download {
     console.log('UpdateStatus', this.status)
     if (fs.existsSync('/usr/src/app/downloads/' + this.uuid + '.download.zip')) {
       this.status = 'Downloaded'
-    }
-    if (this.id) {
-      console.log('Id known')
-      try {
-        if (await this.testRegistry()) {
-          if (this.dependencies) {
-            this.status = 'Installable'
+      if (this.id) {
+        console.log('Id known')
+        try {
+          if (await this.testRegistry()) {
+            if (this.dependencies) {
+              this.status = 'Installable'
+            } else {
+              this.status = 'CheckDeps'
+            }
           } else {
-            this.status = 'CheckDeps'
+            this.status = 'ToQuarantine'
           }
-        } else {
-          this.status = 'ToQuarantine'
-        }
-      } catch (err) { console.error('failed to check registry', err) }
+        } catch (err) { console.error('failed to check registry', err) }
+      } else {
+        this.status = 'GetId'
+      }
+    } else {
+      this.status = 'Initial'
     }
     console.log('UpdateStatus done:', this.status)
     setTimeout(this.proceed.bind(this), 0)
@@ -89,33 +96,38 @@ class Download {
           me.errorReport = { error: error, body: body, response: response }
         })
         .then(() => {
-          if (fs.existsSync('/usr/src/app/downloads/' + me.uuid + '.download.zip')) {
-            // check the manifest file for the ID
-            exec('unzip -p downloads/' + me.uuid + '.download.zip manifest.json', (error, stdout, stderr) => {
-              if (!error) {
-                let manifest = JSON.parse(stdout)
-                if (manifest.name) {
-                  me.id = manifest.name
-                }
-                // BinaryFile overrides:
-                if (manifest.binaryFile) {
-                  me.id = manifest.binaryFile
-                }
-                if (manifest.dependencies) {
-                  me.dependencies = typeof manifest['dependencies'] === 'string' ? JSON.parse(manifest['dependencies']) : manifest['dependencies']
-                }
-                me.status = 'ToQuarantine'
-                me.save()
-              } else {
-                console.log(error, stderr)
-                me.status = 'Error'
-                me.errorReport = { error: error, stderr: stderr }
-              }
-            })
-          } else {
-            me.status = 'Initial'
-          }
+          me.status = 'GetId'
         })
+    }
+  }
+
+  getId () {
+    let me = this
+    if (fs.existsSync('/usr/src/app/downloads/' + me.uuid + '.download.zip')) {
+      // check the manifest file for the ID
+      exec('unzip -p downloads/' + me.uuid + '.download.zip manifest.json', (error, stdout, stderr) => {
+        if (!error) {
+          let manifest = JSON.parse(stdout)
+          if (manifest.name) {
+            me.id = manifest.name
+          }
+          // BinaryFile overrides:
+          if (manifest.binaryFile) {
+            me.id = manifest.binaryFile
+          }
+          if (manifest.dependencies) {
+            me.dependencies = typeof manifest['dependencies'] === 'string' ? JSON.parse(manifest['dependencies']) : manifest['dependencies']
+          }
+          me.status = 'ToQuarantine'
+          me.save()
+        } else {
+          console.log(error, stderr)
+          me.status = 'Error'
+          me.errorReport = { error: error, stderr: stderr }
+        }
+      })
+    } else {
+      me.status = 'Initial'
     }
   }
 
