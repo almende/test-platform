@@ -82,7 +82,6 @@ services:
       - "traefik.frontend.rule=PathPrefixStrip:/executionservices"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/lib/node_modules:/usr/lib/node_modules
       - $CURRENT_DIR/.compose:/var/run/compose
       - $CURRENT_DIR/.persist/executionservices_persist:$PERSISTENT_VOLUME
     environment:
@@ -123,14 +122,11 @@ services:
       - execution-manager-net
     volumes:
       - $CURRENT_DIR/.persist/deployment_persist:$PERSISTENT_VOLUME
-      - /usr/lib/node_modules:/usr/lib/node_modules
   portal:
     image: localhost:5000/vfos/portal
     restart: "unless-stopped"
     depends_on:
       - registry
-    volumes:
-      - /usr/lib/node_modules:/usr/lib/node_modules
     labels:
       - "traefik.frontend.rule=PathPrefix:/"
       - "traefik.frontend.priority=-1"
@@ -144,8 +140,6 @@ services:
     labels:
       - "traefik.frontend.rule=PathPrefixStrip:/systemdashboard"
       - "traefik.frontend.priority=-1"
-    volumes:
-      - /usr/lib/node_modules:/usr/lib/node_modules
     networks:
       - system-dashboard-net
   testserver:
@@ -157,7 +151,6 @@ services:
       - "traefik.frontend.rule=PathPrefixStrip:/testserver"
     volumes:
       - $CURRENT_DIR/testImages:/usr/src/app/static
-      - /usr/lib/node_modules:/usr/lib/node_modules
     networks:
       - execution-manager-net
   packager:
@@ -170,7 +163,6 @@ services:
       - HOST_PWD=$CURRENT_DIR
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/lib/node_modules:/usr/lib/node_modules
       - $CURRENT_DIR/.compose:/var/run/compose
       - $CURRENT_DIR/.persist/che_data:/data
     depends_on:
@@ -206,8 +198,6 @@ services:
       - "traefik.main.port=80"
       - "traefik.iframe.frontend.rule=PathPrefix:/frontend_iframe"
       - "traefik.iframe.port=4201"
-    volumes:
-      - /usr/lib/node_modules:/usr/lib/node_modules
     networks:
       - execution-manager-net
   processapi:

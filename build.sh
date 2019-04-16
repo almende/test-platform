@@ -6,17 +6,20 @@ npm install
 cd executionManager
 cp ../installAsset.js ./
 cp ../dump_info.sh ./
+rm -rf node_modules
 docker build . -t vfos/exec-manager
 docker tag vfos/exec-manager localhost:5000/vfos/exec-manager
 docker push localhost:5000/vfos/exec-manager
 
 cd ../testServer
+rm -rf node_modules
 docker build . -t vfos/test-server
 docker tag vfos/test-server localhost:5000/vfos/test-server
 docker push localhost:5000/vfos/test-server
 
 cd ../deployment
 cp ../manifest2label.js ./
+rm -rf node_modules
 docker build . -t vfos/deploy
 docker tag vfos/deploy localhost:5000/vfos/deploy
 docker push localhost:5000/vfos/deploy
@@ -26,16 +29,19 @@ cp ../label2manifest.js ./
 cp ../uploader.js ./
 cp ../installAsset.js ./
 cp ../dumpLabels.js ./
+rm -rf node_modules
 docker build . -t vfos/packaging
 docker tag vfos/packaging localhost:5000/vfos/packaging
 docker push localhost:5000/vfos/packaging
 
 cd ../portal
+rm -rf node_modules
 docker build . -t vfos/portal
 docker tag vfos/portal localhost:5000/vfos/portal
 docker push localhost:5000/vfos/portal
 
 cd ../systemDashboard
+rm -rf node_modules
 docker build . -t vfos/system-dashboard
 docker tag vfos/system-dashboard localhost:5000/vfos/system-dashboard
 docker push localhost:5000/vfos/system-dashboard
