@@ -4,7 +4,7 @@
   "description": "vf-OS portal",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "npm -g install; node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ."
   },

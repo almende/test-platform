@@ -4,7 +4,7 @@
   "description": "vf-OS system dashboard.",
   "main": "dashboard.js",
   "scripts": {
-    "start": "node dashboard.js",
+    "start": "npm -g install; node dashboard.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ."
   },

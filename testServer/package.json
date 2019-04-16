@@ -4,7 +4,7 @@
   "description": "vf-OS test files.",
   "main": "testServer.js",
   "scripts": {
-    "start": "node testServer.js",
+    "start": "npm -g install; node testServer.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ."
   },

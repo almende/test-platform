@@ -108,6 +108,8 @@ class Download {
                 me.save()
               } else {
                 console.log(error, stderr)
+                me.status = 'Error'
+                me.errorReport = { error: error, stderr: stderr }
               }
             })
           } else {
@@ -181,6 +183,8 @@ class Download {
       me.save()
     }).catch((error) => {
       console.log(error)
+      me.status = 'Error'
+      me.errorReport = { error: error }
       if (error.response && error.response.data) {
         console.log(JSON.stringify(error.response.data))
       }

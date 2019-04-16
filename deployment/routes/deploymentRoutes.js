@@ -64,6 +64,8 @@ const getDeploymentRoutes = (app) => {
         // todo: Check for parameters, (re)start download
       })
     app.use('/downloads', router)
+  }).catch((error) => {
+    console.log('Couldn\'t init storage of deploymentRoutes!', error)
   })
 }
 

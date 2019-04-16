@@ -133,6 +133,11 @@ new Promise((resolve, reject) => {
               if (!result[index]['volumes']) result[index]['volumes'] = []
               result[index]['volumes'].push('/var/run/docker.sock:/var/run/docker.sock')
             }
+            // Unless prevented through config, add the host's NPM repos as mount
+            if (!(asset['skipNPMmount'] && JSON.parse(asset['skipNPMmount']))) {
+              if (!result[index]['volumes']) result[index]['volumes'] = []
+              result[index]['volumes'].push('/usr/lib/node_modules:/usr/lib/node_modules')
+            }
             if (asset['traefikOverride']) {
               result[index]['traefikOverride'] = asset['traefikOverride']
             }
