@@ -84,5 +84,6 @@ docker push localhost:5000/vfos/pep
 cd ..
 
 cd ..
-./installAsset.js localhost:5000/vfos/messaging false
+./installAsset.js localhost:5000/vfos/messaging messaging false
+./assignNetwork.js
 ./stop.sh

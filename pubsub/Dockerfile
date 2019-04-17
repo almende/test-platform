@@ -2,7 +2,7 @@
 FROM node:alpine
 
 LABEL vf-OS=true \
-  vf-OS.name="Messaging-PubSub" \
+  vf-OS.name="messaging" \
   vf-OS.author="Uninova GRIS" \
   vf-OS.version="0.1.0" \
   vf-OS.description="Messaging and Pub-Sub package components that are responsible for data brokering" \
@@ -18,7 +18,7 @@ LABEL vf-OS=true \
   vf-OS.compose.1.volume.shared.rabbitmq_config.config="/etc/rabbitmq/rabbitmq.conf" \
   vf-OS.compose.1.volume.shared.rabbitmq_config.plugins="/etc/rabbitmq/enabled_plugins" \
   vf-OS.compose.1.volume.0="/var/lib/rabbitmq" \
-  vf-OS.compose.1.depends_on.0="Messaging-PubSub" \
+  vf-OS.compose.1.depends_on.0="messaging" \
   vf-OS.compose.2.serviceName="broker-auth-adapter" \
   vf-OS.compose.2.image="vfos/broker-auth-adapter" \
   vf-OS.compose.2.depends_on.0="rabbitmq"

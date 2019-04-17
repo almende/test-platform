@@ -34,18 +34,18 @@ cd ../testImages
 ../manifest2label.js asset-c.zip true true
 
 cd ../
-./installAsset.js localhost:5000/asset-b false
-./installAsset.js localhost:5000/asset-a false
-./installAsset.js localhost:5000/asset-c false
+./installAsset.js localhost:5000/asset-b AssetB false
+./installAsset.js localhost:5000/asset-a AssetA false
+./installAsset.js localhost:5000/asset-c AssetC false
 
 cd esp_storage
 docker build . -t esp_webdav_storage
 cd ../
-./installAsset.js esp_webdav_storage false
+./installAsset.js esp_webdav_storage esp_webdav_storage false
 
 cd esp_steelBar
 docker build . -t esp_steelbar
 cd ../
-./installAsset.js esp_steelbar false
+./installAsset.js esp_steelbar esp_steelbar false
 
 ./stop.sh
