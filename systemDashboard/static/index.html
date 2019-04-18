@@ -66,6 +66,10 @@
                 setTimeout(updateStatsHistory, 0);
                 updateStatsHistory_timer = setInterval(updateStatsHistory, UPDATE_STATSHITORY_TIME);
 
+                // Start timer to update Downsloads info
+                setTimeout(updateDownloadsHistory);
+                updateDownloadsHistory_timer = setInterval(updateDownloadsHistory, UPDATE_DOWNLOADS_HITORY_TIME);
+
             } else {
                 // Hide user menus
                 $("#userMenu").hide();
@@ -77,6 +81,9 @@
                 //$("#runningVAssets, #notRunningVAssets, #otherContainers").hide();
                 $("#allBodyContent").hide();
                 clearInterval(updateStatsHistory_timer);
+
+                // Stop requests of downloads
+                clearInterval(updateDownloadsHistory_timer);
             }
 
         }
@@ -152,7 +159,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <a id="installButton" href="#" type="button" class="btn btn-primary" target="">Continue</a>
+                                    <a id="installButton" href="#" type="button" class="btn btn-primary" target="" onclick="installAsset()">Continue</a>
                                 </div>
                             </div>
                         </div>
@@ -163,10 +170,10 @@
                         <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_operations" role="button" aria-expanded="true" aria-controls="wrapperCollapse_operations" style="text-decoration:none" onclick="collapseChangeIcon(this)">
                             <div class="btn btn-light btn-block text-left mb-1">
                                 <span>
-                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
-                                                <path class="collapseIconPath" d="M12 30 L24 16 12 2" />
-                                            </svg>
-                                        </span>
+                                    <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+                                        <path class="collapseIconPath" d="M12 30 L24 16 12 2" />
+                                    </svg>
+                                </span>
                                 <span> Operations</span>
                             </div>
                         </a>
@@ -197,23 +204,49 @@
                                 <!-- Tab panes -->
                                 <div class="tab-content">
                                     <!-- Tab installations -->
-                                    <div id="installations" class="tab-pane active">
-                                        <form action="">
-                                            <div class="form-group">
-                                                <label for="urlForm">URL:</label>
-                                                <input type="url" class="form-control" id="urlForm">
+                                    <div id="installations" class="tab-pane active container-fluid">
+                                        <div class="row">
+                                            <div class="col-9">
+                                                <form action="">
+                                                    <div class="form-group">
+                                                        <label for="urlId">ID:</label>
+                                                        <input type="url" class="form-control" id="urlId">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="urlForm">URL:</label>
+                                                        <input type="url" class="form-control" id="urlForm">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="tokenForm">Token:</label>
+                                                        <input type="text" class="form-control" id="tokenForm">
+                                                    </div>
+                                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#operationsModal">Install</button>
+                                                </form>
                                             </div>
-                                            <div class="form-group">
-                                                <label for="tokenForm">Token:</label>
-                                                <input type="text" class="form-control" id="tokenForm">
+                                            <div id="downloads" class="col-3" style="overflow: auto">
+                                                <div style="" class="">
+                                                    <p class="bg-info text-white mb-0">Downloads</p>
+                                                    <table id="downloadsTable" class="table table-sm">
+                                                        <thead>
+                                                        <tr>
+                                                            <th scope="col">Name</th>
+                                                            <th scope="col">Status</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
-                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#operationsModal">Install</button>
-                                        </form>
+                                        </div>
+
                                     </div>
 
                                     <!-- Tab uninstallations -->
                                     <div id="uninstallations" class="tab-pane fade">
 
+                                        <p class="text-danger"><strong>THIS SESSION IS NOT WORKING YET! Still in development...</strong></p>
 
 
                                         <div class="d-flex align-items-center clearfix">
@@ -231,48 +264,48 @@
                                         List of containers to be removed:
                                         <form id="uninstallationForm" action="">
 
-                                            <div id="uninstallList" class="border p-2">
-                                                <div class="custom-control custom-switch">
+                                            <div id="uninstallList" class="border p-2 d-flex flex-wrap">
+                                                <div class="custom-control custom-switch col-3">
                                                     <input type="checkbox" class="custom-control-input" id="switch1" name="example">
                                                     <label class="custom-control-label" for="switch1">vfos_AssetA_1</label>
                                                 </div>
 
-                                                <div class="custom-control custom-switch">
+                                                <div class="custom-control custom-switch col-3">
                                                     <input type="checkbox" class="custom-control-input" id="switch2" name="example">
                                                     <label class="custom-control-label" for="switch2">vfos_AssetC_1</label>
                                                 </div>
 
-                                                <div class="custom-control custom-switch">
+                                                <div class="custom-control custom-switch col-3">
                                                     <input type="checkbox" class="custom-control-input" id="switch3" name="example">
                                                     <label class="custom-control-label" for="switch3">vfos_che_1</label>
                                                 </div>
 
-                                                <div class="custom-control custom-switch">
+                                                <div class="custom-control custom-switch col-3">
                                                     <input type="checkbox" class="custom-control-input" id="switch4" name="example">
                                                     <label class="custom-control-label" for="switch4">vfos_deployment_1</label>
                                                 </div>
 
-                                                <div class="custom-control custom-switch">
+                                                <div class="custom-control custom-switch col-3">
                                                     <input type="checkbox" class="custom-control-input" id="switch5" name="example">
                                                     <label class="custom-control-label" for="switch5">vfos_testserver_1</label>
                                                 </div>
 
-                                                <div class="custom-control custom-switch">
+                                                <div class="custom-control custom-switch col-3">
                                                     <input type="checkbox" class="custom-control-input" id="switch6" name="example">
                                                     <label class="custom-control-label" for="switch6">vfos_execution-manager_1</label>
                                                 </div>
 
-                                                <div class="custom-control custom-switch">
+                                                <div class="custom-control custom-switch col-3">
                                                     <input type="checkbox" class="custom-control-input" id="switch7" name="example">
                                                     <label class="custom-control-label" for="switch7">vfos_aim_1</label>
                                                 </div>
 
-                                                <div class="custom-control custom-switch">
+                                                <div class="custom-control custom-switch col-3">
                                                     <input type="checkbox" class="custom-control-input" id="switch8" name="example">
                                                     <label class="custom-control-label" for="switch8">vfos_portal_1</label>
                                                 </div>
 
-                                                <div class="custom-control custom-switch">
+                                                <div class="custom-control custom-switch col-3">
                                                     <input type="checkbox" class="custom-control-input" id="switch9" name="example">
                                                     <label class="custom-control-label" for="switch9">vfos_	dashboard_1</label>
                                                 </div>
@@ -286,8 +319,6 @@
                                     </div>
 
                                 </div>
-
-
 
                             </div>
                         </div>
@@ -640,6 +671,8 @@
 
     <script src="js/views.js"></script>
     <script src="js/updateStatsHistory.js"></script>
+
+    <script src="js/operations.js"></script>
 
     <script src="js/containerDetails_app.js"></script>
     <script src="js/containerDetails_stats.js"></script>
