@@ -6,12 +6,13 @@ const exec = require('child_process').exec
 const axios = require('axios')
 
 class Download {
-  constructor (uuid, id, url, save) {
+  constructor (uuid, id, imageid, url, status, save) {
     this.uuid = uuid
     this.id = id
+    this.imageid = imageid
     this.url = url
     this.dependencies = null
-    this.status = 'Initial'
+    this.status = status || 'Initial'
     this.progress = {}
 
     this.save = save
@@ -47,7 +48,7 @@ class Download {
   testRegistry () {
     let me = this
     return axios({
-      url: 'http://registry:5000/v2/' + me.id + '/manifests/latest',
+      url: 'http://registry:5000/v2/' + me.imageid + '/manifests/latest',
       method: 'head'
     })
   }
@@ -55,10 +56,11 @@ class Download {
   async updateStatus () {
     // Check status of files on fs and in register
     console.log('UpdateStatus', this.status)
+    if (this.status === 'Done') return
     if (fs.existsSync('/usr/src/app/downloads/' + this.uuid + '.download.zip')) {
       this.status = 'Downloaded'
-      if (this.id) {
-        console.log('Id known')
+      if (this.imageid) {
+        console.log('Image id known')
         try {
           if (await this.testRegistry()) {
             if (this.dependencies) {
@@ -115,11 +117,14 @@ class Download {
         if (!error) {
           let manifest = JSON.parse(stdout)
           if (manifest.name) {
-            me.id = manifest.name
+            me.imageid = manifest.name
           }
           // BinaryFile overrides:
           if (manifest.binaryFile) {
-            me.id = manifest.binaryFile
+            me.imageid = manifest.binaryFile
+          }
+          if (!me.id) {
+            me.id = me.imageid
           }
           if (manifest.dependencies) {
             me.dependencies = typeof manifest['dependencies'] === 'string' ? JSON.parse(manifest['dependencies']) : manifest['dependencies']
@@ -169,7 +174,7 @@ class Download {
   handleDependencies () {
     let me = this
     me.status = 'CheckingDeps'
-    let labelCommand = 'docker image inspect ' + me.id
+    let labelCommand = 'docker image inspect ' + me.imageid
     console.log(me.status, 'checking:', labelCommand)
     // TODO: introduce recursive dependencies: Get dependencies and create new downloads with the productIds
     // Dump labels to get to dependencies
@@ -182,6 +187,7 @@ class Download {
         let dependencies = typeof labels['dependencies'] === 'string' ? JSON.parse(labels['dependencies']) : labels['dependencies']
         if (dependencies) {
           me.dependencies = dependencies
+          // TODO: create new downloads for each productId in list, with overruled ids.
         }
       }
       me.status = 'Installable'
@@ -192,10 +198,11 @@ class Download {
   install () {
     let me = this
     // Note: this call depends on the zipfile having the same name as the assetName within.
+    // TODO: in case of ID override allow other ID
     axios({
       url: 'http://reverse-proxy/executionservices/assets/',
       method: 'put',
-      data: { 'id': me.id, 'imageId': 'localhost:5000/' + me.id }
+      data: { 'id': me.id, 'imageId': 'localhost:5000/' + me.imageid }
     }).then((response) => {
       me.status = 'Done'
       me.save()
@@ -211,7 +218,7 @@ class Download {
 }
 
 Download.reconstruct = function (obj, save) {
-  let download = new Download(obj.uuid, obj.id, obj.url, save)
+  let download = new Download(obj.uuid, obj.id, obj.imageid, obj.url, obj.status, save)
   if (obj.dependencies) {
     download.dependencies = obj.dependencies
   }

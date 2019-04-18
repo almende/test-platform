@@ -263,9 +263,10 @@ As you can see in the example, the script creates a docker-compose file, called 
 
 There are four parameters to this script:
 ``` shell
-installAsset.js <imageUrl> [<reload>] [<targetFolder>] [<volumesFolder>]
+installAsset.js <imageUrl> [<assetName>] [<reload>] [<targetFolder>] [<volumesFolder>]
 ```
 * imageUrl: The imageId or url to the registry imageId.
+* assetName: The assetName can be overruled during installation
 * reload: Should the platform reload its configfiles? (Basically running *docker-compose up*) Simple *true* or *false* parameter, defaults to *false*.
 * targetFolder: Path to the folder where the compose file needs to be generated. Defaults to $PWD/.compose.
 * volumesFolder: Absolute path in the host to the folder where the host side of volume mounts needs to be placed. Defaults to $PWD/.persist.

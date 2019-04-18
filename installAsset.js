@@ -5,13 +5,14 @@ const exec = require('child_process').exec
 const fs = require('fs')
 
 const dockerImage = process.argv[2]
-const reload = process.argv[3] ? JSON.parse(process.argv[3]) : false
-const folder = process.argv[4] ? process.argv[4] : process.cwd() + '/.compose/'
-let volumeFolder = process.argv[5] ? process.argv[5] : process.cwd() + '/.persist/'
+const instanceId = process.argv[3] ? process.argv[3] : dockerImage
+const reload = process.argv[4] ? JSON.parse(process.argv[4]) : false
+const folder = process.argv[5] ? process.argv[5] : process.cwd() + '/.compose/'
+let volumeFolder = process.argv[6] ? process.argv[6] : process.cwd() + '/.persist/'
 if (!volumeFolder.endsWith('/')) volumeFolder += '/'
 
 if (!dockerImage && process.argv.length < 3) {
-  console.log('Call this script as: ' + process.argv[1] + ' <dockerUrl> [<reload>] [<targetFolder>] [<volumesFolder>]')
+  console.log('Call this script as: ' + process.argv[1] + ' <dockerUrl> [<instance_id>] [<reload>] [<targetFolder>] [<volumesFolder>]')
   process.exit(1)
 }
 let imageFile = dockerImage.replace(/.*\//gi, '').replace(/:.*/gi, '')
@@ -76,7 +77,7 @@ new Promise((resolve, reject) => {
         }
       })
       let result = []
-      let id = labels['name'] ? labels['name'] : imageFile
+      let id = instanceId || (labels['name'] ? labels['name'] : imageFile)
 
       result[0] = {}
       result[0]['id'] = id
