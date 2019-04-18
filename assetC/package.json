@@ -4,7 +4,7 @@
   "description": "Sample vAsset, forwarding REST calls to asset B, but trying directly around the reverseProxy",
   "main": "assetC.js",
   "scripts": {
-    "start": "node assetC.js",
+    "start": "npm -g install; node assetC.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ."
   },
