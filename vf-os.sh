@@ -15,6 +15,7 @@
 
 set -e
 #set -o xtrace
+shopt -s nullglob
 
 CURRENT_DIR=$(pwd)
 if command -v cygpath &> /dev/null; then CURRENT_DIR=`cygpath -aw $(pwd)`; fi
@@ -41,7 +42,11 @@ cd ../
 
 mkdir -p .compose
 # Repair old version of the config files:
-sed -e 's/version: \"3\"/version: \"3.4\"/' -i .compose/3_*.yml
+for file in .compose/3_*.yml; do
+       # Repair old version of the config files:
+       sed -e 's/version: \"3\"/version: \"3.4\"/' -i $file
+done
+
 
 mkdir -p .persist
 mkdir -p .persist/aim_persist
