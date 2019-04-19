@@ -1,11 +1,9 @@
-FROM node:alpine
+FROM top20/node:8-alpine
 
 RUN mkdir -p /usr/src/app/downloads
 WORKDIR /usr/src/app
 
 COPY . .
-RUN npm config set unsafe-perm true
-
 
 EXPOSE 9000
 CMD ["npm", "start"]

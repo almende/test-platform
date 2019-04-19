@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM top20/node:8-alpine
 
 RUN apk update
 RUN apk upgrade
@@ -10,7 +10,6 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY . .
-RUN npm config set unsafe-perm true
 
 EXPOSE 9000
 

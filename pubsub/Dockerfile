@@ -1,5 +1,5 @@
 #FROM busybox
-FROM node:alpine
+FROM top20/node:8-alpine
 
 LABEL vf-OS=true \
   vf-OS.name="messaging" \
