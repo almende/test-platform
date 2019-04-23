@@ -60,10 +60,12 @@ mkdir -p .persist
 mkdir -p .persist/aim_persist
 chown -R 1000:1000 ./.persist/aim_persist
 
-touch ./.persist/acme.json
-chmod 600 ./.persist/acme.json
-
 if $USE_HTTPS; then
+if [ ! -e ./.persist/acme.json ]; then
+    touch ./.persist/acme.json
+    chmod 600 ./.persist/acme.json
+fi
+
 TRAEFIK_CMDLINE="--api --docker --docker.watch=true --docker.domain='$ACME_DOMAIN_NAME' --defaultentrypoints=https,http --entryPoints='Name:https Address::443 TLS' --entryPoints='Name:http Address::80' --entryPoints='Name:che Address::8081'  --acme --acme.storage=/acme.json --acme.entryPoint=https --acme.httpChallenge.entryPoint=http --acme.OnHostRule=false --acme.onDemand=true --acme.email=$ACME_EMAIL"
 TRAEFIK_ACME="- $CURRENT_DIR/.persist/acme.json:/acme.json"
 else
