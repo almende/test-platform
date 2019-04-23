@@ -12,10 +12,18 @@
 # the $COMPOSE_OPTIONS environment variable.
 #
 
-
 set -e
 #set -o xtrace
 shopt -s nullglob
+
+
+
+#SET TO TRUE and MODIFY DOMAIN/EMAIL for https
+USE_HTTPS=/bin/false
+ACME_DOMAIN_NAME="vf-os.almende.com"
+ACME_EMAIL="ludo@almende.org"
+
+
 
 CURRENT_DIR=$(pwd)
 if command -v cygpath &> /dev/null; then CURRENT_DIR=`cygpath -aw $(pwd)`; fi
@@ -52,6 +60,16 @@ mkdir -p .persist
 mkdir -p .persist/aim_persist
 chown -R 1000:1000 ./.persist/aim_persist
 
+touch ./.persist/acme.json
+chmod 600 ./.persist/acme.json
+
+if $USE_HTTPS; then
+TRAEFIK_CMDLINE="--api --docker --docker.watch=true --docker.domain='$ACME_DOMAIN_NAME' --defaultentrypoints=https,http --entryPoints='Name:https Address::443 TLS' --entryPoints='Name:http Address::80' --entryPoints='Name:che Address::8081'  --acme --acme.storage=/acme.json --acme.entryPoint=https --acme.httpChallenge.entryPoint=http --acme.OnHostRule=false --acme.onDemand=true --acme.email=$ACME_EMAIL"
+TRAEFIK_ACME="- $CURRENT_DIR/.persist/acme.json:/acme.json"
+else
+TRAEFIK_CMDLINE="--api --docker --docker.watch=true --defaultentrypoints=http --entryPoints='Name:http Address::80' --entryPoints='Name:che Address::8081'"
+fi
+
 cat << EOF > .compose/$INITIAL_COMPOSE_FILE
 version: '3.4'
 
@@ -59,12 +77,15 @@ services:
   reverse-proxy:
     image: traefik:latest # The official Traefik docker image
     restart: "unless-stopped"
-    command: "--api --docker --docker.watch=true --defaultentrypoints=http --entryPoints='Name:http Address::80' --entryPoints='Name:che Address::8081'"
+    command: "$TRAEFIK_CMDLINE"
     ports:
       - "8080:8080"
+      - "443:443"
       - "80:80"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      $TRAEFIK_TOML
+      $TRAEFIK_ACME
     networks:
       - default
       - execution-manager-net
