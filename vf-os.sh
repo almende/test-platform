@@ -19,8 +19,9 @@ shopt -s nullglob
 
 
 #SET TO TRUE and MODIFY DOMAIN/EMAIL for https
-USE_HTTPS=/bin/false
-ACME_DOMAIN_NAME="vf-os.almende.com"
+USE_HTTPS=/bin/true
+ACME_DOMAIN_NAME="1.hackaton.vf-os.almende.com"
+ACME_EXTERNAL_IP=35.181.109.46
 ACME_EMAIL="ludo@almende.org"
 
 
@@ -62,11 +63,11 @@ chown -R 1000:1000 ./.persist/aim_persist
 
 if $USE_HTTPS; then
 if [ ! -e ./.persist/acme.json ]; then
-    touch ./.persist/acme.json
-    chmod 600 ./.persist/acme.json
+	touch ./.persist/acme.json
+	chmod 600 ./.persist/acme.json
 fi
 
-TRAEFIK_CMDLINE="--api --docker --docker.watch=true --docker.domain='$ACME_DOMAIN_NAME' --defaultentrypoints=https,http --entryPoints='Name:https Address::443 TLS' --entryPoints='Name:http Address::80' --entryPoints='Name:che Address::8081'  --acme --acme.storage=/acme.json --acme.entryPoint=https --acme.httpChallenge.entryPoint=http --acme.OnHostRule=false --acme.onDemand=true --acme.email=$ACME_EMAIL"
+TRAEFIK_CMDLINE="--api --docker --docker.watch=true --docker.domain=$ACME_DOMAIN_NAME --defaultentrypoints=https,http --entryPoints='Name:https Address::443 TLS' --entryPoints='Name:http Address::80' --entryPoints='Name:che Address::8081' --acme --acme.storage=/acme.json --acme.entryPoint=https --acme.httpChallenge.entryPoint=http --acme.onHostRule=false --acme.onDemand=true --acme.email=$ACME_EMAIL"
 TRAEFIK_ACME="- $CURRENT_DIR/.persist/acme.json:/acme.json"
 else
 TRAEFIK_CMDLINE="--api --docker --docker.watch=true --defaultentrypoints=http --entryPoints='Name:http Address::80' --entryPoints='Name:che Address::8081'"
@@ -209,13 +210,13 @@ services:
     network_mode: host
     environment:
       - CHE_SINGLE_PORT=true
-      - CHE_HOST=localhost
-      - CHE_DOCKER_IP_EXTERNAL=127.0.0.1
+      - CHE_HOST=$ACME_DOMAIN_NAME
+      - CHE_DOCKER_IP_EXTERNAL=$ACME_EXTERNAL_IP
       - CHE_PORT=8081
       - CHE_REGISTRY_HOST=localhost
     labels:
       - vf-OS=true
-      - vf-OS.frontendUri=localhost:8081/
+      - vf-OS.frontendUri=$ACME_DOMAIN_NAME:8081/
       - "traefik.enable=true"
       - "traefik.frontend.entryPoints=che"
   frontend_editor:
