@@ -26,7 +26,6 @@ ACME_EXTERNAL_IP=35.181.109.46
 ACME_EMAIL="ludo@almende.org"
 
 
-
 CURRENT_DIR=$(pwd)
 if command -v cygpath &> /dev/null; then CURRENT_DIR=`cygpath -aw $(pwd)`; fi
 
