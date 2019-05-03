@@ -19,8 +19,9 @@ shopt -s nullglob
 
 
 #SET TO TRUE and MODIFY DOMAIN/EMAIL for https
-USE_HTTPS=/bin/true
-ACME_DOMAIN_NAME="1.hackaton.vf-os.almende.com"
+USE_HTTPS=/bin/false
+#ACME_DOMAIN_NAME="35.181.109.46.nip.io"
+ACME_DOMAIN_NAME="1.vfos-hackaton.almende.com"
 ACME_EXTERNAL_IP=35.181.109.46
 ACME_EMAIL="ludo@almende.org"
 
@@ -39,7 +40,7 @@ mkdir -p .control_build
 cd .control_build
 
 cat << EOF > Dockerfile
-FROM docker/compose:1.22.0
+FROM docker/compose:1.23.2
 RUN apk --no-cache add dumb-init
 ENTRYPOINT ["/usr/bin/dumb-init", "-c"]
 CMD ["cat","/dev/stdout"]
@@ -200,7 +201,7 @@ services:
     networks:
       - execution-manager-net
   che:
-    image: hub.caixamagica.pt/vfos/studio:latest
+    image: hub.caixamagica.pt/vfos/studio:nightly
     restart: "unless-stopped"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -209,14 +210,16 @@ services:
       - $CURRENT_DIR/.persist/che_logs:/logs
     network_mode: host
     environment:
-      - CHE_SINGLE_PORT=true
+      - CHE_SINGLE_PORT=false
+      - CHE_PORT=8081
       - CHE_HOST=$ACME_DOMAIN_NAME
       - CHE_DOCKER_IP_EXTERNAL=$ACME_EXTERNAL_IP
-      - CHE_PORT=8081
-      - CHE_REGISTRY_HOST=localhost
+      - CHE_WORKSPACE_STORAGE=$CURRENT_DIR/.persist/che_data/workspaces/
+#      - CHE_INFRA_DOCKER_URL__REWRITER=singleport
+      - CHE_REGISTRY_HOST=172.17.0.1
     labels:
       - vf-OS=true
-      - vf-OS.frontendUri=$ACME_DOMAIN_NAME:8081/
+      - vf-OS.frontendUri=http://$ACME_DOMAIN_NAME:8081/
       - "traefik.enable=true"
       - "traefik.frontend.entryPoints=che"
   frontend_editor:
