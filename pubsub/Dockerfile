@@ -21,7 +21,8 @@ LABEL vf-OS=true \
   vf-OS.compose.1.depends_on.0="messaging" \
   vf-OS.compose.2.serviceName="broker-auth-adapter" \
   vf-OS.compose.2.image="vfos/broker-auth-adapter" \
-  vf-OS.compose.2.depends_on.0="rabbitmq"
+  vf-OS.compose.2.depends_on.0="rabbitmq" \
+  vf-OS.compose.2.environment.INSECURE="true"
 
 COPY docker-entrypoint.sh ./
 COPY vfos_messaging_pubsub_config.config ./
