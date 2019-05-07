@@ -21,8 +21,8 @@ shopt -s nullglob
 #SET TO TRUE and MODIFY DOMAIN/EMAIL for https
 USE_HTTPS=/bin/false
 #ACME_DOMAIN_NAME="35.181.109.46.nip.io"
-ACME_DOMAIN_NAME="1.vfos-hackaton.almende.com"
-ACME_EXTERNAL_IP=35.181.109.46
+ACME_DOMAIN_NAME="localhost"
+ACME_EXTERNAL_IP=127.0.0.1
 ACME_EMAIL="ludo@almende.org"
 
 
