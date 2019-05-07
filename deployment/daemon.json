@@ -1,1 +1,1 @@
-{ "insecure-registries":["registry:5000"] }
+{ "storage-driver": "vfs", "insecure-registries":["registry:5000"] }

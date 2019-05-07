@@ -253,7 +253,7 @@ services:
       - "traefik.frontend.rule=PathPrefixStrip:/processdesigner"
     environment:
       - "RUN_TYPE=processdesigner"
-      - "API_END_POINT=http://localhost/processapi"
+      - "API_END_POINT=http://$ACME_DOMAIN_NAME/processapi"
     depends_on:
       - processapi
   idm:

@@ -173,6 +173,11 @@ class Download {
 
   handleDependencies () {
     let me = this
+    // Skipping because :extended versions don't work
+    me.status = 'Installable'
+    me.save()
+    return
+    
     me.status = 'CheckingDeps'
     let labelCommand = 'docker image inspect ' + me.imageid
     console.log(me.status, 'checking:', labelCommand)
