@@ -39,7 +39,7 @@ const getDeploymentRoutes = (app) => {
         // Create download, start
         let data = req.body
         try {
-          let download = new Download(uuidv1(), data.id, data.url, save)
+          let download = new Download(uuidv1(), data.id, null, data.url, 'Initial', save)
           downloads.push(download)
           res.send(JSON.stringify(download))
           await storage.setItem('downloads', downloads)
