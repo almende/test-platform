@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDYapl3Krp+GcD9w2ACdUCuSdwxXfh5WczPPUAAxtCXoOESRFoZvl3W2nkwD1Xga/Ugaq4m7tJgm/KuKpaaZjx4vqryXiODLRn2TdgcKCdoM4y6qbdWt1kGCE/KdU013MmblKRZuJCKkeOcJaJUghkEwPzVu47oNacHVvdTQwqr6vmm/xSczn0mHm+czfXeHLSrf2mOIoFlY+bwHfdZXEC+ywF1TXOhe6uAK38P/yfxpNKjWXYzcEnej0ck6Z/OPeF+yz9Rnm6nVzRkQdHUBm/reDFWya0qQsS0JXJvMj4F8mWBwHYf9Y5CzyowbvrVK7xboNRigg3fiZRP2DEuugLf ludo@ludo-OMEN-Laptop" >> .ssh/authorized_keys
+
