@@ -36,8 +36,8 @@ for (let i = 0; i < top; i++) {
 // apply network to config files?
 
 services['reverse-proxy'] = { 'networks': networks }
-if (services['rabbitmq']){
-   services['rabbitmq'] = { 'networks': networks }
+if (services['rabbitmq']) {
+  services['rabbitmq'] = { 'networks': networks }
 }
 let networkSection = {}
 networks.map((network) => {
