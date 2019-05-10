@@ -59,6 +59,11 @@ function handleRun (run, accessToken) {
     localInstall(run.assetName).then((result) => {
       if (!run.upload) {
         run.status = 'done'
+        delete active[run.uuid]
+        finished.push(run)
+        if (finished.length > 5) {
+          finished.shift()
+        }
       } else {
         run.status = 'packaging'
         label2manifest(run.assetName, run.additionalImages).then((result) => {
