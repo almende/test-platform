@@ -17,6 +17,7 @@ This code represents the Platform deliverable for the vf-OS project.
 ## Installation
 
 Two options: binary distribution or based on the platform source
+(From source is currently adviced.)
 
 #### Binary distribution
 
@@ -83,6 +84,22 @@ vf_os_platform_exec_control
 After this script has finished, you can start the platform through the main startup script, following the common steps below.
 
 #### <a name="Common"></a>Common
+
+Before starting you'll need to configure the DNS/IP-addresses of the platform: For this you'll need to edit the "vf-os.sh" script.
+
+``` shell
+user@host:~/platform$ nano vf-os.sh
+...
+#SET TO TRUE and MODIFY DOMAIN/EMAIL for https
+USE_HTTPS=/bin/false
+#ACME_DOMAIN_NAME="35.181.109.46.nip.io"
+ACME_DOMAIN_NAME="localhost"
+ACME_EXTERNAL_IP=127.0.0.1
+ACME_EMAIL="ludo@almende.org"
+...
+```
+In this block, please check and update the ACME_DOMAIN_NAME variable to match your global DNS name pointing to this server. Similarly you need to update the ACME_EXTERNAL_IP as well, to point to the public ipaddress that your browser can reach. The default settings are good for a localhost setup.
+
 
 To start the platform you need to run the start.sh script. The first time you run this script it will install runtime dependencies, including the platform assets themselves from the local quarantine repository.
 
@@ -229,6 +246,15 @@ manifest2label <fullPath2zipfile> [<deleteArtifacts>] [<push2Repos>] [<registryH
 
 #### Deploy asset to vf-OS Store
 TODO
+
+#### <a name="installMarket"></a>Install asset from the marketplace
+Through the System Dashboard you can install assets from the vf-OS marketplace. For this you login to the System Dashboard: e.g. <a href="http://localhost/systemdashboard">http://localhost/systemdashboard</a> 
+
+![Installations of assets][install]
+
+[install]: doc/installation.png "Installations of assets"
+
+On the right side of the screen is an overview of earlier installations, showing the progress of their installation.
 
 #### <a name="installLocally"></a>Install asset locally
 
