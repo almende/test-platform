@@ -245,7 +245,14 @@ manifest2label <fullPath2zipfile> [<deleteArtifacts>] [<push2Repos>] [<registryH
 * registryHost: The hostname of the quarantine registry, defaults to *localhost* which never needs to change.
 
 #### Deploy asset to vf-OS Store
-TODO
+For deploying assets to the vf-OS Store another script has been provided: ./uploader.js.
+The basic syntax for that script is as follows: 
+
+```
+./uploader.js '{"product_id":142,"zipfile":"opc_ua.zip","major":"1.0","version":20.5,"product_names_en-us":"opc_ua_driver","access_token":"abcabcabc"}'
+```
+The product_id field is optional, if none is given a new product will be generated. The version and price fields must be numeric, a string will let the upload fail.
+
 
 #### <a name="installMarket"></a>Install asset from the marketplace
 Through the System Dashboard you can install assets from the vf-OS marketplace. For this you login to the System Dashboard: e.g. <a href="http://localhost/systemdashboard">http://localhost/systemdashboard</a> 
