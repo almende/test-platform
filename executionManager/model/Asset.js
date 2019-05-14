@@ -24,7 +24,7 @@ class Asset {
   writeConfigFile () {
     let me = this
     return new Promise((resolve, reject) => {
-      exec('/usr/src/app/installAsset.js ' + me.imageId + ' ' + me.id + ' false /var/run/compose ' + process.env.HOST_PWD, (error, stdout, stderr) => {
+      exec('/usr/src/app/installAsset.js ' + me.imageId + ' ' + me.id + ' false /var/run/compose ' + process.env.HOST_PWD + '/.persist', (error, stdout, stderr) => {
         if (error) {
           reject(error, stderr)
         } else {
