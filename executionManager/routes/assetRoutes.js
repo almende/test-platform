@@ -4,7 +4,6 @@ const Router = require('express')
 const fs = require('fs')
 const Asset = require('../model/Asset')
 const exec = require('child_process').exec
-const storage = require('node-persist')
 
 const reload = function () {
   return new Promise((resolve, reject) => {
@@ -106,77 +105,64 @@ const getAssetRoutes = (app) => {
       var readStream = fs.createReadStream('/var/run/compose/3_' + req.params.id + '_compose.yml')
       readStream.pipe(res)
     })
-    .get('/:id', async (req,res) => {
-      Asset.readConfigFile(req.params.id)
+    .get('/:id', async (req, res) => {
+      res.setHeader('Content-Type', 'application/json')
+      res.send(Asset.readConfigFile(req.params.id))
     })
     .post('/:id', async (req, res) => {
       try {
         let data = req.body
-        //(id, imageId, containerName = 'Unknown')
-        Asset.readConfigFile(req.params.id)
-
-        /*        let idx = assets.length
-                while (idx--) {
-                  if (assets[idx] && assets[idx].id === req.params.id) {
-                    let asset = assets[idx]
-                    if (data.autoStart !== null) {
-                      asset.autoStart = data.autoStart
-                    }
-                    if (data.imageId !== null) {
-                      asset.imageId = data.imageId
-                    }
-                    await storage.setItem('assets', assets)
-
-                    let output = await asset.writeConfigFile()
-                    reload().then(() => {
-                      res.send({ result: 'OK', output: output })
-                    }).catch((err, stderr) => {
-                      res.status(500)
-                      res.send({
-                        error: err,
-                        stderr: stderr
-                      })
-                    })
-                    return
-                  }
-                }
-              } catch (e) {
-                res.status(500)
-                res.send({ error: e })
-              }
+        let asset = Asset.readConfigFile(req.params.id)
+        if (asset) {
+          if (data.id) {
+            asset.id = data.id
+          }
+          asset.imageId = data.imageId
+          let output = await asset.writeConfigFile()
+          reload().then(() => {
+            res.send({ result: 'OK', output: output })
+          }).catch((err, stderr) => {
+            res.setHeader('Content-Type', 'application/json')
+            res.status(500)
+            res.send({
+              error: err,
+              stderr: stderr
             })
-            .put('/', async (req, res) => {
-              let idx = assets.length
-              let data = req.body
-              while (idx--) {
-                if (assets[idx] && assets[idx].id === data.id) {
-                  res.status(409)
-                  res.send({ error: 'Asset already exists! ' + data.id })
-                  return
-                }
-              }
-              try {
-                let asset = new Asset(data.id, data.imageId, data.autoStart)
-                assets.push(asset)
-                await storage.setItem('assets', assets)
-                let output = await asset.writeConfigFile()
-                reload().then(() => {
-                  res.send({ result: 'OK', output: output })
-                }).catch((err, stderr) => {
-                  res.status(500)
-                  res.send({
-                    error: err,
-                    stderr: stderr
-                  })
-                })
-
-              */
+          })
+        } else {
+          res.setHeader('Content-Type', 'application/json')
+          res.status(404)
+          res.send({ 'error': 'Cannot find asset:' + req.params.id })
+        }
       } catch (e) {
+        res.setHeader('Content-Type', 'application/json')
         res.status(500)
         res.send({ error: e })
       }
     })
-
+    .put('/', async (req, res) => {
+      try {
+        let data = req.body
+        let asset = Asset.readConfigFile(data.id)
+        if (!asset) {
+          asset = new Asset(data.id, data.imageId)
+        }
+        let output = await asset.writeConfigFile()
+        reload().then(() => {
+          res.send({ result: 'OK', output: output })
+        }).catch((err, stderr) => {
+          res.status(500)
+          res.send({
+            error: err,
+            stderr: stderr
+          })
+        })
+      } catch (e) {
+        res.setHeader('Content-Type', 'application/json')
+        res.status(500)
+        res.send({ error: e })
+      }
+    })
     .delete('/:id', async (req, res) => {
       if (fs.existsSync('/var/run/compose/3_' + req.params.id + '_compose.yml')) {
         fs.unlinkSync('/var/run/compose/3_' + req.params.id + '_compose.yml')

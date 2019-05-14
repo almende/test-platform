@@ -123,7 +123,7 @@ services:
     restart: "unless-stopped"
     depends_on:
       - registry
-    command: ["-b", "0.0.0.0","-Dkeycloak.profile.feature.docker=enabled", "-Dkeycloak.migration.action=import", "-Dkeycloak.migration.provider=singleFile", "-Dkeycloak.migration.file=/opt/jboss/vf-OS-re$
+    command: ["-b", "0.0.0.0","-Dkeycloak.profile.feature.docker=enabled", "-Dkeycloak.migration.action=import", "-Dkeycloak.migration.provider=singleFile", "-Dkeycloak.migration.file=/opt/jboss/vf-OS-realm.json", "-Dkeycloak.migration.strategy=OVERWRITE_EXISTING"]
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=vf-OS-test
@@ -232,6 +232,9 @@ services:
       - "traefik.iframe.port=4201"
     networks:
       - execution-manager-net
+    environment:
+      - ASSET_NAME=frontend_editor
+      - WORKSPACE=hello_vfos
   processapi:
     image: informationcatalyst/vfos-process-api
     hostname: processapi

@@ -126,7 +126,9 @@ class Asset {
 
 Asset.readConfigFile = function (id) {
   let res = yaml.safeLoad(fs.readFileSync('/var/run/compose/3_' + id + '_compose.yml'))
-  console.log(JSON.stringify(res))
+  let service = res['services'][id]
+  return new Asset(id, service.image)
+
 }
 
 Asset.reconstruct = function (obj) {

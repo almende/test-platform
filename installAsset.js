@@ -15,7 +15,7 @@ if (!dockerImage && process.argv.length < 3) {
   console.log('Call this script as: ' + process.argv[1] + ' <dockerUrl> [<instance_id>] [<reload>] [<targetFolder>] [<volumesFolder>]')
   process.exit(1)
 }
-let imageFile = dockerImage.replace(/.*\//gi, '').replace(/:.*/gi, '')
+let imageFile = instanceId.replace(/.*\//gi, '').replace(/:.*/gi, '')
 
 function getOverrides (label) {
   switch (label) {
