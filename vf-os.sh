@@ -123,7 +123,7 @@ services:
     restart: "unless-stopped"
     depends_on:
       - registry
-    command: ["-b", "0.0.0.0","-Dkeycloak.profile.feature.docker=enabled", "-Dkeycloak.import=/opt/jboss/vf-OS-realm.json"]
+    command: ["-b", "0.0.0.0","-Dkeycloak.profile.feature.docker=enabled", "-Dkeycloak.migration.action=import", "-Dkeycloak.migration.provider=singleFile", "-Dkeycloak.migration.file=/opt/jboss/vf-OS-re$
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=vf-OS-test
@@ -132,6 +132,7 @@ services:
       - execution-manager-net
     volumes:
       - $CURRENT_DIR/.persist/aim_persist:/opt/jboss/keycloak/standalone/data
+      - $CURRENT_DIR/aim/vf-OS-realm.json:/opt/jboss/vf-OS-realm.json
     labels:
       - "traefik.frontend.rule=PathPrefix:/aim"
       - "traefik.frontend.priority=-1"
@@ -257,7 +258,7 @@ services:
     depends_on:
       - processapi
   idm:
-    image: vfos/idm
+    image: localhost:5000/vfos/idm
     hostname: idm
     environment:
       - IDM_DB_HOST=security_mysql

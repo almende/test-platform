@@ -1,12 +1,13 @@
 'use strict'
 
 const exec = require('child_process').exec
+const fs = require('fs')
+const yaml = require('js-yaml')
 
 class Asset {
-  constructor (id, imageId, autoStart = false, containerName = 'Unknown') {
+  constructor (id, imageId, containerName = 'Unknown') {
     this.id = id // instance ID, used as runtime name and URL prefix
     this.imageId = imageId // image ID, as used by docker image
-    this.autoStart = autoStart
     this.containerName = containerName
     this.status = 'Unknown'
 
@@ -123,8 +124,13 @@ class Asset {
   }
 }
 
+Asset.readConfigFile = function (id) {
+  let res = yaml.safeLoad(fs.readFileSync('/var/run/compose/3_' + id + '_compose.yml'))
+  console.log(JSON.stringify(res))
+}
+
 Asset.reconstruct = function (obj) {
-  return new Asset(obj.id, obj.imageId, obj.autoStart, obj.containerName)
+  return new Asset(obj.id, obj.imageId, obj.containerName)
 }
 
 module.exports = Asset
