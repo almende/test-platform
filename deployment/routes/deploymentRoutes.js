@@ -5,6 +5,17 @@ const Download = require('../model/Download')
 const storage = require('node-persist')
 const uuidv1 = require('uuid/v1')
 
+const jsonify = function (o) {
+  const seen = []
+  return JSON.stringify(o, function (k, v) {
+    if (typeof v === 'object') {
+      if (seen.indexOf(v) !== -1) { return '__cycle__' }
+      seen.push(v)
+    }
+    return v
+  })
+}
+
 const getDeploymentRoutes = (app) => {
   const router = new Router()
   storage.init({ 'dir': '/persist/deploymentRoutes' }).then(async () => {
@@ -22,13 +33,13 @@ const getDeploymentRoutes = (app) => {
     }
     router
       .get('/', (req, res) => {
-        res.send(downloads)
+        res.send(jsonify(downloads))
       })
       .get('/:uuid', (req, res) => {
         let idx = downloads.length
         while (idx--) {
           if (downloads[idx] && downloads[idx].uuid === req.params.uuid) {
-            res.send(downloads[idx])
+            res.send(jsonify(downloads[idx]))
             return
           }
         }
@@ -41,7 +52,7 @@ const getDeploymentRoutes = (app) => {
         try {
           let download = new Download(uuidv1(), data.id, null, data.url, 'Initial', save)
           downloads.push(download)
-          res.send(JSON.stringify(download))
+          res.send(jsonify(download))
           await storage.setItem('downloads', downloads)
         } catch (e) {
           res.send({ error: e })
