@@ -33,12 +33,14 @@ const getDeploymentRoutes = (app) => {
     }
     router
       .get('/', (req, res) => {
+        res.setHeader('Content-Type', 'application/json')
         res.send(jsonify(downloads))
       })
       .get('/:uuid', (req, res) => {
         let idx = downloads.length
         while (idx--) {
           if (downloads[idx] && downloads[idx].uuid === req.params.uuid) {
+            res.setHeader('Content-Type', 'application/json')
             res.send(jsonify(downloads[idx]))
             return
           }
@@ -52,6 +54,7 @@ const getDeploymentRoutes = (app) => {
         try {
           let download = new Download(uuidv1(), data.id, null, data.url, 'Initial', save)
           downloads.push(download)
+          res.setHeader('Content-Type', 'application/json')
           res.send(jsonify(download))
           await storage.setItem('downloads', downloads)
         } catch (e) {
@@ -64,6 +67,7 @@ const getDeploymentRoutes = (app) => {
           if (downloads[idx] && downloads[idx].uuid === req.params.uuid) {
             downloads[idx].deleteLocal()
             downloads.splice(idx, 1)
+            res.setHeader('Content-Type', 'application/json')
             res.send({ result: 'OK' })
             return
           }
