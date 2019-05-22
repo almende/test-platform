@@ -58,7 +58,7 @@ let callCache = function (call, duration) {
     cache.result = null
     cache.timestamp = -1
   }
-  if (!cache.flag) {
+  if (Date.now() - cache.timestamp > (duration / 2) && !cache.flag) {
     doCall(cache)
   }
   return new Promise((resolve, reject) => {
