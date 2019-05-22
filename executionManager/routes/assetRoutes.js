@@ -16,22 +16,77 @@ const reload = function () {
   })
 }
 
+let openCalls = {}
+let callCache = function (call, duration) {
+
+  /*
+   *  call is a string for exec(call,  )
+   *  Client calls wrapper, with callback that expects a promise
+   *
+   *  (result is a promise, allowing errors to propagate)
+   *  if (result & timestamp too old) drop result, reset timestamp
+   *  if !flag (set flag + start call)
+   *
+   *  if (result) callbackPromise.resolve(result)
+   *  add to waiters
+   *
+   *  When call returns, set result, set timestamp, call all waiters, remove flag
+   */
+  let doCall = function (cache) {
+    cache.flag = true
+    exec(call, (error, stdout, stderr) => {
+      if (error) {
+        cache.waiters.map((waiter) => {
+          waiter(Promise.reject(error, stderr))
+        })
+      } else {
+        cache.result = stdout
+        cache.timestamp = Date.now()
+        cache.flag = false
+        cache.waiters.map((waiter) => {
+          waiter(Promise.resolve(stdout))
+        })
+      }
+      cache.waiters = []
+    })
+  }
+  if (!openCalls[call]) {
+    openCalls[call] = { 'result': null, 'waiters': [], 'flag': false, 'timestamp': -1 }
+  }
+  let cache = openCalls[call]
+  if (cache.result && Date.now() - cache.timestamp > duration) {
+    cache.result = null
+    cache.timestamp = -1
+  }
+  if (!cache.flag) {
+    doCall(cache)
+  }
+  return new Promise((resolve, reject) => {
+    let callback = (resPromise) => {
+      resPromise.then((result) => { resolve(result) }).catch((error) => { reject(error) })
+    }
+    if (cache.result) {
+      callback(Promise.resolve(cache.result))
+    } else {
+      cache.waiters.push(callback)
+    }
+  })
+}
+
 const getAssetRoutes = (app) => {
   const router = new Router()
 
   function getFullInfo (res) {
     let dumpcmd = '/usr/src/app/dump_info.sh'
-    exec(dumpcmd, (error, stdout, stderr) => {
-      if (!error) {
-        res.setHeader('Content-Type', 'application/json')
-        res.send(stdout)
-      } else {
-        res.setHeader('Content-Type', 'application/json')
-        res.status(500)
-        res.send({
-          'error': error, 'stderr': stderr
-        })
-      }
+    callCache(dumpcmd, 3000).then((stdout) => {
+      res.setHeader('Content-Type', 'application/json')
+      res.send(stdout)
+    }).catch((error, stderr) => {
+      res.setHeader('Content-Type', 'application/json')
+      res.status(500)
+      res.send({
+        'error': error, 'stderr': stderr
+      })
     })
   }
 
@@ -56,23 +111,20 @@ const getAssetRoutes = (app) => {
         'pids': '{{ .PIDs }}'
       }
       let statsCommand = 'docker stats --no-stream --format \'' + JSON.stringify(strFormat) + '\''
-
-      exec(statsCommand, (error, stdout, stderr) => {
-        if (!error) {
-          let answer = {
-            'stdout': stdout,
-            'timestamp': Date.now()
-          }
-          // send answer
-          res.setHeader('Content-Type', 'application/json')
-          res.send(answer)
-        } else {
-          res.setHeader('Content-Type', 'application/json')
-          res.status(500)
-          res.send({
-            'error': error, 'stderr': stderr
-          })
+      callCache(statsCommand, 3000).then((stdout) => {
+        let answer = {
+          'stdout': stdout,
+          'timestamp': Date.now()
         }
+        // send answer
+        res.setHeader('Content-Type', 'application/json')
+        res.send(answer)
+      }).catch((error, stderr) => {
+        res.setHeader('Content-Type', 'application/json')
+        res.status(500)
+        res.send({
+          'error': error, 'stderr': stderr
+        })
       })
     })
     .post('/logs', (req, res) => {
