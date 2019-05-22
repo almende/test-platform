@@ -97,11 +97,12 @@ let compareLabels = function (manifest, labels) {
   let result = Object.assign({}, labels)
 
   Object.keys(manifest).map((key) => {
-    if (key === 'binaryFile') return
-    if (!key.startsWith('vf-OS')) {
-      result['vf-OS.' + key] = manifest[key]
+    let origKey = key.replace('__added', '')
+    if (origKey === 'binaryFile') return
+    if (!origKey.startsWith('vf-OS')) {
+      result['vf-OS.' + origKey] = manifest[origKey]
     } else {
-      result[key] = manifest[key]
+      result[origKey] = manifest[origKey]
     }
   })
   return result

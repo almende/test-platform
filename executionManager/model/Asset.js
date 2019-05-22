@@ -41,17 +41,23 @@ class Asset {
         exec('docker container ls --filter=\'label=com.docker.compose.service=' + me.id + '\' --format=\'{"name":{{json .Names}},"status":{{json .Status}}}\' -a', (error, stdout, stderr) => {
           if (!error) {
             if (stdout !== '') {
-              let result = JSON.parse(stdout)
-              if (result.status.startsWith('Up')) {
-                me.status = 'Running'
-                me.containerName = result.name
-                resolve()
-              } else {
-                me.status = 'Stopped'
-                me.containerName = result.name
-                resolve()
+              try {
+                let result = JSON.parse(stdout)
+                if (result.status.startsWith('Up')) {
+                  me.status = 'Running'
+                  me.containerName = result.name
+                  resolve()
+                } else {
+                  me.status = 'Stopped'
+                  me.containerName = result.name
+                  resolve()
+                }
+              } catch (err) {
+                me.status = 'Unknown'
+                reject(err, stdout)
               }
             } else {
+              me.status = 'Unknown'
               reject(error, stderr)
             }
           } else {
