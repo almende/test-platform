@@ -19,18 +19,17 @@ $(document).ready(function () {
 function reloadAsset () {
 
     // POST TO:  /executionservices/assets/<assetID>/reload
-    /*
 
-    var dataMerge =
+    var url = "/executionservices/assets/" + DETAILS_CONTAINER_NAME + "/reload"
+    var dataObj =
         {
-            "id": urlId,
-            "url": urlForm + "?access_token=" + tokenForm
+            "test": "TestReload"
         };
 
-    var data = JSON.stringify(dataMerge)
+    var data = JSON.stringify(dataObj);
 
     $.ajax({
-        url: '/deployment/downloads',
+        url: url,
         type: 'POST',
         contentType: 'application/json',
         data: data,
@@ -43,24 +42,23 @@ function reloadAsset () {
             console.log("ERROR: ", error);
         }
     });
-    */
+
 
 }
 
 function factoryResetAsset () {
     // POST TO: /executionservices/assets/<assetID>/reset
 
-    /*
-    var dataMerge =
+    var url = "/executionservices/assets/" + DETAILS_CONTAINER_NAME + "/reset"
+    var dataObj =
         {
-            "id": urlId,
-            "url": urlForm + "?access_token=" + tokenForm
+            "test": "TestReset"
         };
 
-    var data = JSON.stringify(dataMerge)
+    var data = JSON.stringify(dataObj);
 
     $.ajax({
-        url: '/deployment/downloads',
+        url: url,
         type: 'POST',
         contentType: 'application/json',
         data: data,
@@ -73,7 +71,7 @@ function factoryResetAsset () {
             console.log("ERROR: ", error);
         }
     });
-*/
+
 
     $("#factoryResetModal").modal('hide');
     $("#factoryResetInfo").show();
