@@ -72,6 +72,10 @@ class Asset {
     }
     let getInstalled = () => {
       return new Promise((resolve, reject) => {
+        if (!me.imageId) {
+          me.status = 'Unknown'
+          return Promise.resolve()
+        }
         exec('docker image ls ' + me.imageId + ' -q', (error, stdout, stderr) => {
           if (!error) {
             if (stdout !== '') {
@@ -121,6 +125,9 @@ class Asset {
   reloadAll () {
     let me = this
     let promises = []
+    if (!me.configuration) {
+      return me.reload(me.id)
+    }
     for (let idx in me.configuration.services) {
       if (me.configuration.services.hasOwnProperty(idx)) {
         promises.push(me.reload(idx))
@@ -131,6 +138,9 @@ class Asset {
 
   deletePersistence () {
     let me = this
+    if (!me.configuration) {
+      return me.reload(me.id)
+    }
     return new Promise((resolve, reject) => {
       try {
         let volumes = []
@@ -201,7 +211,7 @@ Asset.readConfigFile = function (id) {
     let service = res['services'][id]
     return new Asset(id, service.image, res)
   } else {
-    return null
+    return new Asset(id)
   }
 }
 
