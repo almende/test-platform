@@ -93,6 +93,7 @@ $(document).ready(function(){
         height: '200px',
         start: vis.moment().add(-60, 'seconds'), // changed so its faster
         end: vis.moment(),
+        clickToUse: true,
         dataAxis: {
             left: {
                 title: {
@@ -115,6 +116,7 @@ $(document).ready(function(){
         height: '200px',
         start: vis.moment().add(-60, 'seconds'), // changed so its faster
         end: vis.moment(),
+        clickToUse: true,
         dataAxis: {
             left: {
                 title: {
@@ -137,6 +139,7 @@ $(document).ready(function(){
         height: '200px',
         start: vis.moment().add(-60, 'seconds'), // changed so its faster
         end: vis.moment(),
+        clickToUse: true,
         drawPoints: {
             style: 'circle' // square, circle
         },
@@ -154,6 +157,7 @@ $(document).ready(function(){
         height: '200px',
         start: vis.moment().add(-60, 'seconds'), // changed so its faster
         end: vis.moment(),
+        clickToUse: true,
         defaultGroup:'',
         legend: true,
         drawPoints: {
@@ -173,6 +177,7 @@ $(document).ready(function(){
         height: '200px',
         start: vis.moment().add(-60, 'seconds'), // changed so its faster
         end: vis.moment(),
+        clickToUse: true,
         defaultGroup:'',
         legend: true,
         drawPoints: {

@@ -57,7 +57,7 @@ function installAsset(){
 function updateDownloadsHistory () {
 
     $.get('/deployment/downloads', function(data, status){
-        console.log("Data: " + data + "\nStatus: " + status);
+        //console.log("Data: " + data + "\nStatus: " + status);
         if(status === "success"){
 
             var scrollTop = $("#downloads").scrollTop();

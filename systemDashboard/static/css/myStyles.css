@@ -8,10 +8,11 @@ html, body {
   height: 100%;
   margin: 0;
 }
-
+/*
 body{
   background: red;
 }
+*/
 .boxBody {
   display: flex;
   flex-flow: column;
@@ -60,6 +61,12 @@ body{
   width: 100%;
 }
 
+/*--------Makes sticky header tables--------*/
+.tableFixHead    { overflow-y: auto; max-height: 350px; }
+.tableFixHead th { position: sticky; top: -2px; }
+/*-----------------------------------------------------*/
+
+
 #detailsDiv{
   height: 100%;
 }
@@ -88,6 +95,12 @@ table tbody tr td button{
 #containerDetails_app,
 #containerDetails_settings{
   min-height: 450px;
+}
+
+/* Sets max height of the details content, scrolls if bigger than that */
+.detailsAllTabsContent{
+  max-height: 850px;
+  overflow: auto;
 }
 
 /*Style iframe of app and settings navigation in details view*/

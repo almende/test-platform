@@ -165,6 +165,27 @@
                         </div>
                     </div>
 
+                    <!-- Modal for factory reset asset -->
+                    <div class="modal fade" id="factoryResetModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" >Factory Reset Asset</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Are you sure you want to continue with factory reset asset?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <a id="factoryResetButton" href="#" type="button" class="btn btn-primary" target="" onclick="factoryResetAsset()">Continue</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="operations" class="col-sm-12">
 
                         <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_operations" role="button" aria-expanded="true" aria-controls="wrapperCollapse_operations" style="text-decoration:none" onclick="collapseChangeIcon(this)">
@@ -341,7 +362,7 @@
                                 </a>
 
                                 <div id="wrapperCollapse_runningVAssets" class="collapse show">
-                                    <div class="table-responsive-xl">
+                                    <div class="table-responsive-xl tableFixHead">
                                         <table id="runningVAssetsTable" class="dashboardTables table table-hover table-light table-sm">
                                             <thead class="thead-light">
                                             <tr>
@@ -398,7 +419,7 @@
                                 </a>
 
                                 <div id="wrapperCollapse_notRunningVAssets" class="collapse show">
-                                    <div class="table-responsive-xl">
+                                    <div class="tableFixHead table-responsive-xl">
                                         <table id="notRunningVAssetsTable" class="dashboardTables table table-hover table-light table-sm">
                                             <thead class="thead-light">
                                             <tr>
@@ -434,7 +455,7 @@
                                 </a>
 
                                 <div id="wrapperCollapse_otherContainers" class="collapse show">
-                                    <div class="table-responsive-xl">
+                                    <div class="table-responsive-xl tableFixHead">
                                         <table id="otherContainersTable" class="dashboardTables table table-hover table-light table-sm">
                                             <thead class="thead-light">
                                             <tr>
@@ -472,7 +493,7 @@
 
                     </div>
 
-                    <div id="detailsDiv" class="border shadow p-2 mb-2 bg-white" style="display: none">
+                    <div id="detailsDiv" class="border sticky-top shadow p-2 mb-2 bg-white" style="display: none">
 
                         <div>
                             <!-- Button to close details view src="js/containerDetails.js"-->
@@ -528,7 +549,7 @@
                         </div>
 
                         <!-- Tab panes -->
-                        <div class="tab-content">
+                        <div class="tab-content detailsAllTabsContent">
                             <!-- Tab containerDetails_app -->
                             <div id="containerDetails_app" class="tab-pane active">
                                 <iframe id="app_iframe" src="">
@@ -615,6 +636,11 @@
 
                             <!-- Tab containerDetails_settings -->
                             <div id="containerDetails_settings" class="tab-pane fade">
+                                <div class="my-2">
+                                    <button type="button" class="btn btn-sm btn-primary" onclick="reloadAsset()">Reload</button>
+                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#factoryResetModal">Factory Reset</button>
+                                </div>
+
                                 <iframe id="settings_iframe" src="">
                                     <p>Your browser does not support iframes.</p>
                                 </iframe>
@@ -644,6 +670,12 @@
                         </div>
 
                     </div>
+
+                    <!-- Alert for factory reset asset -->
+                    <div id="factoryResetInfo" class="alert alert-info" style="display: none; position: fixed; bottom: 0; right: 0;">
+                        Asset is resetting...
+                    </div>
+
                 </div>
 
             </div>
