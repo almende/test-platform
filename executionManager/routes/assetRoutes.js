@@ -5,20 +5,17 @@ const fs = require('fs')
 const Asset = require('../model/Asset')
 const exec = require('child_process').exec
 
-const reload = function () {
-  return new Promise((resolve, reject) => {
-    exec('docker exec vf_os_platform_exec_control docker-compose up -d', (error, stdout, stderr) => {
-      if (error) {
-        reject(error, stderr)
-      }
-      resolve(stdout)
-    })
-  })
+const reload = function (id) {
+  let asset = Asset.readConfigFile(id)
+  return asset.reloadAll()
+}
+const dropPersistence = function (id) {
+  let asset = Asset.readConfigFile(id)
+  return asset.deletePersistence()
 }
 
-let openCalls = {}
+const openCalls = {}
 let callCache = function (call, duration) {
-
   /*
    *  call is a string for exec(call,  )
    *  Client calls wrapper, with callback that expects a promise
@@ -132,30 +129,51 @@ const getAssetRoutes = (app) => {
 
       // let logsCommand = 'export TERM=linux-m1b;docker logs ' + req.body.containerName + ' | tail -n ' + req.body.numOfLines;
       // let logsCommand = 'docker exec vf_os_platform_exec_control docker-compose --file test_compose.yml logs --no-color assetA'
-
-      exec(logsCommand, (error, stdout, stderr) => {
-        if (!error) {
-          let answer = {
-            'stdout': stdout,
-            'timestamp': Date.now()
-          }
-          // console.log(JSON.stringify(answer))
-
-          // send answer
-          res.setHeader('Content-Type', 'application/json')
-          res.send(answer)
-        } else {
-          // console.log('ERRORS logs')
-          res.setHeader('Content-Type', 'application/json')
-          res.status(500)
-          res.send({ 'error': error, 'stderr': stderr })
+      callCache(logsCommand, 3000).then((stdout) => {
+        let answer = {
+          'stdout': stdout,
+          'timestamp': Date.now()
         }
+        // send answer
+        res.setHeader('Content-Type', 'application/json')
+        res.send(answer)
+      }).catch((error, stderr) => {
+        res.setHeader('Content-Type', 'application/json')
+        res.status(500)
+        res.send({
+          'error': error, 'stderr': stderr
+        })
       })
     })
     .get('/:id/compose_config', (req, res) => {
       // just get the file from disk
-      var readStream = fs.createReadStream('/var/run/compose/3_' + req.params.id + '_compose.yml')
+      res.setHeader('Content-Type', 'application/x-yaml')
+      let readStream = fs.createReadStream('/var/run/compose/3_' + req.params.id + '_compose.yml')
       readStream.pipe(res)
+    })
+    .post('/:id/reload', (req, res) => {
+      reload(req.params.id).then(() => {
+        res.send({ result: 'OK' })
+      }).catch((err, stderr) => {
+        res.setHeader('Content-Type', 'application/json')
+        res.status(500)
+        res.send({ error: err, stderr: stderr })
+      })
+    })
+    .post('/:id/reset', (req, res) => {
+      dropPersistence(req.params.id).then((result) => {
+        reload(req.params.id).then(() => {
+          res.send({ result: result })
+        }).catch((err, stderr) => {
+          res.setHeader('Content-Type', 'application/json')
+          res.status(500)
+          res.send({ error: err, stderr: stderr })
+        })
+      }).catch((error) => {
+        res.setHeader('Content-Type', 'application/json')
+        res.status(500)
+        res.send({ error: error })
+      })
     })
     .get('/:id', async (req, res) => {
       res.setHeader('Content-Type', 'application/json')

@@ -113,6 +113,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - $CURRENT_DIR/.compose:/var/run/compose
       - $CURRENT_DIR/.persist/executionservices_persist:$PERSISTENT_VOLUME
+      - $CURRENT_DIR/.persist/:/allPersist
     environment:
       - DOCKER_COMPOSE_PATH=/var/run/compose
       - HOST_PWD=$CURRENT_DIR

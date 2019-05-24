@@ -3,13 +3,15 @@
 const exec = require('child_process').exec
 const fs = require('fs')
 const yaml = require('js-yaml')
+const rmdir = require('rimraf')
 
 class Asset {
-  constructor (id, imageId, containerName = 'Unknown') {
+  constructor (id, imageId, config, containerName = 'Unknown') {
     this.id = id // instance ID, used as runtime name and URL prefix
     this.imageId = imageId // image ID, as used by docker image
     this.containerName = containerName
     this.status = 'Unknown'
+    this.configuration = config
 
     this.updateStatus()
     setInterval(this.updateStatus.bind(this), 10000)
@@ -100,6 +102,69 @@ class Asset {
     })
   }
 
+  reload (id) {
+    return new Promise((resolve, reject) => {
+      exec('docker exec vf_os_platform_exec_control docker-compose stop ' + (id ? JSON.stringify(id) : ''), (error, stdout, stderr) => {
+        if (error) {
+          reject(error, stderr)
+        }
+        exec('docker exec vf_os_platform_exec_control docker-compose up -d ' + (id ? JSON.stringify(id) : ''), (error, stdout, stderr) => {
+          if (error) {
+            reject(error, stderr)
+          }
+          resolve(stdout)
+        })
+      })
+    })
+  }
+
+  reloadAll () {
+    let me = this
+    let promises = []
+    for (let idx in me.configuration.services) {
+      if (me.configuration.services.hasOwnProperty(idx)) {
+        promises.push(me.reload(idx))
+      }
+    }
+    return Promise.all(promises)
+  }
+
+  deletePersistence () {
+    let me = this
+    return new Promise((resolve, reject) => {
+      try {
+        let volumes = []
+        for (let idx in me.configuration.services) {
+          if (me.configuration.services.hasOwnProperty(idx)) {
+            let service = me.configuration.services[idx]
+            if (service.volumes) {
+              service.volumes.map((volume) => {
+                if (volume.indexOf('/.persist/') > 0) {
+                  let path = volume.replace(/.*\/.persist\/([^:]+):.*/, '$1')
+                  if (!path.startsWith('shared_')) {
+                    volumes.push(path)
+                  }
+                }
+              })
+            }
+          }
+        }
+        volumes.map((volume) => {
+          return new Promise((resolve, reject) => {
+            rmdir('/allPersist/' + volume, (error) => {
+              if (error) { reject(error) } else { resolve('ok') }
+            })
+          })
+        })
+        Promise.all(volumes).then(() => {
+          resolve('Dropped:' + JSON.stringify(volumes))
+        }).catch((error) => { reject(error) })
+      } catch (error) {
+        reject(error)
+      }
+    })
+  }
+
   getLabels (imageOnly = false) {
     let me = this
     if (!imageOnly && this.containerName !== 'Unknown' && (this.status === 'Running' || this.status === 'Stopped')) {
@@ -134,14 +199,14 @@ Asset.readConfigFile = function (id) {
   if (fs.existsSync('/var/run/compose/3_' + id + '_compose.yml')) {
     let res = yaml.safeLoad(fs.readFileSync('/var/run/compose/3_' + id + '_compose.yml'))
     let service = res['services'][id]
-    return new Asset(id, service.image)
+    return new Asset(id, service.image, res)
   } else {
     return null
   }
 }
 
 Asset.reconstruct = function (obj) {
-  return new Asset(obj.id, obj.imageId, obj.containerName)
+  return new Asset(obj.id, obj.imageId, obj.configuration, obj.containerName)
 }
 
 module.exports = Asset
