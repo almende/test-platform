@@ -5,6 +5,10 @@ const fs = require('fs')
 const Asset = require('../model/Asset')
 const exec = require('child_process').exec
 
+const clrId = function (id) {
+  return id.replace('vfos_', '').replace('_1', '')
+}
+
 const reload = function (id) {
   let asset = Asset.readConfigFile(id)
   return asset.reloadAll()
@@ -147,12 +151,14 @@ const getAssetRoutes = (app) => {
     })
     .get('/:id/compose_config', (req, res) => {
       // just get the file from disk
+      let id = clrId(req.params.id)
       res.setHeader('Content-Type', 'application/x-yaml')
-      let readStream = fs.createReadStream('/var/run/compose/3_' + req.params.id + '_compose.yml')
+      let readStream = fs.createReadStream('/var/run/compose/3_' + id + '_compose.yml')
       readStream.pipe(res)
     })
     .post('/:id/reload', (req, res) => {
-      reload(req.params.id).then(() => {
+      let id = clrId(req.params.id)
+      reload(id).then(() => {
         res.send({ result: 'OK' })
       }).catch((err, stderr) => {
         res.setHeader('Content-Type', 'application/json')
@@ -161,8 +167,9 @@ const getAssetRoutes = (app) => {
       })
     })
     .post('/:id/reset', (req, res) => {
-      dropPersistence(req.params.id).then((result) => {
-        reload(req.params.id).then(() => {
+      let id = clrId(req.params.id)
+      dropPersistence(id).then((result) => {
+        reload(id).then(() => {
           res.send({ result: result })
         }).catch((err, stderr) => {
           res.setHeader('Content-Type', 'application/json')
@@ -176,13 +183,15 @@ const getAssetRoutes = (app) => {
       })
     })
     .get('/:id', async (req, res) => {
+      let id = clrId(req.params.id)
       res.setHeader('Content-Type', 'application/json')
-      res.send(Asset.readConfigFile(req.params.id))
+      res.send(Asset.readConfigFile(id))
     })
     .post('/:id', async (req, res) => {
+      let id = clrId(req.params.id)
       try {
         let data = req.body
-        let asset = Asset.readConfigFile(req.params.id)
+        let asset = Asset.readConfigFile(id)
         if (asset) {
           if (data.id) {
             asset.id = data.id
@@ -234,8 +243,9 @@ const getAssetRoutes = (app) => {
       }
     })
     .delete('/:id', async (req, res) => {
-      if (fs.existsSync('/var/run/compose/3_' + req.params.id + '_compose.yml')) {
-        fs.unlinkSync('/var/run/compose/3_' + req.params.id + '_compose.yml')
+      let id = clrId(req.params.id)
+      if (fs.existsSync('/var/run/compose/3_' + id + '_compose.yml')) {
+        fs.unlinkSync('/var/run/compose/3_' + id + '_compose.yml')
       }
       reload().then(() => {
         res.send({ result: 'OK' })
