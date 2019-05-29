@@ -114,3 +114,14 @@ table tbody tr td button{
 #logWindow{
   max-height: 800px;
 }
+
+
+.infoToast{
+  background: lightcyan;
+}
+.successToast{
+  background: lightgreen;
+}
+.errorToast{
+  background: lightcoral;
+}
