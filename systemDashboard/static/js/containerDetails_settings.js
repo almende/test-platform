@@ -18,7 +18,7 @@ $(document).ready(function () {
         var iframe_id = 'settings_iframe'
         resizeIFrameToFitContent(iframe_id)
     })
-    
+
 });
 
 // Makes a call to executionservices to reload an asset
@@ -45,7 +45,7 @@ function reloadAsset () {
                 header: this.invokedata.containerName,
                 body: "Successfullly reloaded!"
             }
-            createAndShowToast(message, false, SUCCESS_TOAST_CLASS);
+            createAndShowToast(message, true, SUCCESS_TOAST_CLASS);
         },
         error: function(request,msg,error) {
             // handle failure
@@ -97,7 +97,7 @@ function factoryResetAsset () {
                 header: this.invokedata.containerName,
                 body: "Successfullly resetted!"
             }
-            createAndShowToast(message, false, SUCCESS_TOAST_CLASS);
+            createAndShowToast(message, true, SUCCESS_TOAST_CLASS);
         },
         error: function(request,msg,error) {
 
