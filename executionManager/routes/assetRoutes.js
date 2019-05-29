@@ -194,11 +194,11 @@ const getAssetRoutes = (app) => {
         let asset = Asset.readConfigFile(id)
         if (asset) {
           if (data.id) {
-            asset.id = data.id
+            asset.id = clrId(data.id)
           }
           asset.imageId = data.imageId
           let output = await asset.writeConfigFile()
-          reload().then(() => {
+          reload(id).then(() => {
             res.send({ result: 'OK', output: output })
           }).catch((err, stderr) => {
             res.setHeader('Content-Type', 'application/json')
@@ -222,24 +222,28 @@ const getAssetRoutes = (app) => {
     .put('/', async (req, res) => {
       try {
         let data = req.body
-        let asset = Asset.readConfigFile(data.id)
+        let id = clrId(data.id)
+        let asset = Asset.readConfigFile(id)
         if (!asset) {
-          asset = new Asset(data.id, data.imageId)
+          asset = new Asset(id, data.imageId)
+        }
+        if (data.imageId) {
+          asset.imageId = data.imageId
         }
         let output = await asset.writeConfigFile()
-        reload().then(() => {
+        reload(id).then(() => {
           res.send({ result: 'OK', output: output })
         }).catch((err, stderr) => {
           res.status(500)
           res.send({
-            error: err,
+            error: err.toString(),
             stderr: stderr
           })
         })
       } catch (e) {
         res.setHeader('Content-Type', 'application/json')
         res.status(500)
-        res.send({ error: e })
+        res.send({ error: e.toString() })
       }
     })
     .delete('/:id', async (req, res) => {
@@ -247,12 +251,12 @@ const getAssetRoutes = (app) => {
       if (fs.existsSync('/var/run/compose/3_' + id + '_compose.yml')) {
         fs.unlinkSync('/var/run/compose/3_' + id + '_compose.yml')
       }
-      reload().then(() => {
+      reload(id).then(() => {
         res.send({ result: 'OK' })
       }).catch((err, stderr) => {
         res.status(500)
         res.send({
-          error: err,
+          error: err.toString(),
           stderr: stderr
         })
       })

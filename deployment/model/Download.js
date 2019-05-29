@@ -155,7 +155,7 @@ class Download {
     me.status = 'Push2quarantine'
     // Upload image to Registry: tag with registry:5000/assetName
     return new Promise((resolve, reject) => {
-      exec('/usr/src/app/manifest2label.js /usr/src/app/downloads/' + me.uuid + '.download.zip false true registry', (error, stdout, stderr) => {
+      exec('/usr/src/app/manifest2label.js /usr/src/app/downloads/' + me.uuid + '.download.zip true true registry', (error, stdout, stderr) => {
         if (!error) {
           if (!me.dependencies) {
             me.status = 'CheckDeps'
