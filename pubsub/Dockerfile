@@ -17,6 +17,7 @@ LABEL vf-OS=true \
   vf-OS.compose.1.port=15672 \
   vf-OS.compose.1.volume.shared.rabbitmq_config.config="/etc/rabbitmq/rabbitmq.conf" \
   vf-OS.compose.1.volume.shared.rabbitmq_config.plugins="/etc/rabbitmq/enabled_plugins" \
+  vf-OS.compose.1.volume.shared.rabbitmq_config.definitions="/etc/rabbitmq/definitions.json" \
   vf-OS.compose.1.volume.0="/var/lib/rabbitmq" \
   vf-OS.compose.1.depends_on.0="messaging" \
   vf-OS.compose.2.serviceName="broker-auth-adapter" \
@@ -27,6 +28,7 @@ LABEL vf-OS=true \
 COPY docker-entrypoint.sh ./
 COPY vfos_messaging_pubsub_config.config ./
 COPY vfos_messaging_pubsub_plugins.config ./
+COPY vfos_messaging_pubsub_definitions.json ./
 
 RUN apk --no-cache add dumb-init
 
