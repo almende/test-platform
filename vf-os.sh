@@ -211,7 +211,7 @@ services:
       - $CURRENT_DIR/.persist/che_logs:/logs
     network_mode: host
     environment:
-      - CHE_SINGLE_PORT=false
+      - CHE_SINGLE_PORT=true
       - CHE_PORT=8081
       - CHE_HOST=$ACME_DOMAIN_NAME
       - CHE_DOCKER_IP_EXTERNAL=$ACME_EXTERNAL_IP
@@ -223,6 +223,7 @@ services:
       - vf-OS.frontendUri=http://$ACME_DOMAIN_NAME:8081/
       - "traefik.enable=true"
       - "traefik.frontend.entryPoints=che"
+      - "traefik.port=8081"
   frontend_editor:
     image: gklasen/vfos_frontend_editor:latest
     restart: "unless-stopped"

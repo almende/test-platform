@@ -40,9 +40,13 @@ if (services['rabbitmq']) {
   services['rabbitmq'] = { 'networks': networks }
 }
 let networkSection = {}
+let counter = 0
 networks.map((network) => {
   if (network !== 'default') {
-    networkSection[network] = { 'driver': 'bridge' }
+    networkSection[network] = {
+      'driver': 'bridge',
+      'ipam': { 'config': [{ 'subnet': '10.99.' + (counter++) + '.0/24' }] }
+    }
   }
 })
 
