@@ -17,12 +17,12 @@
     <script src="vendor/bootstrap4/bootstrap.min.js"></script>
 
     <script src="./vendor/visjs/vis.js"></script>
-    <link href="./vendor/visjs/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+    <link href="./vendor/visjs/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css"/>
 
     <!-- highlightjs library -->
     <link rel="stylesheet" href="vendor/highlight/styles/default.css">
     <script src="vendor/highlight/highlight.pack.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
+    <script>hljs.initHighlightingOnLoad()</script>
 
     <!--
      Icons are based from this website:
@@ -39,51 +39,51 @@
     <script src="/aim/auth/js/keycloak.js"></script>
 
     <script>
-        var keycloak = Keycloak("/keycloak.json");
-        keycloak.init({onLoad:"check-sso"}).success(function(authenticated) {
-            console.log('KeyCloak initialized ');
-        }).error(function() {
-            console.log('KeyCloak failed to initialize');
-        });
+        var keycloak = Keycloak('/keycloak.json')
+        keycloak.init({ onLoad: 'check-sso' }).success(function (authenticated) {
+            console.log('KeyCloak initialized ')
+        }).error(function () {
+            console.log('KeyCloak failed to initialize')
+        })
 
         keycloak.onAuthSuccess = function () {
 
-            console.log("I'm in onAuthSuccess!!!!");
+            console.log('I\'m in onAuthSuccess!!!!')
             if (keycloak.authenticated) {
                 // Show user menus
-                $("#login").hide();
-                document.getElementById('username').innerHTML = keycloak.idTokenParsed.preferred_username;
-                $("#userMenu").show();
+                $('#login').hide()
+                document.getElementById('username').innerHTML = keycloak.idTokenParsed.preferred_username
+                $('#userMenu').show()
 
                 // Show containers info
                 //$("#runningVAssets, #notRunningVAssets, #otherContainers").show();
-                $("#allBodyContent").show();
+                $('#allBodyContent').show()
 
-                loadingBar();
+                loadingBar()
 
                 // Start timer to update containers info
                 // update stats history
-                setTimeout(updateStatsHistory, 0);
-                updateStatsHistory_timer = setInterval(updateStatsHistory, UPDATE_STATSHITORY_TIME);
+                setTimeout(updateStatsHistory, 0)
+                updateStatsHistory_timer = setInterval(updateStatsHistory, UPDATE_STATSHITORY_TIME)
 
-                // Start timer to update Downsloads info
-                setTimeout(updateDownloadsHistory);
-                updateDownloadsHistory_timer = setInterval(updateDownloadsHistory, UPDATE_DOWNLOADS_HITORY_TIME);
+                // Start timer to update Downloads info
+                setTimeout(updateDownloadsHistory)
+                updateDownloadsHistory_timer = setInterval(updateDownloadsHistory, UPDATE_DOWNLOADS_HITORY_TIME)
 
             } else {
                 // Hide user menus
-                $("#userMenu").hide();
-                document.getElementById('username').innerHTML = "";
-                $("#login").show();
+                $('#userMenu').hide()
+                document.getElementById('username').innerHTML = ''
+                $('#login').show()
 
                 //style="display: none;"
                 // Hide containers info
                 //$("#runningVAssets, #notRunningVAssets, #otherContainers").hide();
-                $("#allBodyContent").hide();
-                clearInterval(updateStatsHistory_timer);
+                $('#allBodyContent').hide()
+                clearInterval(updateStatsHistory_timer)
 
                 // Stop requests of downloads
-                clearInterval(updateDownloadsHistory_timer);
+                clearInterval(updateDownloadsHistory_timer)
             }
 
         }
@@ -93,677 +93,731 @@
 
 </head>
 <body>
-    <div class="boxBody">
+<div class="boxBody">
 
-        <div class="rowBody headerBody">
-            <nav class="navbar navbar-expand-sm bg-light navbar-light shadow-sm">
-                <!-- Brand/logo -->
-                <a class="navbar-brand " href="/"><img id="imageLogo" src="img/vf-OS_logo_01.png" alt="Logo"></a>
+    <div class="rowBody headerBody">
+        <nav class="navbar navbar-expand-sm bg-light navbar-light shadow-sm">
+            <!-- Brand/logo -->
+            <a class="navbar-brand " href="/"><img id="imageLogo" src="img/vf-OS_logo_01.png" alt="Logo"></a>
 
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Portal</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/systemdashboard/index.html">Dashboard</a>
-                    </li>
-                </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Portal</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/systemdashboard/index.html">Dashboard</a>
+                </li>
+            </ul>
 
-                <ul class="navbar-nav ml-auto">
+            <ul class="navbar-nav ml-auto">
 
-                    <li class="nav-item" id="login">
-                        <a class="nav-link" href="#" onClick="keycloak.login();">Login</a>
-                    </li>
+                <li class="nav-item" id="login">
+                    <a class="nav-link" href="#" onClick="keycloak.login()">Login</a>
+                </li>
 
-                    <!-- Dropdown -->
-                    <li id="userMenu" class="nav-item dropdown" style="display: none;">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                <!-- Dropdown -->
+                <li id="userMenu" class="nav-item dropdown" style="display: none;">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
                             <span>
-                                <svg id="i-user" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
+                                <svg id="i-user" viewBox="0 0 32 32" width="20" height="20" fill="none"
+                                     stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                                     stroke-width="3">
                                     <path d="M22 11 C22 16 19 20 16 20 13 20 10 16 10 11 10 6 12 3 16 3 20 3 22 6 22 11 Z M4 30 L28 30 C28 21 22 20 16 20 10 20 4 21 4 30 Z"></path>
                                 </svg>
                             </span>
-                            <span id="username"></span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="#" onClick="keycloak.accountManagement();">Account Settings</a>
-                            <a class="dropdown-item" href="#" onClick="keycloak.logout();" >Logout</a>
-                        </div>
-                    </li>
+                        <span id="username"></span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="#" onClick="keycloak.accountManagement()">Account Settings</a>
+                        <a class="dropdown-item" href="#" onClick="keycloak.logout()">Logout</a>
+                    </div>
+                </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="http://vf-os.eu" target="_blank">About</a>
-                    </li>
-                </ul>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://vf-os.eu" target="_blank">About</a>
+                </li>
+            </ul>
 
-            </nav>
-        </div>
+        </nav>
+    </div>
 
-        <div class="rowBody contentBody">
-            <div class="container-fluid">
+    <div class="rowBody contentBody">
+        <div class="container-fluid">
 
-                <div id="allBodyContent" class="row" style="display: none;">
+            <div id="allBodyContent" class="row" style="display: none;">
 
-                    <!-- Modal for Operations -->
-                    <div class="modal fade" id="operationsModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" >Operation</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Are you sure you want to continue with this operation?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <a id="installButton" href="#" type="button" class="btn btn-primary" target="" onclick="installAsset()">Continue</a>
-                                </div>
+                <!-- Modals for Operations -->
+                <!-- Install Modal -->
+                <div class="modal fade" id="operationsModal" tabindex="-1" role="dialog" aria-labelledby=""
+                     aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Operation Install</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to continue with this operation?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <a id="installButton" href="#" type="button" class="btn btn-primary" target=""
+                                   onclick="installAsset()">Continue</a>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Modal for factory reset asset -->
-                    <div class="modal fade" id="factoryResetModal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" >Factory Reset Asset</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Are you sure you want to continue with factory reset asset?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <a id="factoryResetButton" href="#" type="button" class="btn btn-primary" target="" onclick="factoryResetAsset()">Continue</a>
-                                </div>
+                <!-- Remove Modal -->
+                <div class="modal fade" id="operationsModal_remove" tabindex="-1" role="dialog" aria-labelledby=""
+                     aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Operation Remove</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                        </div>
-                    </div>
-
-                    <div id="operations" class="col-sm-12">
-
-                        <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_operations" role="button" aria-expanded="true" aria-controls="wrapperCollapse_operations" style="text-decoration:none" onclick="collapseChangeIcon(this)">
-                            <div class="btn btn-light btn-block text-left mb-1">
-                                <span>
-                                    <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
-                                        <path class="collapseIconPath" d="M12 30 L24 16 12 2" />
-                                    </svg>
-                                </span>
-                                <span> Operations</span>
-                            </div>
-                        </a>
-
-                        <div id="wrapperCollapse_operations" class="collapse">
-                            <div id="" class="border shadow p-2 mb-2 bg-white">
-
-                                <!-- Nav pills -->
-                                <ul class="nav nav-tabs" role="tablist">
-                                    <li class="nav-item">
-                                        <a id="linkTo_installations" class="nav-link active" data-toggle="tab" href="#installations">
-                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                                <path d="M28 22 L28 30 4 30 4 22 M16 4 L16 24 M8 16 L16 24 24 16" />
-                                            </svg>
-                                            Install
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a id="linkTo_uninstallations" class="nav-link" data-toggle="tab" href="#uninstallations">
-                                            <svg id="i-activity" viewBox="0 0 32 32" width="13" height="13" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                                <path d="M28 6 L6 6 8 30 24 30 26 6 4 6 M16 12 L16 24 M21 12 L20 24 M11 12 L12 24 M12 6 L13 2 19 2 20 6" />
-                                            </svg>
-                                            Remove
-                                        </a>
-                                    </li>
+                            <div class="modal-body">
+                                <p>
+                                    Are you sure you want to continue with this operation?
+                                    Those assets will be removed:
+                                </p>
+                                <ul id="modalRemove_List" class="list-group list-group-flush">
+                                    <li class="list-group-item">First item</li>
+                                    <li class="list-group-item">Second item</li>
+                                    <li class="list-group-item">Third item</li>
+                                    <li class="list-group-item">Fourth item</li>
                                 </ul>
 
-                                <!-- Tab panes -->
-                                <div class="tab-content">
-                                    <!-- Tab installations -->
-                                    <div id="installations" class="tab-pane active container-fluid">
-                                        <div class="row">
-                                            <div class="col-9">
-                                                <form action="">
-                                                    <div class="form-group">
-                                                        <label for="urlId">ID:</label>
-                                                        <input type="url" class="form-control" id="urlId">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="urlForm">URL:</label>
-                                                        <input type="url" class="form-control" id="urlForm">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="tokenForm">Token:</label>
-                                                        <input type="text" class="form-control" id="tokenForm">
-                                                    </div>
-                                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#operationsModal">Install</button>
-                                                </form>
-                                            </div>
-                                            <div id="downloads" class="col-3" style="overflow: auto">
-                                                <div style="" class="">
-                                                    <p class="bg-info text-white mb-0">Downloads</p>
-                                                    <table id="downloadsTable" class="table table-sm">
-                                                        <thead>
-                                                        <tr>
-                                                            <th scope="col">Name</th>
-                                                            <th scope="col">Status</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <!-- Tab uninstallations -->
-                                    <div id="uninstallations" class="tab-pane fade">
-
-                                        <p class="text-danger"><strong>THIS SESSION IS NOT WORKING YET! Still in development...</strong></p>
-
-
-                                        <div class="d-flex align-items-center clearfix">
-                                            <div class="custom-control custom-switch">
-                                                <input type="checkbox" class="custom-control-input" id="checkboxAllRemove" name="example">
-                                                <label class="custom-control-label" for="checkboxAllRemove">All</label>
-                                            </div>
-                                            <button type="button" class="btn btn-outline-primary float-left btn-sm ml-2">
-                                                <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                                    <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2" />
-                                                </svg>
-                                            </button>
-                                        </div>
-
-                                        List of containers to be removed:
-                                        <form id="uninstallationForm" action="">
-
-                                            <div id="uninstallList" class="border p-2 d-flex flex-wrap">
-                                                <div class="custom-control custom-switch col-3">
-                                                    <input type="checkbox" class="custom-control-input" id="switch1" name="example">
-                                                    <label class="custom-control-label" for="switch1">vfos_AssetA_1</label>
-                                                </div>
-
-                                                <div class="custom-control custom-switch col-3">
-                                                    <input type="checkbox" class="custom-control-input" id="switch2" name="example">
-                                                    <label class="custom-control-label" for="switch2">vfos_AssetC_1</label>
-                                                </div>
-
-                                                <div class="custom-control custom-switch col-3">
-                                                    <input type="checkbox" class="custom-control-input" id="switch3" name="example">
-                                                    <label class="custom-control-label" for="switch3">vfos_che_1</label>
-                                                </div>
-
-                                                <div class="custom-control custom-switch col-3">
-                                                    <input type="checkbox" class="custom-control-input" id="switch4" name="example">
-                                                    <label class="custom-control-label" for="switch4">vfos_deployment_1</label>
-                                                </div>
-
-                                                <div class="custom-control custom-switch col-3">
-                                                    <input type="checkbox" class="custom-control-input" id="switch5" name="example">
-                                                    <label class="custom-control-label" for="switch5">vfos_testserver_1</label>
-                                                </div>
-
-                                                <div class="custom-control custom-switch col-3">
-                                                    <input type="checkbox" class="custom-control-input" id="switch6" name="example">
-                                                    <label class="custom-control-label" for="switch6">vfos_execution-manager_1</label>
-                                                </div>
-
-                                                <div class="custom-control custom-switch col-3">
-                                                    <input type="checkbox" class="custom-control-input" id="switch7" name="example">
-                                                    <label class="custom-control-label" for="switch7">vfos_aim_1</label>
-                                                </div>
-
-                                                <div class="custom-control custom-switch col-3">
-                                                    <input type="checkbox" class="custom-control-input" id="switch8" name="example">
-                                                    <label class="custom-control-label" for="switch8">vfos_portal_1</label>
-                                                </div>
-
-                                                <div class="custom-control custom-switch col-3">
-                                                    <input type="checkbox" class="custom-control-input" id="switch9" name="example">
-                                                    <label class="custom-control-label" for="switch9">vfos_	dashboard_1</label>
-                                                </div>
-
-                                            </div>
-                                            <p>2 Containers selected.</p>
-
-                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#operationsModal">Remove</button>
-                                        </form>
-
-                                    </div>
-
-                                </div>
-
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <a id="removeButton" href="#" type="button" class="btn btn-primary" target=""
+                                   onclick="removeAssets()">Remove</a>
                             </div>
                         </div>
-
                     </div>
+                </div>
 
-                    <div id="allTables" class="col-sm-12">
 
-                            <div id="runningVAssets" class="border shadow p-2 mb-2 bg-white" >
-
-                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_runningVAssets" role="button" aria-expanded="true" aria-controls="wrapperCollapse_runningContainers" style="text-decoration:none" onclick="collapseChangeIcon(this)">
-                                    <div class="btn btn-info btn-block text-left mb-1">
-                                        <span>
-                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
-                                                <path class="collapseIconPath" d="M30 12 L16 24 2 12" />
-                                            </svg>
-                                        </span>
-                                        <span> vApps</span>
-                                    </div>
-                                </a>
-
-                                <div id="wrapperCollapse_runningVAssets" class="collapse show">
-                                    <div class="table-responsive-xl tableFixHead">
-                                        <table id="runningVAssetsTable" class="dashboardTables table table-hover table-light table-sm">
-                                            <thead class="thead-light">
-                                            <tr>
-                                                <th class="align-middle">ASSET NAME</th>
-                                                <th class="align-middle">CONTAINER ID</th>
-                                                <th class="align-middle">CONTAINER NAME</th>
-                                                <th class="align-middle">CPU %</th>
-                                                <th class="align-middle">MEM USAGE / LIMIT</th>
-                                                <th class="align-middle">MEM %</th>
-                                                <th class="align-middle">NET I/O</th>
-                                                <th class="align-middle">BLOCK I/O</th>
-                                                <th class="align-middle">PIDS</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr>
-                                                <td colspan="9">
-                                                    <div class="progress">
-                                                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <!--
-                                            <tr>
-                                                <td>N/A</td>
-                                                <td>dc745c7a6318</td>
-                                                <td>test-platform_reverse-proxy_2</td>
-                                                <td>0.03%</td>
-                                                <td>10.5MiB / 15.54GiB</td>
-                                                <td>0.07%</td>
-                                                <td>162kB / 0B</td>
-                                                <td>209kB / 0B</td>
-                                                <td>17</td>
-                                            </tr>
-                                            -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
+                <!-- Modal for factory reset asset -->
+                <div class="modal fade" id="factoryResetModal" tabindex="-1" role="dialog" aria-labelledby=""
+                     aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Factory Reset Asset</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-
-                            <div id="notRunningVAssets" class="border shadow p-2 mb-2 bg-white">
-
-                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_notRunningVAssets" role="button" aria-expanded="true" aria-controls="wrapperCollapse_notRunningVAssets" style="text-decoration:none" onclick="collapseChangeIcon(this)">
-                                    <div class="btn btn-info btn-block text-left mb-1">
-                                        <span>
-                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
-                                                <path class="collapseIconPath" d="M30 12 L16 24 2 12" />
-                                            </svg>
-                                        </span>
-                                        <span> Supporting Library Containers</span>
-                                    </div>
-                                </a>
-
-                                <div id="wrapperCollapse_notRunningVAssets" class="collapse show">
-                                    <div class="tableFixHead table-responsive-xl">
-                                        <table id="notRunningVAssetsTable" class="dashboardTables table table-hover table-light table-sm">
-                                            <thead class="thead-light">
-                                            <tr>
-                                                <th class="align-middle">ASSET NAME</th>
-                                                <th class="align-middle">CONTAINER ID</th>
-                                                <th class="align-middle">CONTAINER NAME</th>
-                                                <th class="align-middle">CPU %</th>
-                                                <th class="align-middle">MEM USAGE / LIMIT</th>
-                                                <th class="align-middle">MEM %</th>
-                                                <th class="align-middle">NET I/O</th>
-                                                <th class="align-middle">BLOCK I/O</th>
-                                                <th class="align-middle">PIDS</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to continue with factory reset asset?</p>
                             </div>
-
-                            <div id="otherContainers" class="border shadow p-2 mb-2 bg-white">
-
-                                <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_otherContainers" role="button" aria-expanded="true" aria-controls="wrapperCollapse_otherContainers" style="text-decoration:none" onclick="collapseChangeIcon(this)">
-                                    <div class="btn btn-info btn-block text-left mb-1">
-                                        <span>
-                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
-                                                <path class="collapseIconPath" d="M30 12 L16 24 2 12" />
-                                            </svg>
-                                        </span>
-                                        <span> Other Containers</span>
-                                    </div>
-                                </a>
-
-                                <div id="wrapperCollapse_otherContainers" class="collapse show">
-                                    <div class="table-responsive-xl tableFixHead">
-                                        <table id="otherContainersTable" class="dashboardTables table table-hover table-light table-sm">
-                                            <thead class="thead-light">
-                                            <tr>
-                                                <th class="align-middle">ASSET NAME</th>
-                                                <th class="align-middle">CONTAINER ID</th>
-                                                <th class="align-middle">CONTAINER NAME</th>
-                                                <th class="align-middle">CPU %</th>
-                                                <th class="align-middle">MEM USAGE / LIMIT</th>
-                                                <th class="align-middle">MEM %</th>
-                                                <th class="align-middle">NET I/O</th>
-                                                <th class="align-middle">BLOCK I/O</th>
-                                                <th class="align-middle">PIDS</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <!--
-                                            <tr>
-                                                <td>N/A</td>
-                                                <td>dc745c7a6318</td>
-                                                <td>test-platform_reverse-proxy_2</td>
-                                                <td>0.03%</td>
-                                                <td>10.5MiB / 15.54GiB</td>
-                                                <td>0.07%</td>
-                                                <td>162kB / 0B</td>
-                                                <td>209kB / 0B</td>
-                                                <td>17</td>
-                                            </tr>
-                                            -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <a id="factoryResetButton" href="#" type="button" class="btn btn-primary" target=""
+                                   onclick="factoryResetAsset()">Continue</a>
                             </div>
-
+                        </div>
                     </div>
+                </div>
 
-                    <div id="detailsDiv" class="border sticky-top shadow p-2 mb-2 bg-white" style="display: none">
+                <div id="operations" class="col-sm-12">
 
-                        <div>
-                            <!-- Button to close details view src="js/containerDetails.js"-->
-                            <button id="closeDetailsButton" type="button" class="btn btn-light border" onclick="toggleTableContent()">&times;</button>
+                    <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_operations" role="button"
+                       aria-expanded="true" aria-controls="wrapperCollapse_operations" style="text-decoration:none"
+                       onclick="collapseChangeIcon(this)">
+                        <div class="btn btn-light btn-block text-left mb-1">
+                                <span>
+                                    <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor"
+                                         stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+                                        <path class="collapseIconPath" d="M12 30 L24 16 12 2"/>
+                                    </svg>
+                                </span>
+                            <span> Operations</span>
+                        </div>
+                    </a>
+
+                    <div id="wrapperCollapse_operations" class="collapse">
+                        <div id="" class="border shadow p-2 mb-2 bg-white">
 
                             <!-- Nav pills -->
                             <ul class="nav nav-tabs" role="tablist">
+                                <!--Install-->
                                 <li class="nav-item">
-                                    <a id="linkToDetails_app" class="nav-link active" data-toggle="tab" href="#containerDetails_app">
-                                        <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                            <circle cx="17" cy="15" r="1"></circle>
-                                            <circle cx="16" cy="16" r="6"></circle>
-                                            <path d="M2 16 C2 16 7 6 16 6 25 6 30 16 30 16 30 16 25 26 16 26 7 26 2 16 2 16 Z"></path>
+                                    <a id="linkTo_installations" class="nav-link active" data-toggle="tab"
+                                       href="#installations">
+                                        <svg viewBox="0 0 32 32" width="12" height="12" fill="none"
+                                             stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                                             stroke-width="2">
+                                            <path d="M28 22 L28 30 4 30 4 22 M16 4 L16 24 M8 16 L16 24 24 16"/>
                                         </svg>
-                                        App
+                                        Install
                                     </a>
                                 </li>
+                                <!-- Remove -->
                                 <li class="nav-item">
-                                    <a id="linkToDetails_stats" class="nav-link" data-toggle="tab" href="#containerDetails_stats">
-                                        <svg id="i-activity" viewBox="0 0 32 32" width="13" height="13" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                            <path d="M4 16 L11 16 14 29 18 3 21 16 28 16"></path>
+                                    <a id="linkTo_uninstallations" class="nav-link" data-toggle="tab"
+                                       href="#uninstallations">
+                                        <svg id="i-activity" viewBox="0 0 32 32" width="13" height="13" fill="none"
+                                             stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                                             stroke-width="2">
+                                            <path d="M28 6 L6 6 8 30 24 30 26 6 4 6 M16 12 L16 24 M21 12 L20 24 M11 12 L12 24 M12 6 L13 2 19 2 20 6"/>
                                         </svg>
-                                        Stats
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a id="linkToDetails_logs" class="nav-link" data-toggle="tab" href="#containerDetails_logs">
-                                        <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                            <path d="M12 2 L12 6 20 6 20 2 12 2 Z M11 4 L6 4 6 30 26 30 26 4 21 4"></path>
-                                        </svg>
-                                        Logs
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a id="linkToDetails_settings" class="nav-link" data-toggle="tab" href="#containerDetails_settings">
-                                        <svg id="i-settings" viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                            <path d="M13 2 L13 6 11 7 8 4 4 8 7 11 6 13 2 13 2 19 6 19 7 21 4 24 8 28 11 25 13 26 13 30 19 30 19 26 21 25 24 28 28 24 25 21 26 19 30 19 30 13 26 13 25 11 28 8 24 4 21 7 19 6 19 2 Z"></path>
-                                            <circle cx="16" cy="16" r="4"></circle>
-                                        </svg>
-                                        Settings
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a id="linkToDetails_labels" class="nav-link" data-toggle="tab" href="#containerDetails_labels">
-                                        <svg id="i-settings" viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                            <circle cx="24" cy="8" r="2" />
-                                            <path d="M2 18 L18 2 30 2 30 14 14 30 Z" />
-                                        </svg>
-                                        Labels
+                                        Remove
                                     </a>
                                 </li>
                             </ul>
-                        </div>
 
-                        <!-- Tab panes -->
-                        <div class="tab-content detailsAllTabsContent">
-                            <!-- Tab containerDetails_app -->
-                            <div id="containerDetails_app" class="tab-pane active">
-                                <iframe id="app_iframe" src="">
-                                    <p>Your browser does not support iframes.</p>
-                                </iframe>
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <!-- Tab installations -->
+                                <div id="installations" class="tab-pane active container-fluid">
+                                    <div class="row">
+                                        <div class="col-9">
+                                            <form action="">
+                                                <div class="form-group">
+                                                    <label for="urlId">ID:</label>
+                                                    <input type="url" class="form-control" id="urlId">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="urlForm">URL:</label>
+                                                    <input type="url" class="form-control" id="urlForm">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="tokenForm">Token:</label>
+                                                    <input type="text" class="form-control" id="tokenForm">
+                                                </div>
+                                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                                        data-target="#operationsModal">Install
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div id="downloads" class="col-3" style="overflow: auto">
+                                            <div style="" class="">
+                                                <p class="bg-info text-white mb-0">Downloads</p>
+                                                <table id="downloadsTable" class="table table-sm">
+                                                    <thead>
+                                                    <tr>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Status</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- Tab uninstallations -->
+                                <div id="uninstallations" class="tab-pane fade">
+
+                                    <div class="d-flex align-items-center clearfix mt-2">
+                                        <span class="mr-auto">List of containers to be removed:</span>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" id="checkboxAllRemove" class="custom-control-input"
+                                                   onchange="toggleAllSwitchRemove(this)"
+                                                   name="example">
+                                            <label class="custom-control-label" for="checkboxAllRemove">All</label>
+                                        </div>
+                                        <button type="button" class="btn btn-primary float-left btn-sm ml-2"
+                                                onclick="refreshAssetsList()">
+                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none"
+                                                 stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                                                 stroke-width="4">
+                                                <path d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <form id="uninstallationForm" action="">
+
+                                        <div class="container-fluid">
+                                            <div class="row">
+                                                <div id="uninstallList" class="border p-2 d-flex flex-wrap">
+                                                    <!--
+                                                    <div class="custom-control custom-switch col-3">
+                                                        <input type="checkbox" class="custom-control-input" id="switch1" name="example">
+                                                        <label class="custom-control-label" for="switch1">vfos_AssetA_1</label>
+                                                    </div>
+                                                    -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-primary mt-1" data-toggle="modal"
+                                                data-target="#operationsModal_remove">Remove
+                                        </button>
+                                    </form>
+
+                                </div>
+
                             </div>
 
-                            <!-- Tab containerDetails_stats -->
-                            <div id="containerDetails_stats" class="tab-pane fade">
-
-                                <div class="container-fluid d-flex justify-content-between">
-                                    <div class="mr-auto"><h6>CPU</h6></div>
-
-                                    <form class="form-inline">
-                                        <label for="strategyCpu">Strategy:</label>
-                                        <select id="strategyCpu" class="form-control custom-select custom-select-sm">
-                                            <option value="discrete">Discrete</option>
-                                            <option value="static" selected>Static</option>
-                                        </select>
-                                    </form>
-                                </div>
-                                <div id="visualizationCpu" ></div>
-
-                                <br>
-                                <div class="container-fluid d-flex justify-content-between">
-                                    <div class="mr-auto"><h6>Memory percentage</h6></div>
-                                    <form class="form-inline">
-                                        <label for="strategyMemPerc">Strategy:</label>
-                                        <select id="strategyMemPerc" class="form-control custom-select custom-select-sm">
-                                            <option value="discrete">Discrete</option>
-                                            <option value="static" selected>Static</option>
-                                        </select>
-                                    </form>
-                                </div>
-                                <div id="visualizationMemPerc" ></div>
-
-                                <br>
-                                <div class="container-fluid d-flex justify-content-between">
-                                    <div class="mr-auto"><h6>Memory usage</h6></div>
-                                    <form class="form-inline">
-                                        <label for="strategyMemUsage">Strategy:</label>
-                                        <select id="strategyMemUsage" class="form-control custom-select custom-select-sm">
-                                            <option value="discrete">Discrete</option>
-                                            <option value="static" selected>Static</option>
-                                        </select>
-                                    </form>
-                                </div>
-                                <div id="visualizationMemUsage" ></div>
-
-                                <br>
-                                <div class="container-fluid d-flex justify-content-between">
-                                    <div class="mr-auto"><h6>Net I/O</h6></div>
-                                    <form class="form-inline">
-                                        <label for="strategyNetIO">Strategy:</label>
-                                        <select id="strategyNetIO" class="form-control custom-select custom-select-sm">
-                                            <option value="discrete">Discrete</option>
-                                            <option value="static" selected>Static</option>
-                                        </select>
-                                    </form>
-                                </div>
-                                <div id="visualizationNetIO" ></div>
-
-                                <br>
-                                <div class="container-fluid d-flex justify-content-between">
-                                    <div class="mr-auto"><h6>Block I/O</h6></div>
-                                    <form class="form-inline">
-                                        <label for="strategyBlockIO">Strategy:</label>
-                                        <select id="strategyBlockIO" class="form-control custom-select custom-select-sm">
-                                            <option value="discrete">Discrete</option>
-                                            <option value="static" selected>Static</option>
-                                        </select>
-                                    </form>
-                                </div>
-                                <div id="visualizationBlockIO" ></div>
-
-                            </div>
-
-                            <!-- Tab containerDetails_logs -->
-                            <div id="containerDetails_logs" class="tab-pane fade">
-
-                                <pre><code id="logWindow"></code></pre>
-                                <p id="logErrorMessage" class="text-danger" style="display: none">Errors while updating logs! Logs not updated!</p>
-                            </div>
-
-                            <!-- Tab containerDetails_settings -->
-                            <div id="containerDetails_settings" class="tab-pane fade">
-                                <div class="my-2">
-                                    <button type="button" class="btn btn-sm btn-primary" onclick="reloadAsset()">Reload</button>
-                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#factoryResetModal">Factory Reset</button>
-                                </div>
-
-                                <iframe id="settings_iframe" src="">
-                                    <p>Your browser does not support iframes.</p>
-                                </iframe>
-                            </div>
-
-                            <!-- Tab containerDetails_labels -->
-                            <div id="containerDetails_labels" class="tab-pane fade">
-                                <div class="table-responsive-xl">
-                                    <table id="detailsLabelsTable" class="table table-hover table-sm">
-                                        <thead class="thead-light">
-                                        <tr>
-                                            <th class="align-middle">LABEL NAME</th>
-                                            <th class="align-middle">LABEL</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-
-                                            <tr>
-                                                <td>vf-OS</td>
-                                                <td>"true"</td>
-                                            </tr>
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Alert for factory reset asset -->
-                    <div id="factoryResetInfo" class="alert alert-info" style="display: none; position: fixed; bottom: 0; right: 0;">
-                        Asset is resetting...
-                    </div>
-
-
-
-                    <!--
-                    <div class="toast" id="myToast" style="position: absolute; top: 0; right: 0;">
-                        <div class="toast-header">
-                            <strong class="mr-auto"><i class="fa fa-grav"></i> We miss you!</strong>
-                            <small>11 mins ago</small>
-                            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="toast-body">
-                            <div>It's been a long time since you visited us. We've something special for you. <a href="#">Click here!</a></div>
                         </div>
                     </div>
-                    -->
-
-
-
-                    <div class="bs-example">
-                        <!-- Wrapping element -->
-                        <div style="position: relative; min-height: 300px;">
-                            <!-- Position toasts -->
-                            <div id="toastsContainer" style="position: fixed; bottom: 5px; right: 5px; min-width: 300px; z-index: 5000">
-                                <!--
-                                <div id="reloadStartToast" class="toast">
-                                    <div class="toast-header">
-                                        <strong class="mr-auto">Reload Asset</strong>
-                                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
-                                    </div>
-                                    <div class="toast-body">
-                                        Asset reloading...
-                                    </div>
-                                </div>
-
-                                <div id="resetStartToast" class="toast">
-                                    <div class="toast-header">
-                                        <strong class="mr-auto">Reset Asset</strong>
-                                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
-                                    </div>
-                                    <div class="toast-body">
-                                        Asset resetting...
-                                    </div>
-                                </div>
-                                -->
-                            </div>
-                        </div>
-                    </div>
-
-
-
-
 
                 </div>
 
-            </div>
-        </div>
+                <div id="allTables" class="col-sm-12">
 
-        <div class="rowBody footerBody">
-            <div class="container-fluid text-center bg-light">
-                <small>Copyright © vf-OS 2018</small>
+                    <div id="runningVAssets" class="border shadow p-2 mb-2 bg-white">
+
+                        <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_runningVAssets"
+                           role="button" aria-expanded="true" aria-controls="wrapperCollapse_runningContainers"
+                           style="text-decoration:none" onclick="collapseChangeIcon(this)">
+                            <div class="btn btn-info btn-block text-left mb-1">
+                                        <span>
+                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none"
+                                                 stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                                                 stroke-width="5">
+                                                <path class="collapseIconPath" d="M30 12 L16 24 2 12"/>
+                                            </svg>
+                                        </span>
+                                <span> vApps</span>
+                            </div>
+                        </a>
+
+                        <div id="wrapperCollapse_runningVAssets" class="collapse show">
+                            <div class="table-responsive-xl tableFixHead">
+                                <table id="runningVAssetsTable"
+                                       class="dashboardTables table table-hover table-light table-sm">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th class="align-middle">ASSET NAME</th>
+                                        <th class="align-middle">CONTAINER ID</th>
+                                        <th class="align-middle">CONTAINER NAME</th>
+                                        <th class="align-middle">CPU %</th>
+                                        <th class="align-middle">MEM USAGE / LIMIT</th>
+                                        <th class="align-middle">MEM %</th>
+                                        <th class="align-middle">NET I/O</th>
+                                        <th class="align-middle">BLOCK I/O</th>
+                                        <th class="align-middle">PIDS</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td colspan="9">
+                                            <div class="progress">
+                                                <div id="progressBar" class="progress-bar" role="progressbar"
+                                                     style="width: 0%" aria-valuenow="0" aria-valuemin="0"
+                                                     aria-valuemax="100"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!--
+                                    <tr>
+                                        <td>N/A</td>
+                                        <td>dc745c7a6318</td>
+                                        <td>test-platform_reverse-proxy_2</td>
+                                        <td>0.03%</td>
+                                        <td>10.5MiB / 15.54GiB</td>
+                                        <td>0.07%</td>
+                                        <td>162kB / 0B</td>
+                                        <td>209kB / 0B</td>
+                                        <td>17</td>
+                                    </tr>
+                                    -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div id="notRunningVAssets" class="border shadow p-2 mb-2 bg-white">
+
+                        <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_notRunningVAssets"
+                           role="button" aria-expanded="true" aria-controls="wrapperCollapse_notRunningVAssets"
+                           style="text-decoration:none" onclick="collapseChangeIcon(this)">
+                            <div class="btn btn-info btn-block text-left mb-1">
+                                        <span>
+                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none"
+                                                 stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                                                 stroke-width="5">
+                                                <path class="collapseIconPath" d="M30 12 L16 24 2 12"/>
+                                            </svg>
+                                        </span>
+                                <span> Supporting Library Containers</span>
+                            </div>
+                        </a>
+
+                        <div id="wrapperCollapse_notRunningVAssets" class="collapse show">
+                            <div class="tableFixHead table-responsive-xl">
+                                <table id="notRunningVAssetsTable"
+                                       class="dashboardTables table table-hover table-light table-sm">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th class="align-middle">ASSET NAME</th>
+                                        <th class="align-middle">CONTAINER ID</th>
+                                        <th class="align-middle">CONTAINER NAME</th>
+                                        <th class="align-middle">CPU %</th>
+                                        <th class="align-middle">MEM USAGE / LIMIT</th>
+                                        <th class="align-middle">MEM %</th>
+                                        <th class="align-middle">NET I/O</th>
+                                        <th class="align-middle">BLOCK I/O</th>
+                                        <th class="align-middle">PIDS</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="otherContainers" class="border shadow p-2 mb-2 bg-white">
+
+                        <a class="collapseMenuBar" data-toggle="collapse" href="#wrapperCollapse_otherContainers"
+                           role="button" aria-expanded="true" aria-controls="wrapperCollapse_otherContainers"
+                           style="text-decoration:none" onclick="collapseChangeIcon(this)">
+                            <div class="btn btn-info btn-block text-left mb-1">
+                                        <span>
+                                            <svg viewBox="0 0 32 32" width="12" height="12" fill="none"
+                                                 stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                                                 stroke-width="5">
+                                                <path class="collapseIconPath" d="M30 12 L16 24 2 12"/>
+                                            </svg>
+                                        </span>
+                                <span> Other Containers</span>
+                            </div>
+                        </a>
+
+                        <div id="wrapperCollapse_otherContainers" class="collapse show">
+                            <div class="table-responsive-xl tableFixHead">
+                                <table id="otherContainersTable"
+                                       class="dashboardTables table table-hover table-light table-sm">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th class="align-middle">ASSET NAME</th>
+                                        <th class="align-middle">CONTAINER ID</th>
+                                        <th class="align-middle">CONTAINER NAME</th>
+                                        <th class="align-middle">CPU %</th>
+                                        <th class="align-middle">MEM USAGE / LIMIT</th>
+                                        <th class="align-middle">MEM %</th>
+                                        <th class="align-middle">NET I/O</th>
+                                        <th class="align-middle">BLOCK I/O</th>
+                                        <th class="align-middle">PIDS</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <!--
+                                    <tr>
+                                        <td>N/A</td>
+                                        <td>dc745c7a6318</td>
+                                        <td>test-platform_reverse-proxy_2</td>
+                                        <td>0.03%</td>
+                                        <td>10.5MiB / 15.54GiB</td>
+                                        <td>0.07%</td>
+                                        <td>162kB / 0B</td>
+                                        <td>209kB / 0B</td>
+                                        <td>17</td>
+                                    </tr>
+                                    -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div id="detailsDiv" class="border sticky-top shadow p-2 mb-2 bg-white" style="display: none">
+
+                    <div>
+                        <!-- Button to close details view src="js/containerDetails.js"-->
+                        <button id="closeDetailsButton" type="button" class="btn btn-light border"
+                                onclick="toggleTableContent()">&times;
+                        </button>
+
+                        <!-- Nav pills -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a id="linkToDetails_app" class="nav-link active" data-toggle="tab"
+                                   href="#containerDetails_app">
+                                    <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor"
+                                         stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                        <circle cx="17" cy="15" r="1"></circle>
+                                        <circle cx="16" cy="16" r="6"></circle>
+                                        <path d="M2 16 C2 16 7 6 16 6 25 6 30 16 30 16 30 16 25 26 16 26 7 26 2 16 2 16 Z"></path>
+                                    </svg>
+                                    App
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="linkToDetails_stats" class="nav-link" data-toggle="tab"
+                                   href="#containerDetails_stats">
+                                    <svg id="i-activity" viewBox="0 0 32 32" width="13" height="13" fill="none"
+                                         stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                                         stroke-width="2">
+                                        <path d="M4 16 L11 16 14 29 18 3 21 16 28 16"></path>
+                                    </svg>
+                                    Stats
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="linkToDetails_logs" class="nav-link" data-toggle="tab"
+                                   href="#containerDetails_logs">
+                                    <svg viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor"
+                                         stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                        <path d="M12 2 L12 6 20 6 20 2 12 2 Z M11 4 L6 4 6 30 26 30 26 4 21 4"></path>
+                                    </svg>
+                                    Logs
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="linkToDetails_settings" class="nav-link" data-toggle="tab"
+                                   href="#containerDetails_settings">
+                                    <svg id="i-settings" viewBox="0 0 32 32" width="12" height="12" fill="none"
+                                         stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                                         stroke-width="2">
+                                        <path d="M13 2 L13 6 11 7 8 4 4 8 7 11 6 13 2 13 2 19 6 19 7 21 4 24 8 28 11 25 13 26 13 30 19 30 19 26 21 25 24 28 28 24 25 21 26 19 30 19 30 13 26 13 25 11 28 8 24 4 21 7 19 6 19 2 Z"></path>
+                                        <circle cx="16" cy="16" r="4"></circle>
+                                    </svg>
+                                    Settings
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="linkToDetails_labels" class="nav-link" data-toggle="tab"
+                                   href="#containerDetails_labels">
+                                    <svg id="i-settings" viewBox="0 0 32 32" width="12" height="12" fill="none"
+                                         stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                                         stroke-width="2">
+                                        <circle cx="24" cy="8" r="2"/>
+                                        <path d="M2 18 L18 2 30 2 30 14 14 30 Z"/>
+                                    </svg>
+                                    Labels
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content detailsAllTabsContent">
+                        <!-- Tab containerDetails_app -->
+                        <div id="containerDetails_app" class="tab-pane active">
+                            <iframe id="app_iframe" src="">
+                                <p>Your browser does not support iframes.</p>
+                            </iframe>
+                        </div>
+
+                        <!-- Tab containerDetails_stats -->
+                        <div id="containerDetails_stats" class="tab-pane fade">
+
+                            <div class="container-fluid d-flex justify-content-between">
+                                <div class="mr-auto"><h6>CPU</h6></div>
+
+                                <form class="form-inline">
+                                    <label for="strategyCpu">Strategy:</label>
+                                    <select id="strategyCpu" class="form-control custom-select custom-select-sm">
+                                        <option value="discrete">Discrete</option>
+                                        <option value="static" selected>Static</option>
+                                    </select>
+                                </form>
+                            </div>
+                            <div id="visualizationCpu"></div>
+
+                            <br>
+                            <div class="container-fluid d-flex justify-content-between">
+                                <div class="mr-auto"><h6>Memory percentage</h6></div>
+                                <form class="form-inline">
+                                    <label for="strategyMemPerc">Strategy:</label>
+                                    <select id="strategyMemPerc" class="form-control custom-select custom-select-sm">
+                                        <option value="discrete">Discrete</option>
+                                        <option value="static" selected>Static</option>
+                                    </select>
+                                </form>
+                            </div>
+                            <div id="visualizationMemPerc"></div>
+
+                            <br>
+                            <div class="container-fluid d-flex justify-content-between">
+                                <div class="mr-auto"><h6>Memory usage</h6></div>
+                                <form class="form-inline">
+                                    <label for="strategyMemUsage">Strategy:</label>
+                                    <select id="strategyMemUsage" class="form-control custom-select custom-select-sm">
+                                        <option value="discrete">Discrete</option>
+                                        <option value="static" selected>Static</option>
+                                    </select>
+                                </form>
+                            </div>
+                            <div id="visualizationMemUsage"></div>
+
+                            <br>
+                            <div class="container-fluid d-flex justify-content-between">
+                                <div class="mr-auto"><h6>Net I/O</h6></div>
+                                <form class="form-inline">
+                                    <label for="strategyNetIO">Strategy:</label>
+                                    <select id="strategyNetIO" class="form-control custom-select custom-select-sm">
+                                        <option value="discrete">Discrete</option>
+                                        <option value="static" selected>Static</option>
+                                    </select>
+                                </form>
+                            </div>
+                            <div id="visualizationNetIO"></div>
+
+                            <br>
+                            <div class="container-fluid d-flex justify-content-between">
+                                <div class="mr-auto"><h6>Block I/O</h6></div>
+                                <form class="form-inline">
+                                    <label for="strategyBlockIO">Strategy:</label>
+                                    <select id="strategyBlockIO" class="form-control custom-select custom-select-sm">
+                                        <option value="discrete">Discrete</option>
+                                        <option value="static" selected>Static</option>
+                                    </select>
+                                </form>
+                            </div>
+                            <div id="visualizationBlockIO"></div>
+
+                        </div>
+
+                        <!-- Tab containerDetails_logs -->
+                        <div id="containerDetails_logs" class="tab-pane fade">
+
+                            <pre><code id="logWindow"></code></pre>
+                            <p id="logErrorMessage" class="text-danger" style="display: none">Errors while updating
+                                logs! Logs not updated!</p>
+                        </div>
+
+                        <!-- Tab containerDetails_settings -->
+                        <div id="containerDetails_settings" class="tab-pane fade">
+                            <div class="my-2">
+                                <button type="button" class="btn btn-sm btn-primary" onclick="reloadAsset()">Reload
+                                </button>
+                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
+                                        data-target="#factoryResetModal">Factory Reset
+                                </button>
+                            </div>
+
+                            <iframe id="settings_iframe" src="">
+                                <p>Your browser does not support iframes.</p>
+                            </iframe>
+                        </div>
+
+                        <!-- Tab containerDetails_labels -->
+                        <div id="containerDetails_labels" class="tab-pane fade">
+                            <div class="table-responsive-xl">
+                                <table id="detailsLabelsTable" class="table table-hover table-sm">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th class="align-middle">LABEL NAME</th>
+                                        <th class="align-middle">LABEL</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    <tr>
+                                        <td>vf-OS</td>
+                                        <td>"true"</td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Alert for factory reset asset -->
+                <div id="factoryResetInfo" class="alert alert-info"
+                     style="display: none; position: fixed; bottom: 0; right: 0;">
+                    Asset is resetting...
+                </div>
+
+
+                <!--
+                <div class="toast" id="myToast" style="position: absolute; top: 0; right: 0;">
+                    <div class="toast-header">
+                        <strong class="mr-auto"><i class="fa fa-grav"></i> We miss you!</strong>
+                        <small>11 mins ago</small>
+                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="toast-body">
+                        <div>It's been a long time since you visited us. We've something special for you. <a href="#">Click here!</a></div>
+                    </div>
+                </div>
+                -->
+
+
+                <div class="bs-example">
+                    <!-- Wrapping element -->
+                    <div style="position: relative; min-height: 300px;">
+                        <!-- Position toasts -->
+                        <div id="toastsContainer"
+                             style="position: fixed; bottom: 5px; right: 5px; min-width: 300px; z-index: 5000">
+                            <!--
+                            <div id="reloadStartToast" class="toast">
+                                <div class="toast-header">
+                                    <strong class="mr-auto">Reload Asset</strong>
+                                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
+                                </div>
+                                <div class="toast-body">
+                                    Asset reloading...
+                                </div>
+                            </div>
+
+                            <div id="resetStartToast" class="toast">
+                                <div class="toast-header">
+                                    <strong class="mr-auto">Reset Asset</strong>
+                                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
+                                </div>
+                                <div class="toast-body">
+                                    Asset resetting...
+                                </div>
+                            </div>
+                            -->
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
+
         </div>
     </div>
 
+    <div class="rowBody footerBody">
+        <div class="container-fluid text-center bg-light">
+            <small>Copyright © vf-OS 2018</small>
+        </div>
+    </div>
+</div>
 
-    <script>
-        $(document).ready(function(){
 
-            if(keycloak.authenticated){
-                console.log(" I'M authenticated");
-            } else {
-                console.log(" I'M not authenticated");
-            }
+<script>
+    $(document).ready(function () {
 
-        });
-    </script>
+        if (keycloak.authenticated) {
+            console.log(' I\'M authenticated')
+        } else {
+            console.log(' I\'M not authenticated')
+        }
 
-    <script src="js/views.js"></script>
-    <script src="js/updateStatsHistory.js"></script>
+    })
+</script>
 
-    <script src="js/operations.js"></script>
+<script src="js/views.js"></script>
+<script src="js/updateStatsHistory.js"></script>
 
-    <script src="js/containerDetails_app.js"></script>
-    <script src="js/containerDetails_stats.js"></script>
-    <script src="js/containerDetails_logs.js"></script>
-    <script src="js/containerDetails_settings.js"></script>
-    <script src="js/containerDetails_labels.js"></script>
+<script src="js/operations.js"></script>
+
+<script src="js/containerDetails_app.js"></script>
+<script src="js/containerDetails_stats.js"></script>
+<script src="js/containerDetails_logs.js"></script>
+<script src="js/containerDetails_settings.js"></script>
+<script src="js/containerDetails_labels.js"></script>
 
 
 </body>

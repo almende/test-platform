@@ -75,7 +75,7 @@ function viewDetails(thisElem) {
 
 }
 
-// Called from viewDetails
+// Called from viewDetails function
 function changeDetailsView() {
 
     // where is DETAILS_CONTAINER_NAME

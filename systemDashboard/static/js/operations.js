@@ -7,9 +7,20 @@ var UPDATE_DOWNLOADS_HITORY_TIME = 3000;      // Update tables every x milliseco
 
 $(document).ready(function(){
 
-    // update downloads history
-    //setTimeout(updateStatsHistory, 0);
-    //updateDownloadsHistory_timer = setInterval(updateDownloadsHistory, UPDATE_STATSHITORY_TIME);
+    // shows the list of assets to be removed inside the modal
+    $("#operationsModal_remove").on('show.bs.modal', function () {
+
+        // Get list
+        var removeList= getRemoveCheckedList();
+
+        // Empty list
+        $("#modalRemove_List").empty()
+
+        // Add elements
+        removeList.forEach(function (elem) {
+            $("#modalRemove_List").append('<li class="list-group-item">' + elem + '</li>');
+        })
+    });
 
 });
 
@@ -104,4 +115,85 @@ function updateDownloadsHistory () {
 
     });
 
+}
+
+
+function getRemoveCheckedList () {
+
+    // Get asset to be removed
+    var allCheckedInputs = $("#uninstallList").find("input:checked")
+
+    // Create removeList
+    var removeList=[];
+    for(var i = 0; i < allCheckedInputs.length; i++){
+        removeList.push($(allCheckedInputs[i]).val())
+    }
+
+    return removeList;
+}
+
+function removeAssets() {
+
+    var removeList = getRemoveCheckedList();
+
+    console.log("Assets to be removed:", removeList)
+    // Send info
+    /*
+    $.ajax({
+        url: '/deployment/downloads',
+        type: 'PUT',
+        contentType: 'application/json',
+        data: data,
+        success: function(result) {
+            // handle success
+            //console.log("Result: ", result);
+            refreshAssetsList();
+        },
+        error: function(request,msg,error) {
+            // handle failure
+            console.log("ERROR: ", error);
+            refreshAssetsList();
+        }
+    });
+    */
+
+    // hide modal
+    $("#operationsModal_remove").modal('hide');
+
+    // Refresh list
+
+}
+
+
+function refreshAssetsList(){
+    // Get assets list
+    var assetList = [] // variable to hold all asset names
+    var historyDB_Keys = Object.keys(historyDB); // get keys of database
+    for(var i = 0; i < historyDB_Keys.length; i++){ // for each key in database
+        assetList = assetList.concat( Object.keys(historyDB[ historyDB_Keys[i] ]) ) // concat all keys to list
+    }
+
+    assetList.sort(); // sorts array
+
+    // Empty list
+    $("#uninstallList").empty()
+
+    // Insert all assets from list
+    for(var i = 0; i < assetList.length; i++){
+        // create template
+        var idSwitch = "switch_" + assetList[i];
+        var template = '' +
+            '<div class="custom-control custom-switch col-3">' +
+            '    <input type="checkbox" class="custom-control-input" id="' + idSwitch +'" name="example" value="' + assetList[i] +'">' +
+            '    <label class="custom-control-label mw-100" style="word-wrap: break-word;" for="' + idSwitch +'">' + assetList[i] + '</label>' +
+            '</div>' +
+            '';
+        // insert template in list
+        $("#uninstallList").append(template);
+    }
+}
+
+function toggleAllSwitchRemove(elem){
+    var checked = $(elem).is(":checked")
+    $("#uninstallList").find("input").prop( "checked", checked );
 }
