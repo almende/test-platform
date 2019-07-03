@@ -150,7 +150,7 @@ function removeAssets () {
     var url, assetName
     for (var i = 0; i < removeList.length; i++) {
         assetName = removeList[i]
-        url = 'execution-manager/assets/' + assetName
+        url = '/executionservices/assets/' + assetName
         console.log('Removing asset: ', assetName)
 
         // Send info to remove assets
