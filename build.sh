@@ -71,11 +71,11 @@ docker tag vfos/messaging localhost:5000/vfos/messaging
 docker push localhost:5000/vfos/messaging
 
 
-cd ../security
-cd pap
-docker build . -t vfos/idm
-docker tag vfos/idm localhost:5000/vfos/idm
-docker push localhost:5000/vfos/idm
+#cd ../security
+#cd pap
+#docker build . -t vfos/idm
+#docker tag vfos/idm localhost:5000/vfos/idm
+#docker push localhost:5000/vfos/idm
 
 cd ../pep
 docker build . -t vfos/pep
@@ -84,6 +84,6 @@ docker push localhost:5000/vfos/pep
 cd ..
 
 cd ..
-./installAsset.js localhost:5000/vfos/messaging messaging false
-./assignNetwork.js
-./stop.sh
+/home/scc/test-platform/installAsset.js localhost:5000/vfos/messaging messaging false
+/home/scc/test-platform/assignNetwork.js
+/home/scc/test-platform/stop.sh
