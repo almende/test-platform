@@ -263,24 +263,33 @@ services:
     depends_on:
       - processapi
   idm:
-    image: localhost:5000/vfos/idm
+    image: fiware/idm
     hostname: idm
     environment:
-      - IDM_DB_HOST=security_mysql
+      - "IDM_HOST=http://localhost:3000/"
+      - "IDM_PORT=3000"
+      - "IDM_PDP_LEVEL=basic"
+      - "IDM_DB_NAME=idm"
+      - "IDM_DB_USER=root"
+      - "IDM_DB_PASS=idm"
+      - "IDM_DB_HOST=security_mysql"
+      - "IDM_DEBUG=true"
+      - "IDM_TITLE=vf-OS Identity System"
     depends_on:
       - security_mysql
     networks:
       - execution-manager-net
   security_mysql:
-    image: mysql:5.7.25
+    image: mysql/mysql-server:5.7
     hostname: security_mysql
     environment:
-      - "MYSQL_ALLOW_EMPTY_PASSWORD=true"
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=false"
+      - "MYSQL_ROOT_PASSWORD=idm"
     volumes:
       - $CURRENT_DIR/security/mysql/data:/var/lib/mysql
       - type: bind
-        target: /etc/my.cnf
-        source: $CURRENT_DIR/security/mysql/etc/my.cnf
+        target: /etc/mysql.conf.d/mysqld.cnf
+        source: $CURRENT_DIR/security/mysql/etc/mysql.conf.d/mysqld.cnf
     networks:
       - execution-manager-net
 
