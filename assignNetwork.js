@@ -37,7 +37,7 @@ for (let i = 0; i < top; i++) {
 
 services['reverse-proxy'] = { 'networks': networks }
 if (services['rabbitmq']) {
-  services['rabbitmq'] = { 'networks': networks }
+  services['rabbitmq'] = { 'networks': networks, 'ports': ['1883:1883','5672:5672'] }
 }
 let networkSection = {}
 let counter = 0
