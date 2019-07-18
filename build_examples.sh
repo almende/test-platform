@@ -48,4 +48,9 @@ docker build . -t esp_steelbar
 cd ../
 ./installAsset.js esp_steelbar esp_steelbar false
 
+cd mqtt_amqp_bridge
+docker build . -t mqtt_amqp_bridge
+cd ../
+./installAsset.js mqtt_amqp_bridge mqtt_amqp_bridge false
+
 ./stop.sh

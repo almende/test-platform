@@ -1,0 +1,40 @@
+{
+  "name": "lib-messaging-pub-sub-js",
+  "version": "0.2.0",
+  "description": "Javascript library that allows vfOS components to communicate with each other.",
+  "keywords": [
+    "vfOs",
+    "message",
+    "pubSub",
+    "wp5"
+  ],
+  "homepage": "http://git-gris.uninova.pt/vfos/lib-messaging-pub-sub-js",
+  "bugs": {
+    "url": "http://git-gris.uninova.pt/vfos/lib-messaging-pub-sub-js/issues"
+  },
+  "license": "MIT",
+  "author": "GRIS, Uninova",
+  "contributors": [
+    {
+      "name": "David Ludovino",
+      "email": "dll@uninova.pt"
+    },
+    {
+      "name": "João Gião",
+      "email": "jgs@uninova.pt"
+    },
+    {
+      "name": "Ricardo Cabrita",
+      "email": "grim@uninova.pt"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://git-gris.uninova.pt/vfos/lib-messaging-pub-sub-js.git"
+  },
+  "dependencies": {
+    "amqplib": "0.5.2"
+  },
+  "devDependencies": {},
+  "scripts": {}
+}
