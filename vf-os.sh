@@ -292,7 +292,25 @@ services:
         source: $CURRENT_DIR/security/mysql/etc/mysql.conf.d/mysqld.cnf
     networks:
       - execution-manager-net
-
+  pep:
+    image: vfos/pep
+    hostname: pep
+    environment:
+      - "PEP_PROXY_HTTPS_ENABLED=true"
+      - "PEP_PROXY_HTTPS_PORT=1443"
+      - "PEP_PROXY_IDM_PORT=3000"
+      - "PEP_PROXY_IDM_HOST=idm"
+      - "PEP_PROXY_IDM_SSL_ENABLED=false"
+      - "PEP_PROXY_APP_ID=9b8aae2e-0804-4a6b-91ce-90fefcd4077c"
+      - "PEP_PROXY_USERNAME=pep_proxy_50ccfb85-7bdb-4ac6-9967-5be89a647e41"
+      - "PEP_PASSWORD=pep_proxy_082ccc2d-2c15-457a-9603-55e63a09cfe9"
+      - "PEP_PROXY_PDP=idm"
+      - "PEP_PROXY_APP_HOST=www.google.com"
+      - "PEP_PROXY_APP_PORT=80"
+    depends_on:
+      - idm
+    networks:
+      - execution-manager-net
 EOF
 
 #Setup basic network configuration

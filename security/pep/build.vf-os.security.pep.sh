@@ -1,3 +1,3 @@
 #!/bin/bash
-docker build --no-cache -t vf-os-pep .
+docker build . --no-cache -t vfos/pep
 
