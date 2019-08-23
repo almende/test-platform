@@ -106,34 +106,38 @@ class Asset {
     })
   }
 
-  reload (id) {
+  reload (id, killOnly) {
     return new Promise((resolve, reject) => {
       exec('docker exec vf_os_platform_exec_control docker-compose kill ' + (id ? JSON.stringify(id) : ''), (error, stdout, stderr) => {
         if (error) {
           reject(error, stderr)
         }
-        exec('docker exec vf_os_platform_exec_control docker-compose up -d ' + (id ? JSON.stringify(id) : ''), (error, stdout, stderr) => {
-          if (error) {
-            reject(error, stderr)
-          }
+        if (killOnly) {
           resolve(stdout)
-        })
+        } else {
+          exec('docker exec vf_os_platform_exec_control docker-compose up -d ' + (id ? JSON.stringify(id) : ''), (error, stdout, stderr) => {
+            if (error) {
+              reject(error, stderr)
+            }
+            resolve(stdout)
+          })
+        }
       })
     })
   }
 
-  reloadAll () {
+  reloadAll (killOnly) {
     let me = this
     let promises = []
     if (!me.id || me.id === '') {
       return Promise.reject(new Error('Error, asset has no valid id:' + JSON.stringify(me)))
     }
     if (!me.configuration) {
-      return me.reload(me.id)
+      return me.reload(me.id, killOnly)
     }
     for (let idx in me.configuration.services) {
       if (me.configuration.services.hasOwnProperty(idx)) {
-        promises.push(me.reload(idx))
+        promises.push(me.reload(idx, killOnly))
       }
     }
     return Promise.all(promises)

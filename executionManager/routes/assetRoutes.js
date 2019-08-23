@@ -9,9 +9,9 @@ const clrId = function (id) {
   return id.replace('vfos_', '').replace('_1', '')
 }
 
-const reload = function (id) {
+const reload = function (id, killOnly) {
   let asset = Asset.readConfigFile(id)
-  return asset.reloadAll()
+  return asset.reloadAll(killOnly)
 }
 const dropPersistence = function (id) {
   let asset = Asset.readConfigFile(id)
@@ -248,11 +248,13 @@ const getAssetRoutes = (app) => {
     })
     .delete('/:id', async (req, res) => {
       let id = clrId(req.params.id)
-      if (fs.existsSync('/var/run/compose/3_' + id + '_compose.yml')) {
-        fs.unlinkSync('/var/run/compose/3_' + id + '_compose.yml')
-      }
-      reload(id).then(() => {
-        res.send({ result: 'OK' })
+      dropPersistence(id).then(() => {
+        reload(id, true).then(() => {
+          if (fs.existsSync('/var/run/compose/3_' + id + '_compose.yml')) {
+            fs.unlinkSync('/var/run/compose/3_' + id + '_compose.yml')
+          }
+          res.send({ result: 'OK' })
+        })
       }).catch((err, stderr) => {
         res.status(500)
         res.send({
