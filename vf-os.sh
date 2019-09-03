@@ -263,27 +263,54 @@ services:
     depends_on:
       - processapi
   idm:
-    image: localhost:5000/vfos/idm
+    image: fiware/idm
     hostname: idm
     environment:
-      - IDM_DB_HOST=security_mysql
+      - "IDM_HOST=http://localhost:3000/"
+      - "IDM_PORT=3000"
+      - "IDM_PDP_LEVEL=basic"
+      - "IDM_DB_NAME=idm"
+      - "IDM_DB_USER=root"
+      - "IDM_DB_PASS=idm"
+      - "IDM_DB_HOST=security_mysql"
+      - "IDM_DEBUG=true"
+      - "IDM_TITLE=vf-OS Identity System"
     depends_on:
       - security_mysql
     networks:
       - execution-manager-net
   security_mysql:
-    image: mysql:5.7.25
+    image: mysql/mysql-server:5.7
     hostname: security_mysql
     environment:
-      - "MYSQL_ALLOW_EMPTY_PASSWORD=true"
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=false"
+      - "MYSQL_ROOT_PASSWORD=idm"
     volumes:
       - $CURRENT_DIR/security/mysql/data:/var/lib/mysql
       - type: bind
-        target: /etc/my.cnf
-        source: $CURRENT_DIR/security/mysql/etc/my.cnf
+        target: /etc/mysql.conf.d/mysqld.cnf
+        source: $CURRENT_DIR/security/mysql/etc/mysql.conf.d/mysqld.cnf
     networks:
       - execution-manager-net
-
+  pep:
+    image: vfos/pep
+    hostname: pep
+    environment:
+      - "PEP_PROXY_HTTPS_ENABLED=true"
+      - "PEP_PROXY_HTTPS_PORT=1443"
+      - "PEP_PROXY_IDM_PORT=3000"
+      - "PEP_PROXY_IDM_HOST=idm"
+      - "PEP_PROXY_IDM_SSL_ENABLED=false"
+      - "PEP_PROXY_APP_ID=9b8aae2e-0804-4a6b-91ce-90fefcd4077c"
+      - "PEP_PROXY_USERNAME=pep_proxy_50ccfb85-7bdb-4ac6-9967-5be89a647e41"
+      - "PEP_PASSWORD=pep_proxy_082ccc2d-2c15-457a-9603-55e63a09cfe9"
+      - "PEP_PROXY_PDP=idm"
+      - "PEP_PROXY_APP_HOST=www.google.com"
+      - "PEP_PROXY_APP_PORT=80"
+    depends_on:
+      - idm
+    networks:
+      - execution-manager-net
 EOF
 
 #Setup basic network configuration
