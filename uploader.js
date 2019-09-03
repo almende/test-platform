@@ -25,14 +25,21 @@ if (!params.shortName && params['zipfile']) {
   params['shortName'] = params.zipfile.replace(/^.*[\\\/]/, '')
 }
 if (!params.zipfile || !params.access_token) {
-  console.log('Call this script as ./uploader.js \'{"product_id":142,"zipfile":"opc_ua.zip","major":"1.0","version":20.5,"product_names_en-us":"opc_ua_driver","access_token":"qSsY5N2RABd5lxoeGiYBsx4Xv5lzmKzqrplg1DghK9k"}\'')
-  console.log('with zipfile and access_token manditory. If product_id is given, the product creation is skipped, ignoring pricing and product_names_en-us, etc.')
+  console.log('Call this script as ./uploader.js \'{"product_id":142,"zipfile":"opc_ua.zip","major":"1.0","version":20.5,"product_names_en-us":"opc_ua_driver","access_token":"qSsY5N2RABd5lxoeGiYBsx4Xv5lzmKzqrplg1DghK9k", "user_token":"ABCDEFG"}\'')
+  console.log('with zipfile and access_token manditory. If product_id is given, the product creation is skipped, ignoring pricing and product_names_en-us, etc. User_token is optional, but recommended.')
   process.exit(1)
 }
 console.log('Starting with parameters:', JSON.stringify(params))
+if (!params.user_token) {
+  console.log('user_token not given, not sending Bearer token.')
+}
 
 let productCreated = Promise.resolve(params.product_id)
 if (!params.product_id) {
+  let headers = {}
+  if (params.user_token) {
+    headers['Authorization'] = 'Bearer ' + params.user_token
+  }
   productCreated = new Promise((resolve, reject) => {
     axios({
       url: '/v1/products',
@@ -41,6 +48,7 @@ if (!params.product_id) {
       params: {
         access_token: params.access_token
       },
+      headers: headers,
       data: {
         'product_names_en-us': params['product_names_en-us'],
         'price_info_eur': params.price_info_eur,
@@ -94,6 +102,10 @@ productCreated.then(function (productId) {
       if (chunks <= 1 || i === chunks - 1) {
         lastRequest = formData
       } else {
+        let headers = formData.getHeaders()
+        if (params.user_token) {
+          headers['Authorization'] = 'Bearer ' + params.user_token
+        }
         promises.push(axios({
           url: 'https://vfos-datahub.ascora.de/v1/products/' + productId + '/programversions',
           method: 'post',
@@ -101,7 +113,7 @@ productCreated.then(function (productId) {
           // keepAlive pools and reuses TCP connections, so it's faster
           httpAgent: new http.Agent({ keepAlive: true }),
           httpsAgent: new https.Agent({ keepAlive: true }),
-          headers: formData.getHeaders(),
+          headers: headers,
           maxContentLength: chunkSize * 1.2,
           params: {
             access_token: params.access_token
@@ -124,6 +136,10 @@ productCreated.then(function (productId) {
         })
         if (lastRequest && lastRequest !== null) {
           console.log('Start uploading last chunk.')
+          let headers = lastRequest.getHeaders()
+          if (params.user_token) {
+            headers['Authorization'] = 'Bearer ' + params.user_token
+          }
           axios({
             url: 'https://vfos-datahub.ascora.de/v1/products/' + productId + '/programversions',
             method: 'post',
@@ -131,7 +147,7 @@ productCreated.then(function (productId) {
             // keepAlive pools and reuses TCP connections, so it's faster
             httpAgent: new http.Agent({ keepAlive: true }),
             httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: lastRequest.getHeaders(),
+            headers: headers,
             maxContentLength: chunkSize * 1.2,
             params: {
               access_token: params.access_token
