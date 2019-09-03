@@ -53,7 +53,7 @@ const uploader = (options) => {
 let active = {}
 let finished = []
 
-function handleRun (run, accessToken) {
+function handleRun (run, accessToken, userToken) {
   dockerBuild(run.path, run.assetName).then((result) => {
     run.status = 'local_install'
     localInstall(run.assetName).then((result) => {
@@ -107,6 +107,9 @@ function handleRun (run, accessToken) {
                 options['product_names_en-us'] = labels['vf-OS.name']
               }
               options['access_token'] = accessToken
+              if (userToken) {
+                options['userToken'] = userToken
+              }
               run['config'] = JSON.stringify(options)
               run.status = 'uploading'
               uploader(options).then((result) => {
@@ -171,7 +174,7 @@ const getPackagingRoutes = (app) => {
           }
         }
         if (upload && !req.query.access_token) {
-          next('query param: access_token missing: /path?access_token=ABCDEFG&assetName=someName&upload=true|false')
+          next('query param: access_token missing: /path?access_token=ABCDEFG&user_token=abcdefg&assetName=someName&upload=true|false')
         }
         let assetName = req.query.assetName
         if (!assetName) {
@@ -188,7 +191,7 @@ const getPackagingRoutes = (app) => {
         }
         active[run.uuid] = run
         res.send(run)
-        setTimeout(handleRun.bind(this, run, req.query.access_token), 0)
+        setTimeout(handleRun.bind(this, run, req.query.access_token, req.query.user_token), 0)
       }
     })
   app.use('/rest', router)
