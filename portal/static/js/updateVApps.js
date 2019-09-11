@@ -32,7 +32,7 @@ $(document).ready(function () {
     // Update the modal's content.
     var modal = $(this)
     modal.find('#modalTitle').text(vAppName) // update title
-    modal.find('#modalOpenLink').prop('href', 'http://localhost' + frontendUri) // update open vApp link
+    modal.find('#modalOpenLink').prop('href', frontendUri) // update open vApp link
 
     // If vApp data found
     if (vAppFoundFlag) {
