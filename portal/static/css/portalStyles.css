@@ -10,7 +10,7 @@ html, body {
 }
 
 body{
-    background: red;
+    background: ghostwhite;
 }
 .boxBody {
     display: flex;
