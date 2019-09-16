@@ -61,7 +61,7 @@ $(document).ready(function () {
 }) // End of ready
 
 function showBackgroundError (image) {
-  $(image).closest('.iconHolder').css('background-image', 'url("/img/notFoundIcon.png")')
+    $(image).attr('src', '/img/notFoundIcon.png')
 }
 
 function updateInstalledVApps () {
@@ -167,24 +167,43 @@ function createNewCardTemplate (vApp) {
     vApp_icon = '/' + vApp_name + '/' + vApp.labels['vf-OS.iconHDUri']
 
   // Write template
-  var rowTemplate =
-    '<div id="' + vApp_name + '" class="card card-sizes">' +
-    '<div class="h-75 iconHolder">' +
-    '<a class="" href="' + vApp_link + '" target="_blank">' +
-    '<img class="icon" src="' + vApp_icon + '" onerror="showBackgroundError(this)" alt="">' +
-    '</a>' +
-    '</div>' +
-    '<div class="card-body h-25 py-0">' +
-    '<div class="d-flex">' +
-    '<p style="margin-bottom: auto;overflow: hidden;">' +
-    vApp_name +
-    '</p>' +
-    '<div class="ml-auto">' +
-    '<a data-toggle="modal" href="#vAppsDescriptionModal" data-vappname="' + vApp_name + '"><i class="fas fa-info-circle"></i></a>' +
-    '</div>' +
-    '</div>' +
-    '</div>' +
-    '</div>'
+  // var rowTemplate =
+  //   '<div id="' + vApp_name + '" class="card card-sizes">' +
+  //   '    <div class="h-75 iconHolder">' +
+  //   '        <a class="" href="' + vApp_link + '" target="_blank">' +
+  //   '            <img class="icon" src="' + vApp_icon + '" onerror="showBackgroundError(this)" alt="">' +
+  //   '        </a>' +
+  //   '    </div>' +
+  //   '    <div class="card-body h-25 py-0">' +
+  //   '        <div class="d-flex">' +
+  //   '            <p style="margin-bottom: auto;overflow: hidden;">' +
+  //                    vApp_name +
+  //   '            </p>' +
+  //   '            <div class="ml-auto">' +
+  //   '                <a data-toggle="modal" href="#vAppsDescriptionModal" data-vappname="' + vApp_name + '"><i class="fas fa-info-circle"></i></a>' +
+  //   '            </div>' +
+  //   '        </div>' +
+  //   '    </div>' +
+  //   '</div>'
+
+    var rowTemplate =
+        '<div id="' + vApp_name + '" class="card card-sizes">' +
+        '    <div class="h-75 iconHolder">' +
+        '        <a class="" href="' + vApp_link + '" target="_blank">' +
+        '            <img class="icon" src="' + vApp_icon + '" onerror="showBackgroundError(this)" alt="logo">' +
+        '        </a>' +
+        '    </div>' +
+        '    <div class="card-body h-25 py-0">' +
+        '        <div class="d-flex">' +
+        '            <p style="margin-bottom: auto; overflow: hidden;">' +
+                         vApp_name +
+        '            </p>' +
+        '            <div class="ml-auto">' +
+        '                <a data-toggle="modal" href="#vAppsDescriptionModal" data-vappname="' + vApp_name + '"><i class="fas fa-info-circle"></i></a>' +
+        '            </div>' +
+        '        </div>' +
+        '    </div>' +
+        '</div>'
 
   return rowTemplate
 }
