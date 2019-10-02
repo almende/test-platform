@@ -78,7 +78,7 @@ version: '3.4'
 
 services:
   reverse-proxy:
-    image: traefik:latest # The official Traefik docker image
+    image: traefik:1.7.18 # Stick to the latest 1.X version, 2.0/latest is wholly incompatible.
     restart: "unless-stopped"
     command: "$TRAEFIK_CMDLINE"
     ports:
