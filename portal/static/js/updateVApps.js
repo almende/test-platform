@@ -31,7 +31,7 @@ $(document).ready(function () {
 
     // Update the modal's content.
     var modal = $(this)
-    modal.find('#modalTitle').text(vApp.labels['vf-OS.name'] ? vApp.labels['vf-OS.name'] : 'No Title') // update title
+    modal.find('#modalTitle').text(vApp.labels['vf-OS.name'] ? vApp.labels['vf-OS.name'] : vApp.labels['com.docker.compose.service']) // update title
     modal.find('#modalOpenLink').prop('href', frontendUri) // update open vApp link
 
     // If vApp data found
@@ -168,7 +168,7 @@ function createNewCardTemplate (vApp) {
 
     // Get parameters
   var vApp_name = vApp.name,
-      vApp_name_text = vApp.labels['vf-OS.name'],
+      vApp_name_text = vApp.labels['vf-OS.name'] ? vApp.labels['vf-OS.name'] : vApp.labels['com.docker.compose.service'],
       vApp_link = frontendUri,
       vApp_icon = '/' + vApp.name + '/' + vApp.labels['vf-OS.iconHDUri']
 
