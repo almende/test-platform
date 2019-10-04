@@ -31,7 +31,7 @@ $(document).ready(function () {
 
     // Update the modal's content.
     var modal = $(this)
-    modal.find('#modalTitle').text(vAppName) // update title
+    modal.find('#modalTitle').text(vApp.labels['vf-OS.name'] ? vApp.labels['vf-OS.name'] : vApp.labels['com.docker.compose.service']) // update title
     modal.find('#modalOpenLink').prop('href', frontendUri) // update open vApp link
 
     // If vApp data found
@@ -162,9 +162,17 @@ function createNewCardTemplate (vApp) {
   var frontendUri = cleanFrontendUri(vApp.labels['vf-OS.frontendUri'])
 
   // Get parameters
+  // var vApp_name = vApp.name,
+  //   vApp_link = frontendUri,
+  //   vApp_icon = '/' + vApp_name + '/' + vApp.labels['vf-OS.iconHDUri']
+
+    // Get parameters
   var vApp_name = vApp.name,
-    vApp_link = frontendUri,
-    vApp_icon = '/' + vApp_name + '/' + vApp.labels['vf-OS.iconHDUri']
+      vApp_name_text = vApp.labels['vf-OS.name'] ? vApp.labels['vf-OS.name'] : vApp.labels['com.docker.compose.service'],
+      vApp_link = frontendUri,
+      vApp_icon = '/' + vApp.name + '/' + vApp.labels['vf-OS.iconHDUri']
+
+
 
   // Write template
   // var rowTemplate =
@@ -196,7 +204,7 @@ function createNewCardTemplate (vApp) {
         '    <div class="card-body h-25 py-0">' +
         '        <div class="d-flex">' +
         '            <p style="margin-bottom: auto; overflow: hidden;">' +
-                         vApp_name +
+                        vApp_name_text +
         '            </p>' +
         '            <div class="ml-auto">' +
         '                <a data-toggle="modal" href="#vAppsDescriptionModal" data-vappname="' + vApp_name + '"><i class="fas fa-info-circle"></i></a>' +
