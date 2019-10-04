@@ -248,21 +248,35 @@ services:
     environment:
       - RUN_TYPE=processapi
       - CorsOrigins=*
-      - StorageType=remote
-      - RemoteStorageSettings__Address=https://icemain2.hopto.org:7080
+      - DatabaseStorageSettings__Address="mongodb://processdb:Pr0c355DB@processdb"
+      - StorageType=database
+#      - StorageType=remote
+#      - RemoteStorageSettings__Address=https://icemain2.hopto.org:7080
       - MarketplaceSettings__Address=https://vfos-datahub.ascora.de/v1
       - StudioSettings__Address=http://172.17.0.1:8081/
+    depends_on:
+      - processdb
   processdesigner:
     image: informationcatalyst/vfos-process-designer
     hostname: processdesigner
     labels:
       - vf-OS=true
+      - vf-OS.description="Process Designer allows you to visually write NodeJS code"
       - "traefik.frontend.rule=PathPrefixStrip:/processdesigner"
     environment:
       - "RUN_TYPE=processdesigner"
       - "API_END_POINT=http://$ACME_DOMAIN_NAME/processapi"
     depends_on:
       - processapi
+  processdb:
+    image: mongo:latest
+    volumes:
+      - $CURRENT_DIR/.persist/processdb_persist:/data/db
+    labels:
+      - "traefik.frontend.rule=PathPrefix:/processdb;ReplacePathRegex: ^/processdb/(.*) /$$1"
+    environment:
+      - MONGO_INITDB_ROOT_PASSWORD=Pr0c355DB
+      - MONGO_INITDB_ROOT_USERNAME=processdb
   idm:
     image: localhost:5000/vfos/idm
     hostname: idm
