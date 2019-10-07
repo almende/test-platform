@@ -248,7 +248,7 @@ services:
     environment:
       - RUN_TYPE=processapi
       - CorsOrigins=*
-      - DatabaseStorageSettings__Address="mongodb://processdb:Pr0c355DB@processdb"
+      - DatabaseStorageSettings__Address="mongodb://processdb:Pr0c355DB@processdb/admin"
       - StorageType=database
 #      - StorageType=remote
 #      - RemoteStorageSettings__Address=https://icemain2.hopto.org:7080
