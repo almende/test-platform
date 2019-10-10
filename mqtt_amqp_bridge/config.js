@@ -8,7 +8,7 @@ const config = {
   mqtt_host: 'rabbitmq',
   amqp_host: 'admin1:vfos@rabbitmq',
   amqp_username: 'username',
-  topicList: ['eu/vfos/test']
+  topicList: ['eu/vfos/test/#']
 }
 
 // No need to change this code normally:

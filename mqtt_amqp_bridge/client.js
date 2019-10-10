@@ -5,6 +5,13 @@ const VfosMessagingPubsub = require('lib-messaging-pub-sub-js')
 
 let mqttClient = null
 
+let formTopicCyl = (msgJson) => {
+  return 'hda-deployer-source.Clustering.ID_CYL.' + msgJson['ID_CYL'] + '.Movement_Type.' + msgJson['Movement_Type'] + '.Phase.' + msgJson['Phase'] + '_pubsub'
+}
+let formTopicAlarm = (msgJson) => {
+  return 'pt.vfos.drivers.opc_ua.' + msgJson['_did'] + '.' + msgJson['_sid']
+}
+
 const clientCmds = {
   reconnect: () => {
     let config = Config.get()
@@ -33,7 +40,12 @@ const clientCmds = {
       console.log('topic is ' + topic)
       try {
         let msgJson = JSON.parse(message)
-        let q = 'pt.vfos.drivers.opc_ua.' + msgJson['_did'] + '.' + msgJson['_sid']
+        let q = ''
+        if (typeof msgJson['ID_CYL'] !== 'undefined') {
+          q = formTopicCyl(msgJson)
+        } else {
+          q = formTopicAlarm(msgJson)
+        }
         communications.sendPublication(q, message)
       } catch (err) {
         console.warn(err, 'Couldn\'t parse message to JSON', message)
