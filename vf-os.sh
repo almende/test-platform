@@ -248,7 +248,7 @@ services:
     environment:
       - RUN_TYPE=processapi
       - CorsOrigins=*
-      - DatabaseStorageSettings__Address="mongodb://processdb:Pr0c355DB@processdb/admin"
+      - DatabaseStorageSettings__Address="mongodb://processdb:27017"
       - StorageType=database
 #      - StorageType=remote
 #      - RemoteStorageSettings__Address=https://icemain2.hopto.org:7080
@@ -274,9 +274,6 @@ services:
       - $CURRENT_DIR/.persist/processdb_persist:/data/db
     labels:
       - "traefik.frontend.rule=PathPrefix:/processdb;ReplacePathRegex: ^/processdb/(.*) /$$1"
-    environment:
-      - MONGO_INITDB_ROOT_PASSWORD=Pr0c355DB
-      - MONGO_INITDB_ROOT_USERNAME=processdb
   idm:
     image: localhost:5000/vfos/idm
     hostname: idm
