@@ -8,7 +8,7 @@ const COMPOSE_FOLDER = process.argv[2] ? process.argv[2] : '.compose/'
 const NETWORK_COMPOSE_FILE = process.argv[3] ? process.argv[3] : '1_networks_compose.yml'
 const reload = process.argv[4] ? JSON.parse(process.argv[4]) : false
 
-let networks = ['default', 'execution-manager-net', 'system-dashboard-net']
+let networks = ['default', 'execution-manager-net', 'system-dashboard-net', 'ef_efn'];
 let top = 5 // Determine top based on amount of assets
 let services = {}
 
@@ -39,6 +39,11 @@ services['reverse-proxy'] = { 'networks': networks }
 if (services['rabbitmq']) {
   services['rabbitmq'] = { 'networks': networks, 'ports': ['1883:1883','5672:5672'] }
 }
+
+if (services['efrequesthandler']){
+  services['efrequesthandler'].networks.push('ef_efn');
+}
+
 let networkSection = {}
 let counter = 0
 networks.map((network) => {
@@ -47,6 +52,10 @@ networks.map((network) => {
       'driver': 'bridge',
       'ipam': { 'config': [{ 'subnet': '10.99.' + (counter++) + '.0/24' }] }
     }
+  }
+  
+  if (network === 'ef_efn') {
+    networkSection[network].driver = 'overlay';
   }
 })
 
