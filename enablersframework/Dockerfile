@@ -6,7 +6,7 @@ LABEL \
   vf-OS.author="Uninova GRIS" \
   vf-OS.description="Aggregator platform deployment for all Enablers Framework sub-components." \
   vf-OS.dependencies="[]" \
-  vf-OS.frontendUri="/efgui" \
+  vf-OS.frontendUri="/ef-gui" \
   vf-OS.restUri="/efrequesthandler" \
   vf-OS.securityEndpoints="{}" \
   \
