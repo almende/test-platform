@@ -247,8 +247,8 @@ services:
       - "traefik.main.port=5000"
     environment:
       - RUN_TYPE=processapi
-      - CorsOrigins=*
-      - DatabaseStorageSettings__Address="mongodb://processdb:27017"
+      - CorsOrigins="http://$ACME_DOMAIN_NAME"
+      - "DatabaseStorageSettings__Address=mongodb://processdb:27017"
       - StorageType=database
 #      - StorageType=remote
 #      - RemoteStorageSettings__Address=https://icemain2.hopto.org:7080
@@ -295,7 +295,7 @@ services:
         source: $CURRENT_DIR/security/mysql/etc/my.cnf
     networks:
       - execution-manager-net
-
+      
 EOF
 
 #Setup basic network configuration
