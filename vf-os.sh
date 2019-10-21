@@ -221,6 +221,8 @@ services:
       - CHE_REGISTRY_HOST=172.17.0.1
     labels:
       - vf-OS=true
+      - vf-OS.name=vf-Studio
+      - "vf-OS.description=The vf-OS Studio, an IDE and toolchain for developing Apps and vf-OS Assets"
       - vf-OS.frontendUri=http://$ACME_DOMAIN_NAME:8081/
       - "traefik.enable=true"
       - "traefik.frontend.entryPoints=che"
