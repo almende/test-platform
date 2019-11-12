@@ -21,7 +21,7 @@ const clientCmds = {
     }
     mqttClient = mqtt.connect('mqtt://' + config.mqtt_host)
     mqttClient.on('connect', function () {
-      console.log('connected')
+      console.log('MQTT connected, listening for:',Config.get().topicList)
       mqttClient.subscribe(Config.get().topicList)
     })
 
@@ -30,9 +30,10 @@ const clientCmds = {
     let communications = new VfosMessagingPubsub(config.amqp_host, config.amqp_username, platformDomain, routingKeys)
 
     mqttClient.on('error', function (error) {
-      console.log('MQTT: Can\'t connect' + error)
+      console.log('MQTT: Can\'t connect', error)
       mqttClient.end()
       mqttClient = null
+      setTimeout(clientCmds.reconnect,1000)
     })
 
     mqttClient.on('message', function (topic, message, packet) {
