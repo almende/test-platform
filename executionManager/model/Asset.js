@@ -110,7 +110,8 @@ class Asset {
     return new Promise((resolve, reject) => {
       exec('docker exec vf_os_platform_exec_control docker-compose kill ' + (id ? JSON.stringify(id) : ''), (error, stdout, stderr) => {
         if (error) {
-          reject(error, stderr)
+          // console.log('Warning, failed trying to kill docker container:',(id ? JSON.stringify(id) : ''))
+          // Ignoring error on purpose!
         }
         if (killOnly) {
           resolve(stdout)

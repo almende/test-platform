@@ -221,6 +221,8 @@ services:
       - CHE_REGISTRY_HOST=172.17.0.1
     labels:
       - vf-OS=true
+      - vf-OS.name=vf-Studio
+      - "vf-OS.description=The vf-OS Studio, an IDE and toolchain for developing Apps and vf-OS Assets"
       - vf-OS.frontendUri=http://$ACME_DOMAIN_NAME:8081/
       - "traefik.enable=true"
       - "traefik.frontend.entryPoints=che"
@@ -247,22 +249,33 @@ services:
       - "traefik.main.port=5000"
     environment:
       - RUN_TYPE=processapi
-      - CorsOrigins=*
-      - StorageType=remote
-      - RemoteStorageSettings__Address=https://icemain2.hopto.org:7080
+      - CorsOrigins="http://$ACME_DOMAIN_NAME"
+      - "DatabaseStorageSettings__Address=mongodb://processdb:27017"
+      - StorageType=database
+#      - StorageType=remote
+#      - RemoteStorageSettings__Address=https://icemain2.hopto.org:7080
       - MarketplaceSettings__Address=https://vfos-datahub.ascora.de/v1
       - StudioSettings__Address=http://172.17.0.1:8081/
+    depends_on:
+      - processdb
   processdesigner:
     image: informationcatalyst/vfos-process-designer
     hostname: processdesigner
     labels:
       - vf-OS=true
+      - vf-OS.description="Process Designer allows you to visually write NodeJS code"
       - "traefik.frontend.rule=PathPrefixStrip:/processdesigner"
     environment:
       - "RUN_TYPE=processdesigner"
       - "API_END_POINT=http://$ACME_DOMAIN_NAME/processapi"
     depends_on:
       - processapi
+  processdb:
+    image: mongo:latest
+    volumes:
+      - $CURRENT_DIR/.persist/processdb_persist:/data/db
+    labels:
+      - "traefik.frontend.rule=PathPrefix:/processdb;ReplacePathRegex: ^/processdb/(.*) /$$1"
   idm:
     image: localhost:5000/vfos/idm
     hostname: idm
@@ -284,7 +297,7 @@ services:
         source: $CURRENT_DIR/security/mysql/etc/my.cnf
     networks:
       - execution-manager-net
-
+      
 EOF
 
 #Setup basic network configuration

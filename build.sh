@@ -70,6 +70,10 @@ docker build . -t vfos/messaging
 docker tag vfos/messaging localhost:5000/vfos/messaging
 docker push localhost:5000/vfos/messaging
 
+cd ../enablersframework
+docker build . -t vfos/enablersframework
+docker tag vfos/enablersframework localhost:5000/vfos/enablersframework
+docker push localhost:5000/vfos/enablersframework
 
 cd ../security
 cd pap
@@ -85,5 +89,6 @@ cd ..
 
 cd ..
 ./installAsset.js localhost:5000/vfos/messaging messaging false
+./installAsset.js localhost:5000/vfos/enablersframework enablersframework false
 ./assignNetwork.js
 ./stop.sh
