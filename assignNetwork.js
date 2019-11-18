@@ -40,8 +40,8 @@ if (services['rabbitmq']) {
   services['rabbitmq'] = { 'networks': networks, 'ports': ['1883:1883','5672:5672'] }
 }
 
-if (services['efrequesthandler']){
-  services['efrequesthandler'].networks.push('ef_efn');
+if (services['efregistry']){
+  services['efregistry'].networks.push('ef_efn');
 }
 
 let networkSection = {}
