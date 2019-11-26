@@ -56,7 +56,7 @@ if [[ -d broker-auth-adapter ]]; then
     cd broker-auth-adapter
     git pull -qf
 else
-    git clone https://git-gris.uninova.pt/vfos/broker-auth-adapter.git/
+    git clone https://engagementhub.caixamagica.pt/virtual-factory-operating-system/middleware/publish-subscribe/broker-auth-adapter.git/
     cd broker-auth-adapter
 fi
 #Run npm install before build to prevent timeout
