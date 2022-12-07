@@ -10,8 +10,8 @@
   },
   "author": "Luis F.M. <luis@almende.org>",
   "dependencies": {
-    "body-parser": "^1.18.2",
-    "express": "^4.16.2",
+    "body-parser": "^1.20.1",
+    "express": "^4.18.2",
     "request": "^2.86.0"
   },
   "devDependencies": {
