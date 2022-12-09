@@ -16,7 +16,7 @@
   "license": "ApacheV2",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "express": "^4.16.2",
+    "express": "^4.17.3",
     "js-yaml": "^3.13.1",
     "node-persist": "^3.0.1",
     "rimraf": "^2.6.3"
