@@ -11,7 +11,7 @@
   "author": "Luis F.M. <luis@almende.org>",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "express": "^4.16.2",
+    "express": "^4.17.3",
     "request": "^2.86.0"
   },
   "devDependencies": {
